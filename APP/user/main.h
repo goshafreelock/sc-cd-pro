@@ -23,6 +23,9 @@
 enum
 {
     SYS_MP3DECODE = 1,
+#ifdef CD_MCU_MASTER_MODE
+    SYS_MCU_CD,
+#endif
     SYS_FMREV,
     SYS_AUX,
     SYS_RTC,

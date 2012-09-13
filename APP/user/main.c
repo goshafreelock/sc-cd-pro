@@ -629,60 +629,48 @@ void main(void)
 #if FILE_ENCRYPTION
     password_init(0xaa);  //输入加密文件的密码
 #endif  
-#if 0
-#if defined(USE_ADVOLT_FOR_FUNC_MODE_SEL)||defined(USE_ADVOLT_FOR_FUNC_SEL_TYPE_TWO)||defined(USE_ADVOLT_FOR_FUNC_SEL_TYPE_FOUR)
-	work_mode = SYS_IDLE;
-#else
-	work_mode = SYS_MP3DECODE;
-#endif
-#endif
-   	mode_switch_protect_bit=0;
 
-	while(1){
-
-		sys_timer++;
-		if(sys_timer>120)break;
-		
-		delay_10ms(1);
-		if(get_msg()==INFO_NEXT_SYS_MODE)
-		break;
-	}
+	
 	while (1)
        {
-        switch (work_mode)
-        {
-        case SYS_MP3DECODE :
-	     decode_play();
-            break;
-        case SYS_FMREV:
-            fm_radio();
-            break;
+        	switch (work_mode)
+	       {
+	        	case SYS_MP3DECODE :
+		     		decode_play();
+	            	break;
+#ifdef CD_MCU_MASTER_MODE
+		    	case SYS_MCU_CD:
+				mcu_main_hdlr();
+			break;
+#endif			
+	        	case SYS_FMREV:
+	            		fm_radio();
+	            	break;
 #ifdef USE_AUX_FUNC			
-        case SYS_AUX:
-            aux_function();
-            break;
+	        	case SYS_AUX:
+	            		aux_function();
+	            	break;
 #endif			
 #if 0//RTC_ENABLE
-        case SYS_RTC:
-            rtc_function();
-            break;
+	        	case SYS_RTC:
+	            		rtc_function();
+	            	break;
 #endif
-        case SYS_IDLE:
-            idle_mode();
-   	     mode_switch_protect_bit=1;			
-   	     sys_restore_mode();
-	     dac_mute_control(0,1);
-	     flush_all_msg();	
-	     music_vol = 26;
-	     set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);
-	     main_vol_set(music_vol, CHANGE_VOL_MEM);		 
-	     break;
-		 
-        default:
-            work_mode = SYS_MP3DECODE;
-            break;
-        }
-        //write_info(MEM_SYSMODE,work_mode);
+	        	case SYS_IDLE:
+		            idle_mode();
+		   	     mode_switch_protect_bit=1;			
+		   	     sys_restore_mode();
+			     dac_mute_control(0,1);
+			     flush_all_msg();	
+			     music_vol = 26;
+			     set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);
+			     main_vol_set(music_vol, CHANGE_VOL_MEM);		 
+		     	break;
+			 
+	        	default:
+	            		work_mode = SYS_MP3DECODE;
+	            	break;
+	        }
     }
 
 }
