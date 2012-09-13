@@ -1,0 +1,1 @@
+isd_download.exe -f myoutotp.bin.fw -toram -w 500 -osc 32K
