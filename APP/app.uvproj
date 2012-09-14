@@ -1021,6 +1021,16 @@
               <FileType>1</FileType>
               <FilePath>.\aux_fun\aux_fun.c</FilePath>
             </File>
+            <File>
+              <FileName>mcu_master.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\aux_fun\mcu_master.c</FilePath>
+            </File>
+            <File>
+              <FileName>iic_drv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\aux_fun\iic_drv.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
