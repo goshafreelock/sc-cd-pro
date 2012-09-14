@@ -7,7 +7,9 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
-#ifdef CD_MCU_MASTER_MODE			
+#include "Custom_config.h"
+
+#ifdef USE_CD_MCU_MASTER_FUNC			
 
 #include "iic_drv.h"
 
@@ -148,7 +150,7 @@ u8 iic_drv_revbyte( u8 para ) large
 {
     u8 byte;
     byte = iic_drv_revbyte_io();
-    drv_s_ack(para);
+    drv_send_ack(para);
     return byte;
 }
 /*----------------------------------------------------------------------------*/
@@ -186,8 +188,8 @@ void iic_drv_sendbyte_io(u8 byte) large
 void iic_drv_sendbyte(u8 byte)
 {
     iic_drv_sendbyte_io(byte);
-    drv_r_ack();
+    drv_rev_ack();
 }
 
-
+#endif
 

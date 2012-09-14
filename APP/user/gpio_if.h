@@ -239,8 +239,11 @@
 #define ADC_VDD_12     0x48
 #define ADC_LDOIN      0x49
 
+#ifdef ADKEY_SELECT_MODE
 #define ADC_MAX_USED   (0x03+2)
-
+#else
+#define ADC_MAX_USED   0x03
+#endif
 #ifdef USE_TWO_ADKEY
 #undef ADC_MAX_USED
 #define ADC_MAX_USED   0x04
@@ -290,4 +293,22 @@
 #endif
 #endif
 
+#ifdef USE_POWER_KEY
+
+#define GPIO_POWER_CTRL 	P20
+#define power_ctl(n)  			P2DIR &= ~(BIT(0));P2PU |= (BIT(0));GPIO_POWER_CTRL = n
+
+#define GPIO_POWER_KEY   	P06
+#define Pwr_Key_Init()		P0DIR |= (BIT(6));//P2PU |= (BIT(4));
+#define Pwr_Key_output()		P0DIR &= ~(BIT(6));GPIO_POWER_KEY =1;//P2PU |= (BIT(4));GPIO_POWER_KEY =1;
+#define Pwr_Key_input()		P0DIR |= (BIT(6));P0PU |= (BIT(6));
+
 #endif
+
+#define CD_PWR_GPIO_CTRL_INIT()	P0DIR &= ~(BIT(4));P0PU |=BIT(4);
+#define CD_PWR_GPIO_ON()			P04=1
+#define CD_PWR_GPIO_OFF()			P04=0
+
+
+#endif
+

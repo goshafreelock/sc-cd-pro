@@ -15,6 +15,7 @@
 #include "main.h"
 #include "KT_AMFMdrv.h"
 
+
 extern void putbyte(u8);
 extern void P0IE_ctl(u8, u8);
 extern u8 return_cnt(u8, u8);
@@ -301,6 +302,7 @@ void adc_scan(void)
         P0IE = ~(BIT(7));
 #endif		
     }
+#ifdef ADKEY_SELECT_MODE
     else if (cnt == 2)
     {
         key_value = ADCDATH;
@@ -322,7 +324,14 @@ void adc_scan(void)
     {
         fm_sw_volt = ADCDATH;
         ADCCON = ADC_VDD_12;
-    }			
+    }		
+#else
+    else if (cnt == 2)
+    {
+        key_value = ADCDATH;
+        ADCCON = ADC_VDD_12;
+    }		
+#endif
     else
     {
         cnt = 0;

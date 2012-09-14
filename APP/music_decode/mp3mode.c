@@ -45,6 +45,9 @@ xd_u16 filenameCnt;
 
 bool playpoint_flag;
 
+
+#ifdef USE_USB_SD_DECODE_FUNC	       
+
 extern u16 playpoint_filenum;
 extern PLAYPOINT_TIME playpoint_time;
 extern u8 _idata music_vol;
@@ -54,8 +57,9 @@ extern volatile bool bObufMute;
 extern void DAC_auto_mute(void);
 extern bool dac_stop_mute;
 extern volatile u8 bDACTimeOut;			//等待OBUF 清空timeout
+#ifdef ADKEY_SELECT_MODE
 extern bool mode_switch_protect_bit;
-
+#endif
 #if defined(USE_TIMER_POWER_OFF_FUNC)
 extern bool timer_setting_enable;
 #endif
@@ -209,8 +213,9 @@ void music_play(void)
     u8 key;
     u8 file_end_time;
 
+#ifdef ADKEY_SELECT_MODE
     mode_switch_protect_bit=0;
-	
+#endif	
     while (1)
     {	   		
 		if (play_status == MUSIC_PLAY)
@@ -605,9 +610,10 @@ void decode_play(void)
 	set_max_vol(MAX_ANALOG_VOL-DECODE_ANALOG_VOL_CUT, MAX_DIGITAL_VOL);			//设置Music模式的音量上限
     //suspend_sdmmc();
 	music_play();
-	
+
+#ifdef ADKEY_SELECT_MODE
     	mode_switch_protect_bit=1;
-	
+#endif
 	disp_scenario = DISP_NORMAL;
 	stop_decode();
 #if(MEMORY_STYLE != USE_DEVICE)
@@ -616,4 +622,9 @@ void decode_play(void)
 	write_playtime(&playpoint_time);				//记录断点信息（EEPROM）
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
 }
+#else
+void stop_decode(void)
+{
+}
+#endif
 

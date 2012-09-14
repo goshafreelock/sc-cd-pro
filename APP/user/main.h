@@ -23,7 +23,7 @@
 enum
 {
     SYS_MP3DECODE = 1,
-#ifdef CD_MCU_MASTER_MODE
+#ifdef USE_CD_MCU_MASTER_FUNC
     SYS_MCU_CD,
 #endif
     SYS_FMREV,

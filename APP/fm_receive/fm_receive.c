@@ -31,7 +31,9 @@ xd_u8 fre_channl;
 xd_u8 fre_point[10]={0};    ///< FM收音搜索到的台的缓存
 extern _idata u16 dac_cnt;
 extern bit key_voice_disable;
+#ifdef ADKEY_SELECT_MODE
 extern bool mode_switch_protect_bit;
+#endif
 #ifdef FAST_STICK_TUNE_FUNC
 extern xd_u8 fast_step_cnt;
 #endif
@@ -98,7 +100,7 @@ bool get_band_info_config()
 #if defined(JK2092_AMFM_BK_V001)||defined(AM_FM_BAND_ONLY)
 FREQ_RAGE _code radio_freq_tab[MAX_BAND]=
 {
-	8750,		10800,
+	8750,	10800,
 	520,		1630,
 };
 #else
@@ -258,10 +260,11 @@ bool radio_get_validstation(u16 freq)
     else if(cur_sw_fm_band==1){
 	return KT_AMValidStation(freq);
     }
+#ifdef MULTI_BAND_KT_0915_IN_USE	
     else{
 	return KT_SMValidStation(freq);
     }
-
+#endif
 }
 #define SEMI_AUTO_SCAN_KEY_UP		INFO_NEXT_FIL | KEY_LONG
 #define SEMI_AUTO_SCAN_KEY_DOWN	INFO_PREV_FIL | KEY_LONG
@@ -352,9 +355,9 @@ void fm_hdlr( void )
 #endif
 
     set_radio_freq(FM_CUR_FRE);
-
+#ifdef ADKEY_SELECT_MODE
     mode_switch_protect_bit=0;
-	
+#endif	
     while (1)
     {
 
@@ -572,8 +575,9 @@ void fm_radio(void)
 		set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置FM模式的音量上限
 	    	fm_hdlr();
 
+#ifdef ADKEY_SELECT_MODE
 	    	mode_switch_protect_bit=1;
-			
+#endif			
 		main_vol_set(0, CHANGE_VOL_NO_MEM);
 
 	    	KT_AMFMStandby();
