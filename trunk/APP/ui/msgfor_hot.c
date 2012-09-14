@@ -39,6 +39,7 @@ xd_u8 key_100_flag=0;
 xd_u8 my_sys_vol=0;
 
 extern bool sys_pwr_flag;
+extern xd_u8 cur_sw_fm_band;
 
 extern void rtc_disp_hdlr(void);
 extern void curr_date_minus();
@@ -259,13 +260,6 @@ u8 ap_handle_hotkey(u8 key)
         }
         break;
 
-#if VOICE_TIME_ENABLE    
-    case INFO_EQ_UP | KEY_LONG : 
-         last_work_mode = work_mode;            
-         work_mode =  SYS_RTC;
-         report_nowtime =1;
-         return 0;
-#endif  
     case INFO_MODE | KEY_SHORT_UP:
         if (work_mode == SYS_USBDEVICE)
             break;
@@ -357,6 +351,34 @@ u8 ap_handle_hotkey(u8 key)
 		Disp_Con(DISP_VOL);
         
         break;
+		
+#ifdef USE_POWER_KEY
+    case INFO_POWER | KEY_LONG:	
+	    	Disp_Con(DISP_POWER_OFF);
+		sys_power_down();
+		break;
+		
+    case INFO_POWER | KEY_SHORT_UP :	
+		
+		if(work_mode == SYS_MCU_CD){
+			work_mode = SYS_FMREV;
+			cur_sw_fm_band=0;
+			put_msg_fifo(INFO_NEXT_FM_MODE);	
+		}
+		else if(work_mode == SYS_FMREV){
+
+			if(cur_sw_fm_band==0){
+				cur_sw_fm_band=1;
+				put_msg_fifo(INFO_NEXT_FM_MODE);	
+			}
+			else{
+				work_mode = SYS_MCU_CD;
+				return 0;
+			}
+
+		}
+		break;
+#else		
     case INFO_POWER | KEY_SHORT_UP :	
 		if(sys_pwr_flag==0){
 
@@ -365,9 +387,10 @@ u8 ap_handle_hotkey(u8 key)
 			//sys_mute_flag =1;
         		dac_mute_control(1,1);					//调节音量时，自动UNMUTE
 		}
-        	put_msg_lifo(INFO_NEXT_SYS_MODE);
-			
+        	put_msg_lifo(INFO_NEXT_SYS_MODE);		
         break;
+#endif
+
 #ifdef KEY_100_ENABLE		
    case INFO_100 |KEY_SHORT_UP :
 
@@ -437,6 +460,14 @@ u8 ap_handle_hotkey(u8 key)
 		sys_mute_flag=~sys_mute_flag;
         	dac_mute_control(sys_mute_flag,1);					//调节音量时，自动UNMUTE
 	break;
+
+#if VOICE_TIME_ENABLE    
+    case INFO_EQ_UP | KEY_LONG : 
+         last_work_mode = work_mode;            
+         work_mode =  SYS_RTC;
+         report_nowtime =1;
+         return 0;
+#endif  
 
     	case INFO_EQ_DOWN| KEY_SHORT_UP :
 

@@ -7,6 +7,8 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
+#include "Custom_config.h"
+
 #ifndef	_KEY_H_
 #define _KEY_H_
 
@@ -80,6 +82,7 @@ void bmt_hdlr(void);
 #define  INFO_SECOND	     	0x1e
 #define  INFO_HALF_SECOND	 0x1f
 #define  INFO_100         		0x1d
+#define  INFO_STOP         		0x1d
 
 
 #define MSG_USB_DISK_IN         0xf0
@@ -90,7 +93,7 @@ void bmt_hdlr(void);
 #define MSG_SDMMC_OUT           0xf5
 #define MSG_PC_MUTE             0xF6
 #define MSG_PC_UNMUTE           0xF7
-#define	MSG_PC_AUDIO			0xF8
+#define MSG_PC_AUDIO			0xF8
 #define MSG_AUX_IN              0xfd
 #define MSG_AUX_OUT             0xfe
 #define INFO_TIMER_OFF		0xFA
@@ -193,16 +196,16 @@ void bmt_hdlr(void);
 
 #if 1//defined(NEW_RES_VALUE_CACULATING)
 
-#if defined( K000_TC_901_V001)
-#define RES_PULL_UP			3300		/// 3.3K
+#if defined(JK_HEYUAN_RES_VALUE)
+#define RES_PULL_UP			22000		/// 3.3K
 #define RES_1				0
-#define RES_2				2000
-#define RES_3				3900	
-#define RES_4				6800
-#define RES_5				12000
-#define RES_6				20000
-#define RES_7				30000
-#define RES_8				100000
+#define RES_2				3000
+#define RES_3				6200	
+#define RES_4				9100
+#define RES_5				15000
+#define RES_6				24000
+#define RES_7				33000
+#define RES_8				510000
 #elif defined(CUSTOME_GW_RES_VALUE)
 #define RES_PULL_UP			3300		/// 3.3K
 #define RES_1				0
@@ -245,7 +248,7 @@ void bmt_hdlr(void);
 #define RES_VOLT_NO_KEY	0xF0
 #endif
 
-#if 1//defined( CUSTOMER_DEFINED_ADKEY_RESISTOR)
+#if defined( CUSTOMER_DEFINED_ADKEY_RESISTOR)
 /*Customer define adkey value */
 #define ADKEY_RES_1		RES_VOLT_1
 #define ADKEY_RES_2		RES_VOLT_2
@@ -255,7 +258,28 @@ void bmt_hdlr(void);
 #define ADKEY_RES_6		RES_VOLT_6
 #define ADKEY_RES_7		RES_VOLT_7	
 #define ADKEY_RES_NOKEY		RES_VOLT_NO_KEY	/*NO KEY*/
-#endif
+
+/*Default adkey value */
+#define ADKEY_1		INFO_POWER
+#define ADKEY_2		INFO_STOP
+#define ADKEY_3		INFO_NEXT_FIL
+#define ADKEY_4		INFO_PREV_FIL
+#define ADKEY_5		INFO_MODE
+#define ADKEY_6		INFO_VOL_PLUS
+#define ADKEY_7		INFO_VOL_MINUS
+#define ADKEY_8		INFO_PLAY
+#define ADKEY_NOKEY	NO_KEY
+#else
+
+/*Customer define adkey value */
+#define ADKEY_RES_1		RES_VOLT_1
+#define ADKEY_RES_2		RES_VOLT_2
+#define ADKEY_RES_3		RES_VOLT_3
+#define ADKEY_RES_4		RES_VOLT_4
+#define ADKEY_RES_5		RES_VOLT_5
+#define ADKEY_RES_6		RES_VOLT_6
+#define ADKEY_RES_7		RES_VOLT_7	
+#define ADKEY_RES_NOKEY		RES_VOLT_NO_KEY	/*NO KEY*/
 
 /*Default adkey value */
 #define ADKEY_1		INFO_PLAY
@@ -281,4 +305,5 @@ void bmt_hdlr(void);
 #define ADKEY2_RES_9		0xDB
 #define ADKEY2_RES_10		0xF0	/**/
 #define ADKEY2_RES_NOKEY	0xF0	/*NO KEY*/
+#endif
 

@@ -22,6 +22,8 @@
 #include "fat_memory.h"
 #include "uart.h"
 #include "voice_time.h"
+#include "mcu_master.h"
+
 extern u8 _idata music_vol;
 extern xd_u8 curr_menu;
 extern bit pc_connect;
@@ -47,7 +49,10 @@ extern bool sys_pwr_flag,sys_mute_flag;
 #ifdef JOG_STICK_FUNC	 
 extern void JogDetect(void);
 #endif
+
+#ifdef ADKEY_SELECT_MODE
 extern bool mode_switch_protect_bit;
+#endif
 #ifdef ALARM_USE_MULTI_SOURCE_FUNC
 extern bool alarm_power_on_protect;
 #endif
@@ -59,7 +64,9 @@ extern void check_eeprom_status(void);
 #if defined(PWR_CTRL_WKUP)
 extern void wkup_pin_ctrl(bool dir);
 #endif
-
+#ifdef USE_CD_MCU_MASTER_FUNC			
+extern bool mcu_master_tranceive_tick;
+#endif
 extern void KT_AMFMStandby(void);
 
 #ifdef ADKEY_SELECT_MODE
@@ -225,8 +232,10 @@ void timer1isr(void)
 
     disp_scan();
 
+#ifdef USE_USB_SD_DECODE_FUNC	       
 	udisk_disconnect_check();
  	usb_diskin_detect();
+#endif	
 #ifdef JOG_STICK_FUNC	 
     	JogDetect();
 #endif	
@@ -235,6 +244,8 @@ void timer1isr(void)
     if (counter == 5)
     {
         counter = 0;
+
+		
         if(dac_cnt < 21){
 		    dac_cnt++;
 	}
@@ -245,6 +256,8 @@ void timer1isr(void)
         keyScan();
         dec_delay_counter();
 
+#ifdef USE_USB_SD_DECODE_FUNC	       
+
 #if SDMMC_CMD_MODE
 		sd_online_check();
 #elif SDMMC_CLK_MODE
@@ -252,8 +265,15 @@ void timer1isr(void)
 #elif SDMMC_GPIO_MODE
 	  	sdmmc_detect();
 #endif
-	
+#endif	
         ms_cnt++;
+
+#ifdef USE_CD_MCU_MASTER_FUNC			
+	 if(ms_cnt%2==0){
+		 mcu_master_tranceive_tick=1;
+	 }	 
+#endif
+
         if (ms_cnt ==  50)
         {
             ms_cnt = 0;
@@ -291,7 +311,9 @@ void pll_init(void)
     CLKGAT = 0;
     CLKCON = 0x01;
     DACCON1 |= BIT(6);                  //DAC高阻
+#ifdef USE_POWER_KEY   
     sys_power_up();
+#endif
     disp_init_if();						//在芯片上电后，马上显示初始界面
 
 #if OSC_CLOCK == 24000000L
@@ -396,7 +418,9 @@ void sys_init(void)
     timer1Init();
     timer3Init();
     sd_speed_init(1,100);
+#ifdef USE_USB_SD_DECODE_FUNC	       
     init_port_sd();
+#endif
 #if SDMMC_CMD_MODE
 	sd_chk_ctl(SET_SD_H_CHK);
 #endif
@@ -444,14 +468,17 @@ void sys_info_init(void)
     if (work_mode != SYS_RTC)
 #endif
     {
-        usb_audio_massstorage();									//每次上电判断是否连接电脑
+            usb_audio_massstorage();									//每次上电判断是否连接电脑
+	}
+#endif
+
+#ifdef USE_SYS_MODE_RECOVER
         work_mode = read_info(MEM_SYSMODE);
         if (work_mode > MAX_WORK_MODE)
             work_mode = SYS_MP3DECODE;
-    }
 #endif
 }
-#if 1
+#ifdef USE_SYS_IDEL_FUNC
 extern xd_u8 alm_flag;
 void idle_mode(void)
 {
@@ -493,7 +520,9 @@ void idle_mode(void)
 	 put_msg_lifo(INFO_ALM_BELL);
 #endif	 
 
+#ifdef ADKEY_SELECT_MODE
    mode_switch_protect_bit=0;
+#endif
 
    while (1)
     {
@@ -619,8 +648,13 @@ void main(void)
 #ifdef ALARM_USE_MULTI_SOURCE_FUNC
 	alarm_power_on_protect=0;
 #endif
+#ifdef ADKEY_SELECT_MODE
    	mode_switch_protect_bit=1;
+#endif
 	sys_clock_pll();//(MAIN_CLK_PLL);
+#ifdef USE_POWER_KEY
+	waiting_power_key();
+#endif	
 	Disp_Con(DISP_HELLO);
 	sys_init();
     	sys_info_init();
@@ -635,30 +669,37 @@ void main(void)
        {
         	switch (work_mode)
 	       {
+#ifdef USE_USB_SD_DECODE_FUNC	       
 	        	case SYS_MP3DECODE :
 		     		decode_play();
 	            	break;
-#ifdef CD_MCU_MASTER_MODE
+#endif					
+#ifdef USE_CD_MCU_MASTER_FUNC
 		    	case SYS_MCU_CD:
 				mcu_main_hdlr();
 			break;
 #endif			
+#ifdef USE_RADIO_FUNC
 	        	case SYS_FMREV:
 	            		fm_radio();
 	            	break;
+#endif					
 #ifdef USE_AUX_FUNC			
 	        	case SYS_AUX:
 	            		aux_function();
 	            	break;
 #endif			
-#if 0//RTC_ENABLE
+#ifdef USE_RTC_FUNC
 	        	case SYS_RTC:
 	            		rtc_function();
 	            	break;
 #endif
+#ifdef USE_SYS_IDEL_FUNC
 	        	case SYS_IDLE:
 		            idle_mode();
+#ifdef ADKEY_SELECT_MODE				
 		   	     mode_switch_protect_bit=1;			
+#endif
 		   	     sys_restore_mode();
 			     dac_mute_control(0,1);
 			     flush_all_msg();	
@@ -666,11 +707,18 @@ void main(void)
 			     set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);
 			     main_vol_set(music_vol, CHANGE_VOL_MEM);		 
 		     	break;
-			 
+#endif			 
 	        	default:
 	            		work_mode = SYS_MP3DECODE;
 	            	break;
 	        }
+#ifdef USE_SYS_MODE_RECOVER
+	if(work_mode !=SYS_IDLE){
+		//sys_printf("Write EEPROM in main While !! ");
+              write_info(MEM_SYSMODE,work_mode);
+    	}
+#endif	
+			
     }
 
 }

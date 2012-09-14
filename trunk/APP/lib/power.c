@@ -9,6 +9,7 @@
 /*----------------------------------------------------------------------------*/
 #include "Custom_config.h"
 #include "power.h"
+#include "gpio_if.h"
 
 bool sys_clock_flag;  ///<AD
 u8 clock_change_delay;
@@ -149,6 +150,7 @@ void sys_clock_pll(void)
     clock_change_delay = 0;
 }
 
+#ifdef USE_POWER_KEY
 /*----------------------------------------------------------------------------*/
 /**@brief   等待开机的电源按键抬起
    @param    无
@@ -158,10 +160,28 @@ void sys_clock_pll(void)
 /*----------------------------------------------------------------------------*/
 void waiting_power_key()
 {
-    //while (P34)
-  //  {
-  //  }
+    xd_u16 Pwr_key_cnt=0;
+	
+    Pwr_Key_input();
+    while (1)
+    {
+    		Delay(200);
+    		if(GPIO_POWER_KEY){
+			if(Pwr_key_cnt++>200){
+				    power_ctl(0);				   	
+				    while(1);
+			}
+		}
+		else{
+
+			if(Pwr_key_cnt++>2000){
+				return;
+			}
+		}
+    }
+
 }
+#endif
 
 /*----------------------------------------------------------------------------*/
 /**@brief  设置RC时钟分频
@@ -197,7 +217,7 @@ void rc_pll_delay(void)
 	sys_clock_rc();	
     }
 }
-
+#ifdef USE_POWER_KEY
 /*----------------------------------------------------------------------------*/
 /**@brief    系统掉电函数
    @param    无
@@ -207,10 +227,11 @@ void rc_pll_delay(void)
 /*----------------------------------------------------------------------------*/
 void sys_power_down(void)
 {
-    //lcd_power_down();
-   // EA = 0;
-    //power_ctl(0);
-    //while (1);
+    //xd_u16 pwr_key_timer=0;
+    delay_10ms(1);
+    EA = 0;
+    power_ctl(0);
+    while (1);
 }
 
 /*----------------------------------------------------------------------------*/
@@ -222,8 +243,9 @@ void sys_power_down(void)
 /*----------------------------------------------------------------------------*/
 void sys_power_up(void)
 {
-    //power_ctl(1);
+    power_ctl(1);
 }
+#endif
 
 #if defined(PWR_CTRL_WKUP)||defined(WKUP_PIN_USE_ENABLE)
 /***

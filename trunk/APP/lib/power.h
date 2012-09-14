@@ -19,7 +19,7 @@
 
 #ifdef __C51__
 
-#define power_ctl(n)  P3DIR &= ~(1<<0);P30 = n
+//#define power_ctl(n)  P3DIR &= ~(1<<0);P30 = n
 
 void sys_sleep_mode();
 void sys_restore_mode();
