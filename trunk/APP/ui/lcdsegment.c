@@ -271,8 +271,8 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
 
 	 	lcd_buff[4] |= ((letter_data & DIG_A))<<8;
 	       lcd_buff[3] |= (((letter_data & DIG_B)<<7)|((letter_data & DIG_F)>>5));
-	       lcd_buff[2] |= (((letter_data & DIG_C)>>6)|((letter_data & DIG_G)>>6));
-	       lcd_buff[1] |= (((letter_data & DIG_D)>>5)|((letter_data & DIG_E)>>4));    
+	       lcd_buff[2] |= (((letter_data & DIG_C)<<6)|((letter_data & DIG_G)>>6));
+	       lcd_buff[1] |= (((letter_data & DIG_D)<<5)|((letter_data & DIG_E)>>4));    
 	}
 	else{
 		digit_idx= lcd_disbuf_offset[offset];
