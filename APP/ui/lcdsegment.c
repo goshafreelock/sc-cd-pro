@@ -239,7 +239,7 @@ void disp_set_brightness(u8 br)
    @note     void led_putchar(u8 chardata,u8 loc)
 */
 /*----------------------------------------------------------------------------*/
-#if defined(BK_DISP_LCD_DRV)||defined(K2092_DH_288_V001_000)
+#if defined(BK_DISP_LCD_DRV)
 u8 _code lcd_disbuf_offset[4] ={0,2,4,6};
 void align_lcd_disp_buff(u8 offset,u8 letter_data)
 {
@@ -256,6 +256,37 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
        lcd_buff[2] |= (((letter_data & DIG_B))|((letter_data & DIG_F)>>5))<<digit_idx;
        lcd_buff[3] |= (((letter_data & DIG_C)>>1)|((letter_data & DIG_G)>>6))<<digit_idx;
        lcd_buff[4] |= (((letter_data & DIG_D)>>2)|((letter_data & DIG_E)>>4))<<digit_idx;   	 
+}
+#elif defined(JK_CD_727_V001)
+u8 _code lcd_disbuf_offset[4] ={5,3,1,0};
+void align_lcd_disp_buff(u8 offset,u8 letter_data)
+{
+	u8 digit_idx=offset;
+
+	if(offset==4){
+		lcd_buff[1] &= ~(0x0101);
+		lcd_buff[2] &= ~(0x0101);
+		lcd_buff[3] &= ~(0x0101);
+		lcd_buff[4] &= ~(0x0101);
+
+	 	lcd_buff[4] |= ((letter_data & DIG_A))<<8;
+	       lcd_buff[3] |= (((letter_data & DIG_B)<<7)|((letter_data & DIG_F)>>5));
+	       lcd_buff[2] |= (((letter_data & DIG_C)>>6)|((letter_data & DIG_G)>>6));
+	       lcd_buff[1] |= (((letter_data & DIG_D)>>5)|((letter_data & DIG_E)>>4));    
+	}
+	else{
+		digit_idx= lcd_disbuf_offset[offset];
+
+		lcd_buff[1] &= ~(0x0001<<digit_idx);
+		lcd_buff[2] &= ~(0x0003<<digit_idx);
+		lcd_buff[3] &= ~(0x0003<<digit_idx);
+		lcd_buff[4] &= ~(0x0003<<digit_idx);
+
+	       lcd_buff[4] |= ((letter_data & DIG_A))<<digit_idx;
+	       lcd_buff[3] |= (((letter_data & DIG_B)>>1)|((letter_data & DIG_F)>>4))<<digit_idx;
+	       lcd_buff[2] |= (((letter_data & DIG_C)>>2)|((letter_data & DIG_G)>>5))<<digit_idx;
+	       lcd_buff[1] |= (((letter_data & DIG_D)>>3)|((letter_data & DIG_E)>>3))<<digit_idx;    
+	}
 }
 #elif defined(NEW_DH_LCD_MODULE)
 u8 _code lcd_disbuf_offset[4] ={0,1,3,5};
@@ -349,7 +380,7 @@ void disp_putchar(u8 chardata,u8 loc)
     }
 }
 //extern void Bat_icon_chk(void);
-#if defined(BK_DISP_LCD_DRV)||defined(K2092_DH_288_V001_000)
+#if defined(BK_DISP_LCD_DRV)
 void disp_scan(void)
 {
     static xd_u8 cnt = 0;
@@ -387,6 +418,51 @@ void disp_scan(void)
 	
    cnt++;
    if(cnt>9)cnt = 0;
+}
+#elif defined(SEG_LCD_4COM_10SEG_DRV)
+void disp_scan(void)
+{
+    static xd_u8 cnt = 0;
+    xd_u8 temp;
+    static bool flash;
+
+    custom_buf_update();
+
+    TRADEMARK_ICON |=TRADEMARK_MASK;
+	
+    lcd_flash_timer++;
+    if (lcd_flash_timer == 220)
+    {
+        lcd_flash_timer = 0;
+        flash = !flash;
+    }
+    if (flash)
+    {
+        disp_clr_icon(lcd_flash_icon);   
+    }
+    else
+    {
+        disp_icon(lcd_flash_icon); 
+    }
+
+    temp = cnt>>1;
+    close_com(temp);
+    if(cnt & 0x01){
+	  seg07_port(lcd_buff[temp]);
+	  seg8_port( ( ((lcd_buff[temp]&0x0100)>0)?1:0 ) );
+	  seg9_port( ( ((lcd_buff[temp]&0x0200)>0)?1:0 ) );
+	  clr_com(temp);
+    }
+    else
+   {                            
+	  seg07_port(~lcd_buff[temp]);
+	  seg8_port(( ((lcd_buff[temp]&0x0100)>0)?0:1 ));
+	  seg9_port(( ((lcd_buff[temp]&0x0200)>0)?0:1 ));
+	  set_com(temp);
+   }
+
+   cnt++;
+   if(cnt>7)cnt = 0;
 }
 #else
 void disp_scan(void)
