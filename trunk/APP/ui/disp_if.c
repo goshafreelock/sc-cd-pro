@@ -33,6 +33,8 @@ xd_u16 filenameNum;
 extern xd_u8 cur_sw_fm_band,rtc_setting,rtc_set,alm_set;
 extern  _xdata u8 filename_buff[100];
 extern bool alm_sw;
+extern xd_u8 station_save_pos;
+
 
 #if defined(USE_BAT_MANAGEMENT)
 extern void Bat_icon_chk(void);
@@ -302,6 +304,11 @@ void Disp_cur_band(void)
     	printf_num((cur_sw_fm_band-1),3,1);
    }
 }
+void Disp_station_ch(void)
+{
+    	printf_str("C",1);
+    	printf_num((station_save_pos),2,2);
+}
 #if RTC_ENABLE
 xd_u8  clock_points=0;
 extern RTC_TIME curr_date;
@@ -484,9 +491,12 @@ void Disp_Con(u8 LCDinterf)
     case DISP_FREQ:
         Disp_freq();
         break;
+    case DISP_SAVE_POS:
+        Disp_station_ch();
+        break;		
     case DISP_BAND_NUM:
         Disp_cur_band();
-        break;		
+        break;
     case DISP_AUX:
         Disp_Aux();
         break;	

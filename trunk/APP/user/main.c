@@ -664,7 +664,7 @@ void main(void)
     password_init(0xaa);  //输入加密文件的密码
 #endif  
 
-	
+	work_mode=SYS_FMREV;
 	while (1)
        {
         	switch (work_mode)

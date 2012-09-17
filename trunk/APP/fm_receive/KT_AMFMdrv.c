@@ -58,6 +58,7 @@
 //#include <math.h>
 #include "uart.h"
 #include "gpio_if.h"
+#include "fm_rev.h"
 
 //-----------------------------------------------------------------------------
 // Global CONSTANTS
@@ -1060,7 +1061,7 @@ xd_u16 KT_AMGetFreq(void)
 }
 #endif
 
-#ifdef USE_VALIDSTATION_CHECK
+#ifdef SEMI_AUTO_SCAN_FUNC
 extern xd_u8 cur_sw_fm_band;
 extern bool get_band_info_config();
 void load_band_info(void)
@@ -1070,25 +1071,31 @@ void load_band_info(void)
 #endif
 
     if(cur_sw_fm_band==0){
-		
+
 		Current_Band.Band=FM_MODE;
-		Current_Band.Tune_Step=FM_50KHz_STEP;
+		Current_Band.MAX_CH=FM_MAX_CH;
+		Current_Band.Tune_Step=FM_100KHz_STEP;
 		Current_Band.Seek_Step = FM_50KHz_STEP;	
 		Current_Band.ValidStation_Step =FM_50KHz_STEP ;			
     }
     else if(cur_sw_fm_band==1){
 		
 		Current_Band.Band=MW_MODE;
+		Current_Band.MAX_CH=AM_MAX_CH;
 
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
 		if(get_band_info_config()){
+
+			Current_Band.Tune_Step=AM_10KHz_STEP;
 			Current_Band.Seek_Step = AM_10KHz_STEP;		
 		}
 		else
 #endif			
 		{
-			Current_Band.Seek_Step = AM_1KHz_STEP;		
+			Current_Band.Tune_Step=AM_9KHz_STEP;
+			Current_Band.Seek_Step = AM_9KHz_STEP;		
 		}
+
 		Current_Band.ValidStation_Step =AM_2KHz_STEP;			
 		Current_Band.AFCTH_Prev =MW_AFCTH_PREV;
 		Current_Band.AFCTH_Next =MW_AFCTH_NEXT;

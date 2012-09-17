@@ -259,7 +259,30 @@ u8 ap_handle_hotkey(u8 key)
             return 0;
         }
         break;
+#ifdef MODE_KEY_SEL_FUNC
+    case INFO_MODE | KEY_SHORT_UP:
 
+	if(work_mode==SYS_MCU_CD){
+		
+		work_mode = SYS_FMREV;
+		cur_sw_fm_band=0;
+	}
+	else if(work_mode==SYS_FMREV){
+
+		if(cur_sw_fm_band==0){
+
+			cur_sw_fm_band=1;
+			put_msg_lifo(INFO_NEXT_FM_MODE); 
+			break;
+		}
+		else{
+			work_mode = SYS_MCU_CD;
+		}
+	}	
+	put_msg_lifo(INFO_NEXT_SYS_MODE); 
+	
+	break;
+#else
     case INFO_MODE | KEY_SHORT_UP:
         if (work_mode == SYS_USBDEVICE)
             break;
@@ -313,6 +336,8 @@ u8 ap_handle_hotkey(u8 key)
 		}
 	break;
 #endif	
+#endif	
+
     case INFO_VOL_PLUS:
     case INFO_VOL_PLUS | KEY_HOLD :
         music_vol += 2;

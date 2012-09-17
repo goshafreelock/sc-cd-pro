@@ -118,6 +118,9 @@ void mcu_hdlr( void )
 	}
 	switch (key)
 	{
+
+	        case INFO_NEXT_SYS_MODE:
+			return;
 	        case INFO_PLAY | KEY_SHORT_UP :
 
 			if(cd_play_status== MUSIC_PLAY){
@@ -176,8 +179,8 @@ void mcu_hdlr( void )
 	                {
 	                    cfilenum = 0;
 	                }
-	                if (DISP_AUX != curr_menu)
-	                    Disp_Con(DISP_AUX);
+	                if (DISP_SCAN_DISK != curr_menu)
+	                    Disp_Con(DISP_SCAN_DISK);
 	            }
 	            break;
 #if RTC_ENABLE 
@@ -215,7 +218,7 @@ void mcu_main_hdlr(void)
     CD_PWR_GPIO_ON();
     sysclock_div2(1);
     flush_low_msg();
-    Disp_Con(DISP_AUX);
+    Disp_Con(DISP_SCAN_DISK);
     set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     mcu_hdlr();
     main_vol_set(0, CHANGE_VOL_NO_MEM);

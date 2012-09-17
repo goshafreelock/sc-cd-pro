@@ -39,6 +39,7 @@ typedef enum
     DISP_WAIT,
     DISP_USBDEV,
     DISP_FREQ,
+    DISP_SAVE_POS,
     DISP_BAND_NUM,
     DISP_USBOUT,
     DISP_SDOUT,

@@ -187,8 +187,10 @@ enum {
 #define F_SD_DEV		(lcd_buff[4])	
 
 #define FM_DEV_MASK	0x0004
-#define F_FM_DEV		(lcd_buff[1])	
+#define F_FM_DEV		(lcd_buff[3])	
 
+#define AM_DEV_MASK	0x0200
+#define F_AM_DEV		(lcd_buff[2])	
 
 #define POINTS_MASK		0x0200
 #define F_POINTS		(lcd_buff[0])	
@@ -200,9 +202,9 @@ enum {
 #define F_KHZ_DEV		(lcd_buff[1])	
 
 #define FM_P1_MASK		0x0002
-#define F_P1_DEV		(lcd_buff[0])	
+#define F_P1_DEV		(lcd_buff[3])	
 
-#define SW_MHZ_MASK	0x0080
+#define SW_MHZ_MASK	0x0000
 #define F_SW_DEV		(lcd_buff[2])	
 
 
@@ -236,7 +238,7 @@ enum {
 
 #define REP_ALL_MASK	0x0080
 #define REP_ONE_MASK	0x0080
-#define F_REP_ALL		(lcd_buff[4])
+#define F_REP_ALL		(lcd_buff[1])
 #define F_REP_ONE 		(lcd_buff[0])
 
 //#define L_ICON_BUF		(lcd_buff[4])
