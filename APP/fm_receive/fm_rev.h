@@ -14,6 +14,10 @@
 #define MIN_FRE	   870
 #define MAX_CHANNL 30
 
+
+#define FM_MAX_CH    20
+#define AM_MAX_CH    20
+
 #ifdef __C51__
 #include "fm_api.h"
 #include "typedef.h"

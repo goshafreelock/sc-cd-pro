@@ -28,7 +28,6 @@ typedef struct{
 
 #define MAX_BAND    12
 
-
 void get_channl(u8 flag);
 void init_fm_rev(void);
 bool set_fre(u16 fre, u8 mode);

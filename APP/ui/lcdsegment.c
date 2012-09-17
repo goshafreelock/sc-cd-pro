@@ -77,9 +77,12 @@ void disp_icon(u8 id)
 		F_AUX_DEV |=AUX_DEV_MASK;
 		break;
 	case ICON_FM_MHZ:
+
+		F_FM_DEV |= FM_DEV_MASK;
 		F_MHZ_DEV |=FM_MHZ_MASK;
 		break;
 	case ICON_AM_KHZ:
+		F_AM_DEV |= AM_DEV_MASK;
 		F_KHZ_DEV |=AM_KHZ_MASK;
 		break;
 	case ICON_SW:
@@ -263,29 +266,30 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
 {
 	u8 digit_idx=offset;
 
-	if(offset==4){
-		lcd_buff[1] &= ~(0x0101);
+	if(offset==3){
+		
+		lcd_buff[3] &= ~(0x0100);
 		lcd_buff[2] &= ~(0x0101);
-		lcd_buff[3] &= ~(0x0101);
-		lcd_buff[4] &= ~(0x0101);
+		lcd_buff[1] &= ~(0x0101);
+		lcd_buff[0] &= ~(0x0101);
 
-	 	lcd_buff[4] |= ((letter_data & DIG_A))<<8;
-	       lcd_buff[3] |= (((letter_data & DIG_B)<<7)|((letter_data & DIG_F)>>5));
-	       lcd_buff[2] |= (((letter_data & DIG_C)<<6)|((letter_data & DIG_G)>>6));
-	       lcd_buff[1] |= (((letter_data & DIG_D)<<5)|((letter_data & DIG_E)>>4));    
+	 	lcd_buff[3] |= ((letter_data & DIG_A)>0)?0x0100:0;
+	       lcd_buff[2] |= ((((letter_data & DIG_B)>0)?0x0100:0)|(((letter_data & DIG_F)>0)?0x0001:0));
+	       lcd_buff[1] |= ((((letter_data & DIG_C)>0)?0x0100:0)|(((letter_data & DIG_G)>0)?0x0001:0));
+	       lcd_buff[0] |= ((((letter_data & DIG_D)>0)?0x0100:0)|(((letter_data & DIG_E)>0)?0x0001:0));    
 	}
 	else{
 		digit_idx= lcd_disbuf_offset[offset];
 
-		lcd_buff[1] &= ~(0x0001<<digit_idx);
+		lcd_buff[3] &= ~(0x0001<<digit_idx);
 		lcd_buff[2] &= ~(0x0003<<digit_idx);
-		lcd_buff[3] &= ~(0x0003<<digit_idx);
-		lcd_buff[4] &= ~(0x0003<<digit_idx);
+		lcd_buff[1] &= ~(0x0003<<digit_idx);
+		lcd_buff[0] &= ~(0x0003<<digit_idx);
 
-	       lcd_buff[4] |= ((letter_data & DIG_A))<<digit_idx;
-	       lcd_buff[3] |= (((letter_data & DIG_B)>>1)|((letter_data & DIG_F)>>4))<<digit_idx;
-	       lcd_buff[2] |= (((letter_data & DIG_C)>>2)|((letter_data & DIG_G)>>5))<<digit_idx;
-	       lcd_buff[1] |= (((letter_data & DIG_D)>>3)|((letter_data & DIG_E)>>3))<<digit_idx;    
+	       lcd_buff[3] |= ((letter_data & DIG_A))<<digit_idx;
+	       lcd_buff[2] |= (((letter_data & DIG_B)>>1)|((letter_data & DIG_F)>>4))<<digit_idx;
+	       lcd_buff[1] |= (((letter_data & DIG_C)>>2)|((letter_data & DIG_G)>>5))<<digit_idx;
+	       lcd_buff[0] |= (((letter_data & DIG_D)>>3)|((letter_data & DIG_E)>>3))<<digit_idx;    
 	}
 }
 #elif defined(NEW_DH_LCD_MODULE)
@@ -428,8 +432,16 @@ void disp_scan(void)
 
     custom_buf_update();
 
+#if 0
+	init_disp_buf();
+	disp_putchar('0',0);
+	disp_putchar('1',1);
+	disp_putchar('2',2);
+	disp_putchar('3',3);
+#endif	
+
     TRADEMARK_ICON |=TRADEMARK_MASK;
-	
+
     lcd_flash_timer++;
     if (lcd_flash_timer == 220)
     {

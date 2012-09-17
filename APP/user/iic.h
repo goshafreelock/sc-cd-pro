@@ -104,6 +104,9 @@ void write_eerom(u8 addr,u8 dat);
 #define MEM_FRE_CHANNL     10
 #define MEM_CHANNL         11
 
+#define FM_CH_OFFSET	11	
+#define AM_CH_OFFSET	70
+
 #define MEM_SD_PLAYPOINT_INFO  41
 #define MEM_USB_PLAYPOINT_INFO 43
 

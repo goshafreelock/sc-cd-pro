@@ -496,7 +496,7 @@ void deal_rtc(void)
             power_down_cnt++;
             if (power_down_cnt > 120)
             {
-                sys_power_down();
+                //sys_power_down();
             }
 
             if (DISP_RTC == curr_menu)
