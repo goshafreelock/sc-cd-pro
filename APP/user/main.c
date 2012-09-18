@@ -417,8 +417,8 @@ void sys_init(void)
     keyInit();
     timer1Init();
     timer3Init();
-    sd_speed_init(1,100);
 #ifdef USE_USB_SD_DECODE_FUNC	       
+    sd_speed_init(1,100);
     init_port_sd();
 #endif
 #if SDMMC_CMD_MODE
@@ -664,7 +664,7 @@ void main(void)
     password_init(0xaa);  //输入加密文件的密码
 #endif  
 
-	work_mode=SYS_FMREV;
+	work_mode=SYS_MCU_CD;
 	while (1)
        {
         	switch (work_mode)

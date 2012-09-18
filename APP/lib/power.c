@@ -128,7 +128,9 @@ void sys_restore_mode()
 void sys_clock_rc(void)
 {
     mainclock_select(MAIN_CLK_RC);
+#ifdef USE_USB_SD_DECODE_FUNC	       
     sd_speed_init(0, 3);
+#endif
     SPIBAUD = 0x0;
     sys_clock_flag = 0;
 }
@@ -144,7 +146,9 @@ void sys_clock_rc(void)
 void sys_clock_pll(void)
 {
     SPIBAUD = 0x04;
+#ifdef USE_USB_SD_DECODE_FUNC	       
     sd_speed_init(1, 200);
+#endif
     mainclock_select(MAIN_CLK_PLL);
     sys_clock_flag = 1;
     clock_change_delay = 0;
