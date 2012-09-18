@@ -62,28 +62,39 @@ void mcu_master_rev()
 	EA =0;
 	iic_drv_start();
 	iic_drv_sendbyte(MASTER_READ_CMD);
-	while(rev_loop++<10){
+	while(rev_loop<10){
 
     		rev_reg = iic_drv_revbyte_io();
     		if(drv_rev_ack()==0){
 			rev_buf[rev_loop]=rev_reg;
+			//printf("--------------------%x  ----rev  %x \r\n",(u16)rev_loop,(u16)rev_reg);
 		}
 		else{
 			break;
 		}
+
+		rev_loop++;
 	}
-	iic_drv_stop();
+	iic_drv_stop();	
 	EA =1;
+
+    	//printf("---111-mcu_master_rev   %x \r\n",(u16)ack1);
+    	//printf("------222-mcu_master_rev   %x \r\n",(u16)ack2);		
 }
 void mcu_master_send()
 {
+	bool ack1,ack2;
 	if(send_buf!=0){
 		EA =0;
 		iic_drv_start();
-		iic_drv_sendbyte(MASTER_SEND_CMD);
-		iic_drv_sendbyte(send_buf);
-		iic_drv_stop();
+		ack1=iic_drv_sendbyte(MASTER_SEND_CMD);
+		ack2=iic_drv_sendbyte(send_buf);
+		iic_drv_stop();	
 		EA =1;
+#if 0		
+	    	printf("---111-drv_rev_ack   %x \r\n",(u16)ack1);
+	    	printf("---222-drv_rev_ack   %x \r\n",(u16)ack2);		
+#endif			
 		send_buf=0;
 	}
 }
@@ -122,15 +133,18 @@ void mcu_hdlr( void )
 	        case INFO_NEXT_SYS_MODE:
 			return;
 	        case INFO_PLAY | KEY_SHORT_UP :
-
 			if(cd_play_status== MUSIC_PLAY){
 				cd_play_status=MUSIC_PAUSE;
 				send_buf=PAUSE_CMD;
 			}
 			else if(cd_play_status == MUSIC_PAUSE){
-				cd_play_status=MUSIC_PLAY;			
+
+					cd_play_status=MUSIC_PLAY;
 				send_buf=PLAY_RESUME_CMD;
 			}
+
+			printf("---- -INFO_PLAY  %x \r\n",(u16)send_buf);
+			
 			break;
 	        case INFO_STOP| KEY_SHORT_UP :
 			if(cd_play_status!= MUSIC_STOP){
