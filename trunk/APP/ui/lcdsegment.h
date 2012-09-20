@@ -87,6 +87,7 @@ enum {
 	ICON_REC,
 	ICON_REP_1,
 	ICON_REP_ALL,
+	ICON_REP_RDM,
 	ICON_COL,
 	ICON_MUTE,
 	ICON_BELL,
@@ -208,6 +209,12 @@ enum {
 #define F_SW_DEV		(lcd_buff[2])	
 
 
+#define PLAY_ICON_MASK	0x0040
+#define F_PLAY_DEV		(lcd_buff[3])	
+
+#define PAUS_ICON_MASK	0x0010
+#define F_PAUS_DEV		(lcd_buff[3])	
+
 #define RTC_ICON_MASK	0x0000
 #define F_RTC_ICON		(lcd_buff[3])
 
@@ -238,8 +245,10 @@ enum {
 
 #define REP_ALL_MASK	0x0080
 #define REP_ONE_MASK	0x0080
-#define F_REP_ALL		(lcd_buff[1])
-#define F_REP_ONE 		(lcd_buff[0])
+#define REP_RDM_MASK	0x0080
+#define F_REP_ALL		(lcd_buff[0])
+#define F_REP_ONE 		(lcd_buff[1])
+#define F_REP_RDM 		(lcd_buff[3])
 
 //#define L_ICON_BUF		(lcd_buff[4])
 #define S1_ICON_MASK	0x0000

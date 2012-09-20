@@ -35,11 +35,11 @@ enum {
 	REP_RAND_OFF_CMD,
 	REP_RANDOM_CMD,
 	REP_OFF_CMD,
-	PEP_ONE_CMD,
+	REP_ONE_CMD,
 	REP_ALL_CMD,
 	MEM_CMD,
 	INTRO_ON_CMD,
-	INTOR_OFF_CMD,
+	INTRO_OFF_CMD,
 	DOOR_IN_CMD,
 	DOOR_OUT_CMD,
 	DOOR_CTRL_CMD,
@@ -60,9 +60,9 @@ enum {
 	REP_B_CMD,
 };
 
-#if 0
-#define iic_drv_data_out()    	P2DIR &= ~(BIT(2));//P0PU |= (1<<2)
-#define iic_drv_data_in()     		P2DIR |= BIT(2);P0PU |= BIT(2)
+#if 1
+#define iic_drv_data_out()    	P2DIR &= ~(BIT(2));P2PU |= BIT(2);P22 = 1
+#define iic_drv_data_in()     		P2DIR |= BIT(2);P2PU |= BIT(2)
 #define iic_drv_data_r()      		P22
 #define iic_drv_data_h()      		P22 = 1
 #define iic_drv_data_l()      		P22 = 0
@@ -72,7 +72,7 @@ enum {
 #define iic_drv_clk_l()      		P21= 0
 #else
 #define iic_drv_data_out()    	P0DIR &= ~(BIT(1));P0PU |= BIT(1);P01= 1
-#define iic_drv_data_in()     	P0DIR |= BIT(1);P0PU |= BIT(1);P01= 1
+#define iic_drv_data_in()     	P0DIR |= BIT(1);P0PU |= BIT(1)
 #define iic_drv_data_r()      	P01
 #define iic_drv_data_h()      	P01= 1
 #define iic_drv_data_l()      	P01 = 0
@@ -88,9 +88,9 @@ void iic_drv_init_io(void);
 void iic_drv_start(void);
 void iic_drv_stop(void);
 bool drv_rev_ack(void);
-void drv_send_ack(u8 flag);
+void drv_send_ack(bool flag);
 u8 iic_drv_revbyte_io( void ) large;
-u8 iic_drv_revbyte( u8 para ) large;
+u8 iic_drv_revbyte(bool flag) large;
 void iic_drv_sendbyte_io(u8 byteI2C) large;
 bool iic_drv_sendbyte(u8 byte);
 

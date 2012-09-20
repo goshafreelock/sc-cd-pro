@@ -300,8 +300,8 @@
 
 #define GPIO_POWER_KEY   	P06
 #define Pwr_Key_Init()		P0DIR |= (BIT(6));//P2PU |= (BIT(4));
-#define Pwr_Key_output()		P0DIR &= ~(BIT(6));GPIO_POWER_KEY =1;//P2PU |= (BIT(4));GPIO_POWER_KEY =1;
-#define Pwr_Key_input()		P0DIR |= (BIT(6));P0PU |= (BIT(6));
+#define Pwr_Key_output()		//P0DIR &= ~(BIT(6));GPIO_POWER_KEY =1;//P2PU |= (BIT(4));GPIO_POWER_KEY =1;
+#define Pwr_Key_input()		//P0DIR |= (BIT(6));P0PU |= (BIT(6));
 
 #endif
 

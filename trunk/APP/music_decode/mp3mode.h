@@ -28,6 +28,18 @@
 #include "rtc_mode.h"
 
 #define FAST_FARWORD_STEP	5
+
+#ifdef USE_CD_MCU_MASTER_FUNC			
+typedef enum
+{
+    REPEAT_ALL = 0,
+    REPEAT_ONE,
+    REPEAT_RANDOM,
+    REPEAT_INTRO,    
+    REPEAT_FOLDER,    
+
+}PLAY_MODE;
+#else
 typedef enum
 {
     REPEAT_ALL = 0,
@@ -36,6 +48,7 @@ typedef enum
     REPEAT_RANDOM,
 
 }PLAY_MODE;
+#endif
 
 enum 							//config command
 {

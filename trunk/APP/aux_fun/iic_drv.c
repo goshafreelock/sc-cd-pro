@@ -78,7 +78,6 @@ bool drv_rev_ack(void)
     iic_drv_delay();
     iic_drv_clk_h();
     iic_drv_delay();
-    iic_drv_delay();
     nack = iic_drv_data_r();
     iic_drv_clk_l();
     iic_drv_delay();
@@ -92,7 +91,7 @@ bool drv_rev_ack(void)
    @note    void s_ack(u8 flag)
 */
 /*----------------------------------------------------------------------------*/
-void drv_send_ack(u8 flag)
+void drv_send_ack(bool flag)
 {
     iic_drv_data_out();
     iic_drv_clk_l();
@@ -143,11 +142,11 @@ u8 iic_drv_revbyte_io( void ) large
    @note    u8 iic_drv_revbyte( u8 para )
 */
 /*----------------------------------------------------------------------------*/
-u8 iic_drv_revbyte( u8 para ) large
+u8 iic_drv_revbyte(bool flag) large
 {
     u8 byte;
     byte = iic_drv_revbyte_io();
-    drv_send_ack(para);
+    drv_send_ack(flag);
     return byte;
 }
 /*----------------------------------------------------------------------------*/

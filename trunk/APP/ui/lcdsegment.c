@@ -19,7 +19,7 @@ u8 _code LCD_LARGE_LETTER[26] =
     0x77,0x40,0x39,0x3f,0x79,///<ABCDE
     0x71,0x40,0x76,0x06,0x40,///<FGHIJ
     0x40,0x38,0x40,0x37,0x3f,///<KLMNO
-    0x73,0x40,0x50,0x6d,0x40,///<PQRST
+    0x73,0x40,0x50,0x6d,0x07,///<PQRST
     0x3e,0x3e,0x40,0x76,0x40,///<UVWXY
     0x40///<Z
 };
@@ -62,11 +62,16 @@ void lcd_backlight_ctrl(bool on)
    @note     void led_disp_icon(u8 id)
 */
 /*----------------------------------------------------------------------------*/
-
 void disp_icon(u8 id)
 {
     switch(id)
     {
+	case ICON_PLAY:
+		F_PLAY_DEV |=PLAY_ICON_MASK;
+		break;
+	case ICON_PAUSE:
+		F_PAUS_DEV |=PAUS_ICON_MASK;
+		break;
 	case ICON_USB:
 		F_USB_DEV |=USB_DEV_MASK;
 		break;
@@ -96,7 +101,10 @@ void disp_icon(u8 id)
 		break;
 	case ICON_REP_ALL:
 		F_REP_ALL |=REP_ALL_MASK;
-		break;
+		break;		
+	case ICON_REP_RDM:
+		F_REP_RDM|=REP_RDM_MASK;
+		break;			
 	case ICON_COL:
 		F_POINTS |=POINTS_MASK;
 		break;		
@@ -127,9 +135,14 @@ void disp_icon(u8 id)
 }
 void disp_clr_icon(u8 id)
 {
-
     switch(id)
     {
+	case ICON_PLAY:
+		F_PLAY_DEV &=~PLAY_ICON_MASK;
+		break;
+	case ICON_PAUSE:
+		F_PAUS_DEV &=~PAUS_ICON_MASK;
+		break;    
 	case ICON_USB:
 		F_USB_DEV &=~USB_DEV_MASK;
 		break;
@@ -157,6 +170,9 @@ void disp_clr_icon(u8 id)
 	case ICON_REP_ALL:
 		F_REP_ALL &=~REP_ALL_MASK;
 		break;
+	case ICON_REP_RDM:
+		F_REP_RDM&=~REP_RDM_MASK;
+		break;			
 	case ICON_COL:
 		F_POINTS &=~POINTS_MASK;
 		break;

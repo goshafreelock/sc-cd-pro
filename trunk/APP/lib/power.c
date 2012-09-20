@@ -164,21 +164,23 @@ void sys_clock_pll(void)
 /*----------------------------------------------------------------------------*/
 void waiting_power_key()
 {
-    xd_u16 Pwr_key_cnt=0;
+    xd_u16 Pwr_key_cnt=0,Pwr_key_cnt_2=0;
 	
-    Pwr_Key_input();
+    Pwr_Key_Init();
     while (1)
     {
-    		Delay(200);
+    		Delay(600);
     		if(GPIO_POWER_KEY){
 			if(Pwr_key_cnt++>200){
 				    power_ctl(0);				   	
 				    while(1);
 			}
+			Pwr_key_cnt_2=0;
 		}
 		else{
 
-			if(Pwr_key_cnt++>2000){
+			Pwr_key_cnt=0;
+			if(Pwr_key_cnt_2++>2000){
 				return;
 			}
 		}
@@ -231,7 +233,8 @@ void rc_pll_delay(void)
 /*----------------------------------------------------------------------------*/
 void sys_power_down(void)
 {
-    //xd_u16 pwr_key_timer=0;
+    Mute_Ext_PA(MUTE);
+
     delay_10ms(1);
     EA = 0;
     power_ctl(0);

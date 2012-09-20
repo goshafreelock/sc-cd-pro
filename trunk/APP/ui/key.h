@@ -7,10 +7,10 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
-#include "Custom_config.h"
 
 #ifndef	_KEY_H_
 #define _KEY_H_
+#include "Custom_config.h"
 
 #ifdef __C51__
 #include "config.h"
@@ -250,6 +250,17 @@ void bmt_hdlr(void);
 
 #if defined( CUSTOMER_DEFINED_ADKEY_RESISTOR)
 /*Customer define adkey value */
+
+#if 0
+#define ADKEY_RES_1		0x10
+#define ADKEY_RES_2		0x30
+#define ADKEY_RES_3		0x50
+#define ADKEY_RES_4		0x70
+#define ADKEY_RES_5		0x90
+#define ADKEY_RES_6		0xB0
+#define ADKEY_RES_7		0xD0	/**/
+#define ADKEY_RES_NOKEY		0xF0	/*NO KEY*/
+#else
 #define ADKEY_RES_1		RES_VOLT_1
 #define ADKEY_RES_2		RES_VOLT_2
 #define ADKEY_RES_3		RES_VOLT_3
@@ -258,7 +269,7 @@ void bmt_hdlr(void);
 #define ADKEY_RES_6		RES_VOLT_6
 #define ADKEY_RES_7		RES_VOLT_7	
 #define ADKEY_RES_NOKEY		RES_VOLT_NO_KEY	/*NO KEY*/
-
+#endif
 /*Default adkey value */
 #define ADKEY_1		INFO_POWER
 #define ADKEY_2		INFO_STOP
@@ -286,7 +297,7 @@ void bmt_hdlr(void);
 #define ADKEY_2		INFO_PREV_FIL
 #define ADKEY_3		INFO_NEXT_FIL
 #define ADKEY_4		INFO_MODE
-#define ADKEY_5		INFO_EQ_UP
+#define ADKEY_5		INFO_STOP
 #define ADKEY_6		INFO_PLAY_MODE
 #define ADKEY_7		INFO_VOL_MINUS
 #define ADKEY_8		INFO_VOL_PLUS

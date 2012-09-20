@@ -79,6 +79,20 @@ extern u8 alm_bell_mode(void);
 
 #endif
 
+
+//#define ADKEY_DEBUG
+#ifdef ADKEY_DEBUG
+extern u8  key_value;   ///<红外遥控提取的用户码
+void AD_Debug_func()
+{
+	while(1){
+			
+		printf("ad read value %x \r\n",(u16)((key_value)));
+		//printf("ad read value %d \r\n",(u16)((key_value*33)/255));
+		delay_10ms(2);
+	}		
+}
+#endif
 /*----------------------------------------------------------------------------*/
 /**@brief 	P0IE初始化函数
    @param 	无
@@ -250,6 +264,7 @@ void timer1isr(void)
 		    dac_cnt++;
 	}
 	adc_scan();
+
 #ifdef USE_LINE_IN_DETECT_FUNC        
         aux_check();
 #endif        
@@ -269,7 +284,7 @@ void timer1isr(void)
         ms_cnt++;
 
 #ifdef USE_CD_MCU_MASTER_FUNC			
-	 if(ms_cnt%2==0){
+	 if(ms_cnt%10==0){
 		 mcu_master_tranceive_tick=1;
 	 }	 
 #endif
@@ -645,6 +660,7 @@ void main(void)
 
 #endif
 
+	Mute_Ext_PA(MUTE);
 #ifdef ALARM_USE_MULTI_SOURCE_FUNC
 	alarm_power_on_protect=0;
 #endif
@@ -664,7 +680,11 @@ void main(void)
     password_init(0xaa);  //输入加密文件的密码
 #endif  
 
-	work_mode=SYS_MCU_CD;
+#ifdef ADKEY_DEBUG
+	AD_Debug_func();
+#endif
+
+//	work_mode=SYS_FMREV;
 	while (1)
        {
         	switch (work_mode)
