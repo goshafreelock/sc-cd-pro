@@ -49,6 +49,17 @@ extern void alm_time_plus();
 extern void alm_time_minus();
 extern void set_alm_sec(void);
 
+
+void Mute_Ext_PA(bool M_Type)
+{
+	AMP_MUTE_PORT_INIT();
+	if(M_Type){
+		AMP_MUTE_ENABLE();
+	}
+	else{
+		AMP_MUTE_DISABLE();
+	}
+}
 #if defined(USE_TIMER_POWER_OFF_FUNC)
 bool timer_setting_enable=0;
 xd_u8 timer_pwr_idx=0,timer_disp=0;
@@ -260,8 +271,11 @@ u8 ap_handle_hotkey(u8 key)
         }
         break;
 #ifdef MODE_KEY_SEL_FUNC
+#ifdef USE_POWER_KEY_SHORT_FOR_MODE
+    case INFO_POWER | KEY_SHORT_UP :	
+#else
     case INFO_MODE | KEY_SHORT_UP:
-
+#endif
 	if(work_mode==SYS_MCU_CD){
 		
 		work_mode = SYS_FMREV;
@@ -382,7 +396,7 @@ u8 ap_handle_hotkey(u8 key)
 	    	Disp_Con(DISP_POWER_OFF);
 		sys_power_down();
 		break;
-		
+#if 0		
     case INFO_POWER | KEY_SHORT_UP :	
 		
 		if(work_mode == SYS_MCU_CD){
@@ -403,6 +417,7 @@ u8 ap_handle_hotkey(u8 key)
 
 		}
 		break;
+#endif		
 #else		
     case INFO_POWER | KEY_SHORT_UP :	
 		if(sys_pwr_flag==0){

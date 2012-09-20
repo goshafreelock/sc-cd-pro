@@ -1,3 +1,4 @@
+#include "Custom_config.h"
 #include "config.h"
 #include "disp_if.h"
 #include "lcd.h"
@@ -7,6 +8,7 @@
 #include "led.h"
 #include "lcdsegment.h"
 #include "my_printf.h"
+#include "mcu_master.h"
 
 extern xd_u8 LCDBuff[LCDPAGE][LCDCOLUMN];
 extern xd_u8 LED_BUFF[5];
@@ -97,7 +99,7 @@ void Disp_Filenum(void)
 }
 void Disp_Nofile(void)
 {
-    	printf_str("....",0);
+    	printf_str("NO d",0);
 }
 
 void Disp_waiting(void)
@@ -121,6 +123,7 @@ void Disp_Playmode_icon()
 {
 	disp_clr_icon(ICON_REP_ALL);
 	disp_clr_icon(ICON_REP_1);
+	disp_clr_icon(ICON_REP_RDM);
 
 	if(play_mode==REPEAT_ALL){
 	    disp_icon(ICON_REP_ALL);
@@ -128,9 +131,35 @@ void Disp_Playmode_icon()
 	else if(play_mode == REPEAT_ONE){
 	    disp_icon(ICON_REP_1);
 	}
+	else if(play_mode == REPEAT_RANDOM){
+	    disp_icon(ICON_REP_RDM);
+	}	
 }
+
+#ifdef USE_CD_MCU_MASTER_FUNC			
+extern TOC_TIME cur_time;
+extern xd_u8 cd_play_status;
+
+#endif
 void disp_file_time(void)
 {
+#ifdef USE_CD_MCU_MASTER_FUNC			
+    printf_num(cur_time.SEC,2,2);
+    printf_num(cur_time.MIN,0,2);
+
+    if(cd_play_status==MUSIC_PLAY){	
+
+    	disp_clr_icon(ICON_PAUSE);
+    	disp_icon(ICON_PLAY);
+    }
+    else  if(cd_play_status==MUSIC_PAUSE){	
+
+    	disp_clr_icon(ICON_PLAY);
+
+    	disp_icon(ICON_PAUSE);
+    }
+
+#else
     u16 sec;
     u16 min;
     u32 file_play_time;
@@ -140,6 +169,7 @@ void disp_file_time(void)
 	
     printf_num(sec,2,2);
     printf_num(min,0,2);
+#endif	
     disp_icon(ICON_COL);
     disp_active();
     Disp_Playmode_icon();
@@ -157,6 +187,11 @@ void Disp_Pause(void)
 #else
     disp_file_time();
 #endif
+}
+void Disp_Stop(void)
+{
+    disp_active();
+    printf_str("STOP",0);
 }
 void Disp_Play(void)
 {
@@ -186,6 +221,10 @@ void disp_scan_disk(void)
 void disp_error(void)
 {
     printf_str(" ERR",0);
+}
+void disp_open(void)
+{
+    printf_str("OPEN",0);
 }
 void Disp_Power_up(void)
 {
@@ -462,6 +501,9 @@ void Disp_Con(u8 LCDinterf)
     case DISP_PAUSE:
         Disp_Pause();
         break;
+    case DISP_STOP:
+        Disp_Stop();
+        break;	
     case DISP_VOL:
         Disp_Vol();
         break;
@@ -511,6 +553,9 @@ void Disp_Con(u8 LCDinterf)
         break;			
     case DISP_ERROR:
         disp_error();
-        break;				
+        break;		
+    case DISP_OPEN:
+        disp_open();
+        break;			
     }
 }

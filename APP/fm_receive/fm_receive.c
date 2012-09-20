@@ -204,6 +204,8 @@ void radio_band_hdlr()
 	frequency = read_radio_freq(cur_sw_fm_band);
 #endif
 
+	station_save_pos=0;
+
 	load_band_info();
 
 	KT_AMFMSetMode(cur_sw_fm_band);	
@@ -322,7 +324,8 @@ void radio_save_station_hdlr()
 				timerout_cnt=0;				
 				break;
 
-        		case INFO_STOP| KEY_SHORT_UP:
+        		//case INFO_STOP| KEY_SHORT_UP:
+        		case INFO_MODE| KEY_SHORT_UP:
 
 				if(cur_sw_fm_band==0){
 					save_radio_freq(frequency,station_save_pos+FM_CH_OFFSET);
@@ -356,6 +359,9 @@ void restore_station_from_ch()
 	else if(cur_sw_fm_band==1){
 		frequency = read_radio_freq(station_save_pos+AM_CH_OFFSET);
 	}
+	set_radio_freq(FM_CUR_FRE);
+
+       Disp_Con(DISP_SAVE_POS);
 }
 #endif
 /*----------------------------------------------------------------------------*/
@@ -384,13 +390,18 @@ void fm_hdlr( void )
 #ifdef ADKEY_SELECT_MODE
     mode_switch_protect_bit=0;
 #endif	
+	Mute_Ext_PA(UNMUTE);
+
     while (1)
     {
 
 	dac_out_select(DAC_AMUX1);
 
 	key = get_msg();
-
+#if 0
+	if(key!= 0xff)
+	    	printf("------->-get_msg   %x \r\n",(u16)key);
+#endif
 	if(dac_cnt >20){
 		dac_sw(0);
 	}
@@ -403,7 +414,10 @@ void fm_hdlr( void )
 		radio_band_hdlr();			
 		break;
 #ifdef FM_SAVE_STATION_MANUAL
-     	case INFO_STOP| KEY_LONG:
+     	case INFO_STOP| KEY_SHORT_UP:
+		restore_station_from_ch();
+		break;
+     	case INFO_MODE| KEY_LONG:
 		radio_save_station_hdlr();
 		break;
 #endif			
@@ -498,7 +512,24 @@ void fm_hdlr( void )
     }
 }
 
-
+void fm_osc_output_select(bool flag)
+{
+   // P05 OUT CLK for FM module
+   if(flag){
+#if defined(SYS_CRYSTAL_USE_12M)
+	   P05_source_select(1);
+#else
+	   P05_source_select(2);
+#endif
+	   P0PU |=(1<<5);
+	   P0DIR &=~(1<<5);
+	   _nop_();
+   	   _nop_();
+   }
+   else{
+   	P05_source_select(0);
+   }
+}
 /*----------------------------------------------------------------------------*/
 /**@brief  调频收音工作模式入口
    @param  无
@@ -512,6 +543,9 @@ void fm_radio(void)
 	sys_printf(" SYS GO IN FM MODE");
 #endif
 
+#ifndef DISABLE_P05_OSC_OUTPUT
+   	fm_osc_output_select(TRUE);
+#endif
        if (KT_AMFMWakeUp()==0)
        {
     		Disp_Con(DISP_ERROR);
@@ -556,6 +590,10 @@ void fm_radio(void)
 	    	KT_AMFMStandby();
 #if SDMMC_CMD_MODE
 		sd_chk_ctl(SET_SD_H_CHK);
+#endif
+
+#ifndef DISABLE_P05_OSC_OUTPUT
+    		fm_osc_output_select(FALSE);
 #endif
 
 	}

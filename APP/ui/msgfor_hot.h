@@ -25,6 +25,15 @@ enum {
 	DISP_ALM_SCEN,
 };
 
+typedef enum {
+	
+	UNMUTE=0,
+	MUTE,
+}MUTE_TYPE;
+
+
+void Mute_Ext_PA(bool M_Type);
+
 u8 ap_handle_hotkey(u8 msg);
 void rtc_setting_exit(void);
 #if defined(USE_TIMER_POWER_OFF_FUNC)
