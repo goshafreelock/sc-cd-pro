@@ -177,6 +177,91 @@ enum {
 #define S4_ICON_BUF		(lcd_buff[0])
 
 #define FIGURE_NUM	4
+#elif defined(JK_CD_ZG_KS218_V001)
+
+#define USB_DEV_MASK	0x0001
+#define F_USB_DEV  		(lcd_buff[3])	
+
+#define AUX_DEV_MASK	0x0000
+#define F_AUX_DEV  		(lcd_buff[0])
+
+#define SD_DEV_MASK	0x0001
+#define F_SD_DEV		(lcd_buff[3])	
+
+#define FM_DEV_MASK	0x0004
+#define F_FM_DEV		(lcd_buff[3])	
+
+#define AM_DEV_MASK	0x0000
+#define F_AM_DEV		(lcd_buff[2])	
+
+#define POINTS_MASK		0x0000
+#define F_POINTS		(lcd_buff[0])	
+
+#define FM_MHZ_MASK	0x0000
+#define F_MHZ_DEV		(lcd_buff[0])	
+
+#define AM_KHZ_MASK	0x0000
+#define F_KHZ_DEV		(lcd_buff[1])	
+
+#define FM_P1_MASK		0x0000
+#define F_P1_DEV		(lcd_buff[3])	
+
+#define SW_MHZ_MASK	0x0000
+#define F_SW_DEV		(lcd_buff[2])	
+
+
+#define PLAY_ICON_MASK	0x0010
+#define F_PLAY_DEV		(lcd_buff[0])	
+
+#define PAUS_ICON_MASK	0x0000
+#define F_PAUS_DEV		(lcd_buff[3])	
+
+#define RTC_ICON_MASK	0x0000
+#define F_RTC_ICON		(lcd_buff[3])
+
+#define RTC_ALM_MASK	0x0000
+#define F_RTC_ALM		(lcd_buff[4])	
+
+#define RTC_PM_MASK	0x0000
+#define F_RTC_PM		(lcd_buff[2])
+
+#define RTC_AM_MASK	0x0000
+#define F_RTC_AM		(lcd_buff[3])
+
+#define REC_ICON_MASK	0x0000
+#define F_REC_DEV		(lcd_buff[4])	
+
+#define SPK_MUTE_MASK	0x0000
+#define F_SPK_DEV		(lcd_buff[3])	
+
+#define BATTERY_MASK	0x0000
+#define F_BAT_ICON_BUF	(lcd_buff[0])	
+
+
+#define TRADEMARK_MASK	0x0000
+#define TRADEMARK_ICON		(lcd_buff[0])	
+
+#define NUM_1BC_MASK	0x0000
+#define F_NUM_1BC		(lcd_buff[2])	
+
+#define REP_ALL_MASK	0x0040
+#define REP_ONE_MASK	0x0080
+#define REP_RDM_MASK	0x0080
+#define F_REP_ALL		(lcd_buff[0])
+#define F_REP_ONE 		(lcd_buff[2])
+#define F_REP_RDM 		(lcd_buff[1])
+
+//#define L_ICON_BUF		(lcd_buff[4])
+#define S1_ICON_MASK	0x0000
+#define S1_ICON_BUF		(lcd_buff[0])
+#define S2_ICON_MASK	0x0000
+#define S2_ICON_BUF		(lcd_buff[0])
+#define S3_ICON_MASK	0x0000
+#define S3_ICON_BUF		(lcd_buff[0])
+#define S4_ICON_MASK	0x0000
+#define S4_ICON_BUF		(lcd_buff[0])
+
+#define FIGURE_NUM	4
 #elif defined(MCU_CD_727_LCD_MODULE)
 #define USB_DEV_MASK	0x0000
 #define F_USB_DEV  		(lcd_buff[1])	

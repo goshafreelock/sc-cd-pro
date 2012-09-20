@@ -60,7 +60,7 @@ enum {
 	REP_B_CMD,
 };
 
-#if 1
+#ifdef IIC_MCU_PORT_USE_P21_P22
 #define iic_drv_data_out()    	P2DIR &= ~(BIT(2));P2PU |= BIT(2);P22 = 1
 #define iic_drv_data_in()     		P2DIR |= BIT(2);P2PU |= BIT(2)
 #define iic_drv_data_r()      		P22
