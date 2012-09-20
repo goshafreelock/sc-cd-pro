@@ -10,6 +10,7 @@
 #include "Custom_config.h"
 #include "power.h"
 #include "gpio_if.h"
+#include "msgfor_hot.h"
 
 bool sys_clock_flag;  ///<AD
 u8 clock_change_delay;
