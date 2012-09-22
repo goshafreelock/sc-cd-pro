@@ -117,13 +117,13 @@ void mcu_master_info_hdlr()
 		}
 		else if((rev_buf[0]&0x03)==0x00){
 
-			if(cd_play_status!=MUSIC_STOP){
-				cd_play_status=MUSIC_STOP;
-			}
+			//if(cd_play_status!=MUSIC_STOP){
+			//	cd_play_status=MUSIC_STOP;
+			//}
 			
-			info_timer_3++;
-			if((curr_menu != DISP_STOP)&&(info_timer_3>12))
-				Disp_Con(DISP_STOP);			
+			//info_timer_3++;
+			//if((curr_menu != DISP_STOP)&&(info_timer_3>12))
+			//	Disp_Con(DISP_STOP);			
 		}
 
 //4 TOC 
@@ -171,9 +171,14 @@ void mcu_master_info_hdlr()
 //4 curent total file
 		if((rev_buf[5]>0)&&(rev_buf[5]!=0xFF)){
 
-			//if(given_file_number!=rev_buf[5]){
-			//	given_file_number=rev_buf[5];
-			//}
+			if(((rev_buf[0]&0x03)==0x00)&&toc_flag){
+
+				if(cfilenum!=rev_buf[5]){
+					cfilenum=rev_buf[5];
+	                    		Disp_Con(DISP_DWORD_NUMBER);
+
+				}
+			}
 		}
 
 //4 total file time
