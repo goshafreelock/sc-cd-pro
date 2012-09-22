@@ -496,6 +496,8 @@ void sys_info_init(void)
 		work_mode = SYS_MCU_CD;
 #endif
 	}
+#else
+	work_mode = SYS_MCU_CD;
 #endif
 }
 #ifdef USE_SYS_IDEL_FUNC
