@@ -73,10 +73,14 @@ SEG8     P34
 #define  LCD_BACKLIGHT_INIT()	  	P0DIR &=~(BIT(5));P0PU|= (BIT(5))
 #define LCD_BACKLIGHT_ON()			P05 =0;
 #define LCD_BACKLIGHT_OFF()			P05 =1;
-#else
+#elif defined(BACK_LIGHT_GPIO_PORT_P04)
 #define  LCD_BACKLIGHT_INIT()	  	P0DIR &=~(BIT(4));P0PU|= (BIT(4))
 #define LCD_BACKLIGHT_ON()			P04 =0;
 #define LCD_BACKLIGHT_OFF()			P04 =1;
+#else 
+#define  LCD_BACKLIGHT_INIT()	  	
+#define LCD_BACKLIGHT_ON()			
+#define LCD_BACKLIGHT_OFF()			
 #endif
 
 
