@@ -491,7 +491,7 @@ void sys_info_init(void)
         work_mode = read_info(MEM_SYSMODE);
         if (work_mode > MAX_WORK_MODE){
 #ifdef USE_USB_SD_DECODE_FUNC	               	
-		work_mode = SYS_MP3DECODE;
+		work_mode = SYS_MP3DECODE_USB;
 #else
 		work_mode = SYS_MCU_CD;
 #endif
@@ -614,11 +614,11 @@ void idle_mode(void)
 			alm_bell_mode();
 		    	//sys_sleep_mode();
 #ifdef ALARM_USE_MULTI_SOURCE_FUNC
-			if(get_cur_select_func()==SYS_MP3DECODE){
+			if(get_cur_select_func()==SYS_MP3DECODE_USB){
 
 				if(get_device_online_status()>0){
 					alarm_power_on_protect =1;
-					work_mode = SYS_MP3DECODE;
+					work_mode = SYS_MP3DECODE_USB;
     					flush_all_msg();					
 		 			put_msg_lifo(INFO_NEXT_SYS_MODE);
 					break;
@@ -681,7 +681,7 @@ void main(void)
 	Disp_Con(DISP_HELLO);
 	sys_init();
     	sys_info_init();
-    //waiting_power_key();/*等待POWER按键松开，此处在使用的时候需要打开*/
+	Init_Func_List();
 	flush_all_msg();
 #if FILE_ENCRYPTION
     password_init(0xaa);  //输入加密文件的密码
@@ -694,11 +694,13 @@ void main(void)
 //	work_mode=SYS_FMREV;
 	while (1)
        {
+		Set_Curr_Func(work_mode);
         	switch (work_mode)
 	       {
 #ifdef USE_USB_SD_DECODE_FUNC	       
-	        	case SYS_MP3DECODE :
-		     		decode_play();
+	 		case SYS_MP3DECODE_USB:
+	 		case SYS_MP3DECODE_SD:	 
+	 			decode_play();
 	            	break;
 #endif					
 #ifdef USE_CD_MCU_MASTER_FUNC
@@ -738,7 +740,7 @@ void main(void)
 	        	default:
 
 #ifdef USE_USB_SD_DECODE_FUNC	               	
-	            		work_mode = SYS_MP3DECODE;
+	            		work_mode = SYS_MP3DECODE_USB;
 #else
 	            		work_mode = SYS_MCU_CD;
 #endif

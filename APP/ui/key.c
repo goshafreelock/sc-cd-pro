@@ -564,7 +564,7 @@ void ad_mod_sel_hdlr()
 
 	if(sys_mod_volt>ADKEY2_RES_NOKEY){
 			
-	      	   cur_work_mod =SYS_MP3DECODE;
+	      	   cur_work_mod =SYS_MP3DECODE_USB;
 	}
 	else if(sys_mod_volt>ADKEY2_RES_2){	
 	   	  cur_work_mod =SYS_FMREV;
@@ -602,7 +602,7 @@ void ad_mod_sel_hdlr()
 //4 P05 AD PORT FOR FUNC SEL
 
 	 	if(fm_sw_volt>ADKEY2_RES_6)
-	      	   	sys_func_sel =SYS_MP3DECODE ;
+	      	   	sys_func_sel =SYS_MP3DECODE_USB ;
 	  	else 
 	      	   	sys_func_sel =SYS_FMREV ;
 
@@ -631,7 +631,7 @@ void ad_mod_sel_hdlr()
 //4 P05 AD PORT FOR FUNC SEL
 
 	 	if(fm_sw_volt>ADKEY2_RES_8)
-	      	   	sys_func_sel =SYS_MP3DECODE ;
+	      	   	sys_func_sel =SYS_MP3DECODE_USB ;
 	  	else{
 			
 	      	   	sys_func_sel =SYS_FMREV ;

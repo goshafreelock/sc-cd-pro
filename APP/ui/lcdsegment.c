@@ -277,7 +277,7 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
        lcd_buff[4] |= (((letter_data & DIG_D)>>2)|((letter_data & DIG_E)>>4))<<digit_idx;   	 
 }
 #elif defined(JK_CD_ZG_KS218_V001)
-u8 _code lcd_disbuf_offset[3] ={0,2,4,6};
+u8 _code lcd_disbuf_offset[4] ={0,2,4,6};
 void align_lcd_disp_buff(u8 offset,u8 letter_data)
 {
 	u8 digit_idx=offset;
@@ -504,6 +504,55 @@ void disp_scan(void)
 	  seg07_port(~lcd_buff[temp]);
 	  seg8_port(( ((lcd_buff[temp]&0x0100)>0)?0:1 ));
 	  seg9_port(( ((lcd_buff[temp]&0x0200)>0)?0:1 ));
+	  set_com(temp);
+   }
+
+   cnt++;
+   if(cnt>7)cnt = 0;
+}
+#elif defined(SEG_LCD_4COM_8SEG_DRV)
+void disp_scan(void)
+{
+    static xd_u8 cnt = 0;
+    xd_u8 temp;
+    static bool flash;
+
+    custom_buf_update();
+
+#if 0
+	init_disp_buf();
+	disp_putchar('0',0);
+	disp_putchar('1',1);
+	disp_putchar('2',2);
+	disp_putchar('3',3);
+#endif	
+
+    TRADEMARK_ICON |=TRADEMARK_MASK;
+
+    lcd_flash_timer++;
+    if (lcd_flash_timer == 220)
+    {
+        lcd_flash_timer = 0;
+        flash = !flash;
+    }
+    if (flash)
+    {
+        disp_clr_icon(lcd_flash_icon);   
+    }
+    else
+    {
+        disp_icon(lcd_flash_icon); 
+    }
+
+    temp = cnt>>1;
+    close_com(temp);
+    if(cnt & 0x01){
+	  seg07_port(lcd_buff[temp]);
+	  clr_com(temp);
+    }
+    else
+   {                            
+	  seg07_port(~lcd_buff[temp]);
 	  set_com(temp);
    }
 

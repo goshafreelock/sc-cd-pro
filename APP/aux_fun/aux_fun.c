@@ -17,7 +17,7 @@ extern xd_u16 cfilenum;
 extern xd_u8 curr_menu;
 extern xd_u8  return_cnt;
 extern bit aux_online;
-extern xd_u8 work_mode;
+extern _xdata SYS_WORK_MODE  work_mode;
 extern _idata u16 dac_cnt;
 extern bool key_voice_disable;
 extern void chk_date_err(void);

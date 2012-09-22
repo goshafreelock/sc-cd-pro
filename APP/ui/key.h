@@ -271,6 +271,18 @@ void bmt_hdlr(void);
 #define ADKEY_RES_NOKEY		RES_VOLT_NO_KEY	/*NO KEY*/
 #endif
 /*Default adkey value */
+
+#if defined(JK_CD_ZG_KS218_V001)
+#define ADKEY_1		INFO_PLAY
+#define ADKEY_2		INFO_NEXT_FIL
+#define ADKEY_3		INFO_PREV_FIL
+#define ADKEY_4		INFO_STOP
+#define ADKEY_5		INFO_MODE
+#define ADKEY_6		INFO_VOL_PLUS
+#define ADKEY_7		INFO_VOL_MINUS
+#define ADKEY_8		NO_KEY
+#define ADKEY_NOKEY	NO_KEY
+#else
 #define ADKEY_1		INFO_POWER
 #define ADKEY_2		INFO_STOP
 #define ADKEY_3		INFO_NEXT_FIL
@@ -280,6 +292,8 @@ void bmt_hdlr(void);
 #define ADKEY_7		INFO_VOL_MINUS
 #define ADKEY_8		INFO_PLAY
 #define ADKEY_NOKEY	NO_KEY
+#endif
+
 #else
 
 /*Customer define adkey value */

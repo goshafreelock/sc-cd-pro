@@ -17,7 +17,7 @@ extern xd_u16 cfilenum;
 extern xd_u8 curr_menu;
 extern xd_u8  return_cnt;
 extern bit aux_online;
-extern xd_u8 work_mode;
+extern _xdata SYS_WORK_MODE  work_mode;
 extern void usb_in_check_nopower(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
@@ -44,6 +44,8 @@ xd_u8 sw_fm_mod=0,cur_sw_fm_band=0;
 xd_u16 REG_MAX_FREQ=0,REG_MIN_FREQ=0;
 xd_u8 sw_fm_pos=0;
 xd_u8 station_save_pos=0;
+
+#ifdef USE_RADIO_FUNC
 
 extern void KT_AMFMSetMode(xd_u8 AMFM_MODE);
 extern xd_u8 KT_FMTune(xd_u16 Frequency);
@@ -599,5 +601,5 @@ void fm_radio(void)
 	}
 	
 }
-
+#endif
 
