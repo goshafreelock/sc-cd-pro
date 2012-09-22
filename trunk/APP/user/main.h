@@ -19,7 +19,7 @@
 #include "dac.h"
 #include "clock.h"
 
-
+#if 0
 enum
 {
     SYS_MP3DECODE = 1,
@@ -32,6 +32,7 @@ enum
     SYS_USBDEVICE,
     SYS_IDLE,
 };
+#endif
 #endif
 
 #if RTC_ENABLE

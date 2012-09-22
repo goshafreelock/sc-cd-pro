@@ -326,7 +326,7 @@ u8 alm_bell_mode(void)
 	while(1)
 	{
 #if ((USB_DEVICE_CFG & USB_MASS) == USB_MASS)
-        if(SYS_USBDEVICE == work_mode)
+        if(SYS_USB_DEVICE == work_mode)
 		{
 		    UFI_massstorage();
 		}

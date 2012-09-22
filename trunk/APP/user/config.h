@@ -6,6 +6,8 @@
    @note   AC209N
 */
 /*----------------------------------------------------------------------------*/
+#include "Custom_config.h"
+
 #ifndef _CONFIG_
 #define _CONFIG_
 
@@ -30,6 +32,40 @@ typedef enum
 	SET_SD_L_CHK,		///<在命令检测SD卡在线状态的情况下，SD不在线时检测1S一次
 }Sd_api_cmd;
 
+
+typedef enum
+{
+    SYS_MP3DECODE_USB,
+    SYS_MP3DECODE_SD,
+
+#ifdef USE_CD_MCU_MASTER_FUNC
+    SYS_MCU_CD,
+#endif
+
+#if defined(EXCHANGE_FM_AUX_PRIO)    
+    SYS_AUX,
+    
+    SYS_FMREV,
+#ifdef AM_RADIO_FUNC
+    SYS_AMREV,
+#endif
+
+#else
+    SYS_FMREV,
+#ifdef AM_RADIO_FUNC
+    SYS_AMREV,
+#endif
+    SYS_AUX,
+#endif
+
+#if defined(IPONE_INDEPENDENT_MODE)	
+    SYS_IPH,
+#endif    
+
+    SYS_RTC,
+    SYS_IDLE,
+    SYS_USB_DEVICE,
+}SYS_WORK_MODE;
 #endif
 									   
 

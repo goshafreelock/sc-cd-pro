@@ -332,7 +332,8 @@ void mcu_hdlr( void )
 			fast_fr_release_cnt=6;			
 			master_push_cmd(FAST_R_CMD);
 			break;
-
+			
+#ifdef MASTER_SEL_CD_PLAY_MODE
 	    	case INFO_MODE | KEY_SHORT_UP:
 
 			if(play_mode==REPEAT_INTRO){
@@ -359,7 +360,8 @@ void mcu_hdlr( void )
 
 	    		//printf("------->> play_mode   %x---%x \r\n",(u16)send_buf,(u16)play_mode);
 			
-			break;				
+			break;			
+#endif				
 		 case INFO_HALF_SECOND :
 
 

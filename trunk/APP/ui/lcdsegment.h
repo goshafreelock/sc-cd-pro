@@ -45,6 +45,15 @@ SEG8     P34
 #define   seg07_port(n)   	P1 = n
 #define   seg8_port(n)	P02 = n
 #define   seg9_port(n)	P34 = n
+#elif defined(SEG_LCD_4COM_8SEG_DRV)
+#define   com_init()      	P3PU |= (0x0F);P3PD |= (0x0F)
+#define   close_com(n)    	com_init();P3DIR |= (0x0F);P3DIR &= ~(1<<(n))
+    
+#define	set_com(n)      	P3 |= (1<<(n))
+#define   clr_com(n)       	P3 &= ~(1<<(n)) 
+	
+#define   seg_init()      	P1DIR = 0;P0DIR &= ~(BIT(2))
+#define   seg07_port(n)   	P1 = n
 #else
 
 #define   com_init()      P3PU |= (0x1F);P3PD |= (0x1F)

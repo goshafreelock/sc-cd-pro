@@ -232,7 +232,7 @@ void usb_audio_massstorage(void)
 
     if (pc_connect)
     {
-        work_mode = SYS_USBDEVICE;
+        work_mode = SYS_USB_DEVICE;
         sysclock_div2(0);
         sd_speed_init(1, 100);
         flush_all_msg();
