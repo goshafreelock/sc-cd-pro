@@ -489,8 +489,13 @@ void sys_info_init(void)
 
 #ifdef USE_SYS_MODE_RECOVER
         work_mode = read_info(MEM_SYSMODE);
-        if (work_mode > MAX_WORK_MODE)
-            work_mode = SYS_MP3DECODE;
+        if (work_mode > MAX_WORK_MODE){
+#ifdef USE_USB_SD_DECODE_FUNC	               	
+		work_mode = SYS_MP3DECODE;
+#else
+		work_mode = SYS_MCU_CD;
+#endif
+	}
 #endif
 }
 #ifdef USE_SYS_IDEL_FUNC
@@ -729,7 +734,12 @@ void main(void)
 		     	break;
 #endif			 
 	        	default:
+
+#ifdef USE_USB_SD_DECODE_FUNC	               	
 	            		work_mode = SYS_MP3DECODE;
+#else
+	            		work_mode = SYS_MCU_CD;
+#endif
 	            	break;
 	        }
 #ifdef USE_SYS_MODE_RECOVER
