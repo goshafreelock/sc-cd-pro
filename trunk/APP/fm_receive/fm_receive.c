@@ -28,7 +28,7 @@ xd_u8 all_channl;
 xd_u16 frequency;
 /** FM收音当前所在的台号*/
 xd_u8 fre_channl;
-xd_u8 fre_point[10]={0};    ///< FM收音搜索到的台的缓存
+xd_u16 fre_preset[10]={0};    ///< FM收音搜索到的台的缓存
 extern _idata u16 dac_cnt;
 extern bit key_voice_disable;
 #ifdef ADKEY_SELECT_MODE
@@ -44,6 +44,10 @@ xd_u8 sw_fm_mod=0,cur_sw_fm_band=0;
 xd_u16 REG_MAX_FREQ=0,REG_MIN_FREQ=0;
 xd_u8 sw_fm_pos=0;
 xd_u8 station_save_pos=0;
+
+#ifdef RADIO_ST_INDICATOR
+bool radio_st_ind=0;
+#endif
 
 #ifdef USE_RADIO_FUNC
 
@@ -73,18 +77,40 @@ extern bool timer_setting_enable;
 extern Str_Band  Current_Band;
 extern bool IR_key_det;
 
+void save_radio_freq(u16 radio_freq,u8 ch)
+{
+	xd_u8 freq_reg=0;
+
+	freq_reg =(u8)radio_freq&(0x00FF);
+	write_info(ch, freq_reg);
+
+	freq_reg =(u8)(radio_freq>>8);
+	write_info(ch+1, freq_reg);
+}
+u16 read_radio_freq(u8 ch)
+{
+	xd_u16 freq_reg=0;
+
+	freq_reg = read_info(ch+1);
+	freq_reg=freq_reg<<8;
+	freq_reg |= read_info(ch);
+
+	return freq_reg;	
+}
+
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
-static bool gpio_sel_band_info_config=0;
+static xd_u8 gpio_sel_band_info_config=0;
 void scan_gpio_band_info_config()
 {
 	EA =0;
-	gpio_sel_band_info_config=0;
 	P0DIR &= ~(BIT(7)); 
 	P07=1; 
 	P0DIR |= BIT(7);
 	P0PU |= BIT(7);
 	_nop_();
 	_nop_();
+
+	gpio_sel_band_info_config=0;
 
 	if(P07){
 		gpio_sel_band_info_config=1;
@@ -93,22 +119,107 @@ void scan_gpio_band_info_config()
 	P0DIR &= ~(BIT(7)); 
 	EA =1;
 }
-bool get_band_info_config()
+u8 get_band_info_config()
 {
 	return gpio_sel_band_info_config;
 }
 #endif
 
+u16 _code fm_p_freq[6]={8750,9000,9800,10600,10800,8750};
+u16 _code am_eur_freq[6]={522,603,999,1404,1620,522};
+u16 _code am_usa_freq[6]={520,600,1000,1400,1710,520};
+
+void load_preset_table(u8 pre_cmd)
+{
+	u8 i=0;
+	u16 *p;
+	u8 epprom_offset=0;
+
+	if(pre_cmd==GET_FM_PRESET_FROM_EPPROM){
+
+		for(i=0;i<10;i++){
+			fre_preset[i]=read_radio_freq(2*i+FM_CH_OFFSET);
+		}
+		return;
+	}
+	else if(pre_cmd==GET_AM_PRESET_FROM_EPPROM){
+		for(i=0;i<10;i++){
+			fre_preset[i]=read_radio_freq(2*i+AM_CH_OFFSET);
+		}
+		return;
+	}	
+	else if(pre_cmd==RESET_FM_PRESET){
+		p=fm_p_freq;
+		epprom_offset=FM_CH_OFFSET;
+	}
+	else if(pre_cmd==RESET_EUR_AM_PRESET){
+		p=am_eur_freq;
+		epprom_offset=AM_CH_OFFSET;
+	}
+	else if(pre_cmd==RESET_USA_AM_PRESET){
+		p=am_usa_freq;
+		epprom_offset=AM_CH_OFFSET;
+	}
+	
+	for(i=0;i<10;i++){
+		
+		fre_preset[i]=*(p);
+		
+		if(i<5)p++;
+	}
+
+	for(i=0;i<10;i++){
+
+		printf("------->-station form  TABLE  fre:%4u  at : %d \r\n",fre_preset[i],(u16)((i*2)+epprom_offset));
+
+		save_radio_freq(fre_preset[i],(i*2)+epprom_offset);
+	}
+}
+void radio_preset_init()
+{
+	u8 preset_reg=0;
+
+	preset_reg =read_info(MEM_PRESET_REG);
+
+	if(((preset_reg&PRESET_MASK)==PRESET_OK)&&((preset_reg&PRESET_ZONE_MASK)==gpio_sel_band_info_config)){		
+
+	    	printf("------->-station form  epprom    \r\n");
+
+		//4 load preset station form  epprom
+		if(cur_sw_fm_band==0)
+			load_preset_table(GET_FM_PRESET_FROM_EPPROM);
+		else if(cur_sw_fm_band==1)
+			load_preset_table(GET_AM_PRESET_FROM_EPPROM);
+	}
+	else{
+
+	    	printf("------->-station form  TABLE   \r\n");
+		
+		//4  reset FM Preset
+		load_preset_table(RESET_FM_PRESET);
+
+
+		//4 reset AM Preset
+		if(get_band_info_config()==0)
+			load_preset_table(RESET_USA_AM_PRESET);
+		else
+			load_preset_table(RESET_EUR_AM_PRESET);
+			
+		preset_reg=PRESET_OK|gpio_sel_band_info_config;
+		write_info(MEM_PRESET_REG , preset_reg);
+
+	}	
+}
 #if defined(AM_FM_BAND_ONLY)
+FREQ_RAGE _code radio_freq_tab_EUR[MAX_BAND]=
+{
+	8750,	10800,
+	522,		1620,
+};
 FREQ_RAGE _code radio_freq_tab_USA[MAX_BAND]=
 {
 	8750,	10800,
-	522,		1630,
-};
-FREQ_RAGE _code radio_freq_tab_EUR[MAX_BAND]=
-{
-	8800,	10800,
-	530,		1610,
+	520,		1710,
 };
 #else
 FREQ_RAGE _code radio_freq_tab[MAX_BAND]=
@@ -127,28 +238,6 @@ FREQ_RAGE _code radio_freq_tab[MAX_BAND]=
 	23010,	25000,
 };
 #endif
-
-void save_radio_freq(u16 radio_freq,u8 ch)
-{
-	xd_u8 freq_reg=0;
-	ch=ch<<1;
-	freq_reg =(u8)radio_freq&(0x00FF);
-	write_info(MEM_FM_CHANNL +ch , freq_reg);
-
-	freq_reg =(u8)(radio_freq>>8);
-	write_info(MEM_FM_CHANNL +ch+1, freq_reg);
-}
-u16 read_radio_freq(u8 ch)
-{
-	xd_u16 freq_reg=0;
-	
-	ch=ch<<1;
-	freq_reg = read_info(MEM_FM_CHANNL +ch+1);
-	freq_reg=freq_reg<<8;
-	freq_reg |= read_info(MEM_FM_CHANNL +ch);
-
-	return freq_reg;	
-}
 
 void set_radio_freq(u8 mode)
 {
@@ -182,15 +271,16 @@ void set_radio_freq(u8 mode)
     }
     Disp_Con(DISP_FREQ);			
 
-#ifdef SAVE_BAND_FREQ_INFO	
-    save_radio_freq(frequency,cur_sw_fm_band);
+#if 1//def SAVE_BAND_FREQ_INFO
+    printf("------->- set_radio_freq    fre:%4u   \r\n",frequency);
+    save_radio_freq(frequency,cur_sw_fm_band*2+MEM_FREQ_BASE);
 #endif
 }
 void radio_band_hdlr()
 {
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
 
-	if(get_band_info_config()){
+	if(get_band_info_config()==0){
 		
 		REG_MAX_FREQ = radio_freq_tab_USA[cur_sw_fm_band].MAX_FREQ;
 		REG_MIN_FREQ = radio_freq_tab_USA[cur_sw_fm_band].MIN_FREQ;
@@ -202,8 +292,10 @@ void radio_band_hdlr()
 		REG_MIN_FREQ = radio_freq_tab_EUR[cur_sw_fm_band].MIN_FREQ;
 	}
 	
-#ifdef SAVE_BAND_FREQ_INFO	
-	frequency = read_radio_freq(cur_sw_fm_band);
+#if 1//def SAVE_BAND_FREQ_INFO	
+	frequency = read_radio_freq(cur_sw_fm_band*2+MEM_FREQ_BASE);
+    	printf("------->- radio_band_hdlr    fre:%4u   \r\n",frequency);
+
 #endif
 
 	station_save_pos=0;
@@ -330,10 +422,10 @@ void radio_save_station_hdlr()
         		case INFO_MODE| KEY_SHORT_UP:
 
 				if(cur_sw_fm_band==0){
-					save_radio_freq(frequency,station_save_pos+FM_CH_OFFSET);
+					save_radio_freq(frequency,station_save_pos*2+FM_CH_OFFSET);
 				}
 				else if(cur_sw_fm_band==1){
-					save_radio_freq(frequency,station_save_pos+AM_CH_OFFSET);
+					save_radio_freq(frequency,station_save_pos*2+AM_CH_OFFSET);
 				}
 	                    Disp_Con(DISP_FREQ);
 			      return;
@@ -356,11 +448,14 @@ void restore_station_from_ch()
 		station_save_pos=0;
 
 	if(cur_sw_fm_band==0){
-		frequency = read_radio_freq(station_save_pos+FM_CH_OFFSET);
+		frequency = read_radio_freq(station_save_pos*2+FM_CH_OFFSET);
 	}
 	else if(cur_sw_fm_band==1){
-		frequency = read_radio_freq(station_save_pos+AM_CH_OFFSET);
+		frequency = read_radio_freq(station_save_pos*2+AM_CH_OFFSET);
 	}
+
+	printf("------->-station form  TABLE  fre:%4u   \r\n",frequency);
+
 	set_radio_freq(FM_CUR_FRE);
 
        Disp_Con(DISP_SAVE_POS);
@@ -388,9 +483,9 @@ void fm_hdlr( void )
 
 #endif
 
-    set_radio_freq(FM_CUR_FRE);
+    	set_radio_freq(FM_CUR_FRE);
 #ifdef ADKEY_SELECT_MODE
-    mode_switch_protect_bit=0;
+    	mode_switch_protect_bit=0;
 #endif	
 	Mute_Ext_PA(UNMUTE);
 
@@ -558,6 +653,7 @@ void fm_radio(void)
 
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
 		scan_gpio_band_info_config();
+		radio_preset_init();
 #endif		
 		sysclock_div2(1);
 #if SDMMC_CMD_MODE

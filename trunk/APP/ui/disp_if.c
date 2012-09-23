@@ -25,7 +25,7 @@ extern u8 device_active;
 extern xd_u8 all_channl;
 extern xd_u16 frequency;
 extern xd_u8 fre_channl,play_status;
-extern _xdata u8 fre_point[];
+extern _xdata u8 fre_preset[];
 extern MAD_DECODE_INFO _pdata mad_decode_dsc;
 
 xd_u8 return_cnt;
@@ -36,6 +36,11 @@ extern xd_u8 cur_sw_fm_band,rtc_setting,rtc_set,alm_set;
 extern  _xdata u8 filename_buff[100];
 extern bool alm_sw;
 extern xd_u8 station_save_pos;
+extern _xdata SYS_WORK_MODE  work_mode;
+
+#ifdef RADIO_ST_INDICATOR
+extern bool radio_st_ind;
+#endif
 
 
 #if defined(USE_BAT_MANAGEMENT)
@@ -90,7 +95,19 @@ void disp_active(void)
 }
 void Disp_Num(void)
 {
-	printf_num(cfilenum,0,4);
+#ifdef USE_CD_MCU_MASTER_FUNC
+	if(work_mode == SYS_MCU_CD){
+		printf_char('C',0);
+		printf_char('d',1);
+
+		printf_num(cfilenum,2,2);
+	}
+	else
+#endif
+	{
+		printf_num(cfilenum,0,4);
+
+	}
 }
 void Disp_Filenum(void)
 {
@@ -139,37 +156,43 @@ void Disp_Playmode_icon()
 #ifdef USE_CD_MCU_MASTER_FUNC			
 extern TOC_TIME cur_time;
 extern xd_u8 cd_play_status;
-
 #endif
 void disp_file_time(void)
 {
-#ifdef USE_CD_MCU_MASTER_FUNC			
-    printf_num(cur_time.SEC,2,2);
-    printf_num(cur_time.MIN,0,2);
-
-    if(cd_play_status==MUSIC_PLAY){	
-
-    	disp_clr_icon(ICON_PAUSE);
-    	disp_icon(ICON_PLAY);
-    }
-    else  if(cd_play_status==MUSIC_PAUSE){	
-
-    	disp_clr_icon(ICON_PLAY);
-
-    	disp_icon(ICON_PAUSE);
-    }
-
-#else
     u16 sec;
     u16 min;
     u32 file_play_time;
-    file_play_time = get_music_play_time();
-    sec = file_play_time % 60;
-    min = (file_play_time/60) % 60;
-	
-    printf_num(sec,2,2);
-    printf_num(min,0,2);
-#endif	
+
+#ifdef USE_CD_MCU_MASTER_FUNC
+
+    if(work_mode ==SYS_MCU_CD){
+		
+	    printf_num(cur_time.SEC,2,2);
+	    printf_num(cur_time.MIN,0,2);
+
+	    if(cd_play_status==MUSIC_PLAY){	
+
+	    	disp_clr_icon(ICON_PAUSE);
+	    	disp_icon(ICON_PLAY);
+	    }
+	    else  if(cd_play_status==MUSIC_PAUSE){	
+
+	    	disp_clr_icon(ICON_PLAY);
+
+	    	disp_icon(ICON_PAUSE);
+	    }
+    }
+    else
+#endif
+    {
+	    file_play_time = get_music_play_time();
+	    sec = file_play_time % 60;
+	    min = (file_play_time/60) % 60;
+		
+	    printf_num(sec,2,2);
+	    printf_num(min,0,2);
+    }
+
     disp_icon(ICON_COL);
     disp_active();
     Disp_Playmode_icon();
@@ -201,7 +224,13 @@ void Disp_Play(void)
 }
 void Disp_Hello(void)
 {
+#ifdef WELCOME_DISP_BAR_BAR
+    printf_str("----",0);
+#elif defined(WELCOME_DISP_ON_STR)
+    printf_str(" ON",0);
+#else
     printf_str(" HI",0);
+#endif
     set_brightness_all_on();	
 }
 void Disp_Eq(void)
@@ -323,6 +352,13 @@ void Disp_freq(void )
         printf_num(freq,2,2);
     }
 #endif
+
+#ifdef RADIO_ST_INDICATOR
+	if(radio_st_ind)
+	 	disp_icon(ICON_RADIO_ST);		
+	else
+		disp_clr_icon(ICON_RADIO_ST);		
+#endif
 }
 void Disp_Aux(void )
 {
@@ -345,8 +381,8 @@ void Disp_cur_band(void)
 }
 void Disp_station_ch(void)
 {
-    	printf_str("C",1);
-    	printf_num((station_save_pos),2,2);
+    	printf_str("P",1);
+    	printf_num((station_save_pos+1),2,2);
 }
 #if RTC_ENABLE
 xd_u8  clock_points=0;
@@ -542,6 +578,7 @@ void Disp_Con(u8 LCDinterf)
     case DISP_AUX:
         Disp_Aux();
         break;	
+#if RTC_ENABLE		
     case DISP_RTC:
         Disp_curr_time();
         break;	
@@ -550,7 +587,8 @@ void Disp_Con(u8 LCDinterf)
         break;	
     case DISP_ALM_UP:
         Disp_alarm_up();
-        break;			
+        break;	
+#endif		
     case DISP_ERROR:
         disp_error();
         break;		

@@ -18,7 +18,7 @@ extern u8 _idata music_vol;
 extern xd_u8 eq_mode;
 extern xd_u8 return_cnt;
 extern xd_u8 curr_menu;
-extern xd_u8 work_mode;
+extern _xdata SYS_WORK_MODE  work_mode;
 extern bit pc_connect;
 extern void main_vol(u8 vol);
 extern xd_u16 cfilenum;

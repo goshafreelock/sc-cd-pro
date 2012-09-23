@@ -432,6 +432,7 @@ void music_play(void)
 		   	}
             }
 #endif
+#ifdef RTC_DISP_IN_IDLE_MODE
 
 	    if(disp_scenario == DISP_RTC_SCEN){
 
@@ -447,7 +448,7 @@ void music_play(void)
 			rtc_disp_hdlr();
 			break;
 	     }
-		
+#endif		
             if (DISP_PLAY == curr_menu)
             {
                 	disp_file_time();

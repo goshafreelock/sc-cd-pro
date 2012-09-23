@@ -106,7 +106,7 @@ void write_eerom(u8 addr,u8 dat)
     iic_write(0xa0,addr,&dat,1);
     delay_10ms(2);
 }
-#if defined(EEPROM_RTC_RAM_COMPATIBLE)
+#if ((USE_RTC_EEPROM == MEMORY_STYLE))
 static bool eeprom_type=0;
 u8 _code eeprom_chk[2]={0x66,0xCC};
 void check_eeprom_status(void)
@@ -159,6 +159,13 @@ u8 read_info(u8 addr)
 	return read_rtc_ram(addr);
 #elif ((USE_EEPROM == MEMORY_STYLE))
 	return read_eerom(addr);
+#elif ((USE_RTC_EEPROM == MEMORY_STYLE))
+
+	if(eeprom_type)
+		return read_eerom(addr);
+	else
+		return read_rtc_ram(addr);
+
 #endif
 }
 /*----------------------------------------------------------------------------*/
@@ -185,6 +192,11 @@ void write_info(u8 addr,u8 dat)
 	write_rtc_ram(addr,dat);
 #elif ((USE_EEPROM == MEMORY_STYLE))
 	write_eerom(addr,dat);
+#elif ((USE_RTC_EEPROM == MEMORY_STYLE))
+	if(eeprom_type)
+		write_eerom(addr,dat);
+	else
+		write_rtc_ram(addr,dat);	
 #endif
 }
 

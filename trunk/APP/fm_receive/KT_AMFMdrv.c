@@ -49,6 +49,7 @@
 //						Added the "KT_AMFMSeekFromCurrentCh()" function.
 /*°æ    ±¾£ºV4.0																	*/
 /************************************************************************************/
+#include "Custom_config.h"
 
 //-----------------------------------------------------------------------------
 // Includes
@@ -70,7 +71,14 @@ xd_u16 mem_freq[3];			  //Rememberred channel frequencies for previous, current 
 xd_u8 mem_snr[3];			  //Rememberred SNR values for previous, current and next stations
 #endif
 
+#ifdef RADIO_ST_INDICATOR
+extern bool radio_st_ind;
+#endif
+
 Str_Band  Current_Band;
+
+
+xd_u8 KT_FMGetST(void);
 
 #ifdef UART_ENABLE
 #define DEBUG_SW
@@ -275,7 +283,9 @@ xd_u8 KT_pre_init(void)
 
 #if 1
 	regx = KT_Bus_Read(0x01);           			//Read Manufactory ID 
-	//printf_u16(regx,'D');
+#ifdef DEBUG_SW    	
+	printf("  ------->>FM ID  %x   \r\n ",regx);
+#endif	
 	if (regx != 0x4B54) return 0;
 	
 	//regx=KT_Bus_Read(0x12);						//Read power-up indicator
@@ -620,12 +630,16 @@ xd_u8 KT_FMTune(xd_u16 Frequency) //87.5MHz-->Frequency=8750; Mute the chip and 
 
 	regx=KT_Bus_Read(0x0A);
 	if(
-		(Frequency == 8620) || (Frequency == 8780)	|| (Frequency == 9030)	|| (Frequency == 9440)	||
-		(Frequency == 9850) || (Frequency == 10260) || (Frequency == 10670) ||
+		(Frequency == 8920) || (Frequency == 8780)	|| (Frequency == 9030)	|| (Frequency == 9440)	||
+		(Frequency == 9850) || (Frequency == 10260) || (Frequency == 10670) || (Frequency == 9170)	|| (Frequency == 9580)	||
 		(Frequency == 9660)	|| (Frequency == 9860)	|| (Frequency == 10230)	|| (Frequency == 10240)	|| (Frequency == 10520) ||
-		(Frequency == 4380) || (Frequency == 4390)	|| (Frequency == 5260)	|| (Frequency == 5850)	||
-		(Frequency == 6570) || (Frequency == 6580)	|| (Frequency == 6590)	|| (Frequency == 7310)	|| (Frequency == 7890)
-	  )
+	       (Frequency == 9470) || (Frequency == 9480)	|| (Frequency == 9490)	|| (Frequency == 10570)	|| (Frequency == 10560)	||
+		(Frequency == 10580) || (Frequency == 10590)	|| (Frequency == 8790)	|| (Frequency == 8810)	|| (Frequency == 9220)	||
+		(Frequency == 10390)|| (Frequency == 10400) || (Frequency == 10540)|| (Frequency == 9710) || (Frequency == 10120)||
+		(Frequency == 9640)|| (Frequency == 10480) || (Frequency == 8750)|| (Frequency == 8760)|| (Frequency == 8770)|| 
+		(Frequency == 6700)|| (Frequency == 6710)|| (Frequency == 6720)|| (Frequency == 7110)|| (Frequency == 7120)||
+		(Frequency == 7130)|| (Frequency == 6730)|| (Frequency == 6740)
+	 )
 	{
 		KT_Bus_Write(0x0A, regx | 0x0040);
 	}
@@ -636,7 +650,17 @@ xd_u8 KT_FMTune(xd_u16 Frequency) //87.5MHz-->Frequency=8750; Mute the chip and 
 	regx=KT_Bus_Read(0x03);
 	KT_Bus_Write(0x03, (regx & 0xF000) | 0x8000 | (Frequency / 5));	   		//set tune bit to 1
 
-	//delay_10ms(1);
+	delay_10ms(2);
+
+#ifdef RADIO_ST_INDICATOR
+
+	if(KT_FMGetST()>0){
+		radio_st_ind=1;
+	}
+	else{
+		radio_st_ind=0;
+	}
+#endif
 
 	regx = KT_Bus_Read(0x0F);       
 	KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0
@@ -778,32 +802,6 @@ xd_u8 KT_AMTune(xd_u16 Frequency) //1710KHz --> Frequency=1710; Mute the chip an
 	}
 	else
 	{
-
-		if(Frequency==17870){
-			Frequency=17870-1;
-		}
-		if(Frequency==18400){
-			Frequency=18400-2;
-		}		
-		if(Frequency==18700){
-			Frequency=18700-2;
-		}	
-		if(Frequency==18480){
-			Frequency=18480-2;
-		}
-		if(Frequency==16600){
-			Frequency=16602;
-		}		
-		if(Frequency==19275){
-			Frequency=19273;
-		}			
-		if((Frequency>18930)&&(Frequency<19100)){
-			Frequency=Frequency-1;
-		}
-
-		if((Frequency>19260)&&(Frequency<19275)){
-			Frequency=Frequency-1;
-		}
 		
 		KT_Bus_Write(0x1E, 0x0001);								//DIVIDERP<9:0>=1
 		KT_Bus_Write(0x1F, 0x029C);								//DIVIDERN<9:0>=668
@@ -816,11 +814,15 @@ xd_u8 KT_AMTune(xd_u16 Frequency) //1710KHz --> Frequency=1710; Mute the chip an
 		}
 #endif
 	}
-	//delay_10ms(100);
+	delay_10ms(2);
 
 #ifdef DISABLE_FAST_GAIN_UP
 	regx = KT_Bus_Read(0x23);
 	KT_Bus_Write(0x23, regx & 0xDFFF | 0x2000);				//disable the function of fast up in baseband AGC, by chend, 2010-05-21
+#endif
+
+#ifdef RADIO_ST_INDICATOR
+	radio_st_ind=0;
 #endif
 
 	regx = KT_Bus_Read(0x0F);       
@@ -1063,7 +1065,7 @@ xd_u16 KT_AMGetFreq(void)
 
 #ifdef SEMI_AUTO_SCAN_FUNC
 extern xd_u8 cur_sw_fm_band;
-extern bool get_band_info_config();
+extern u8 get_band_info_config();
 void load_band_info(void)
 {
 #ifdef DEBUG_SW    	
@@ -1073,7 +1075,7 @@ void load_band_info(void)
     if(cur_sw_fm_band==0){
 
 		Current_Band.Band=FM_MODE;
-		Current_Band.MAX_CH=FM_MAX_CH;
+		Current_Band.MAX_CH=FM_MAX_CH-1;
 		Current_Band.Tune_Step=FM_100KHz_STEP;
 		Current_Band.Seek_Step = FM_50KHz_STEP;	
 		Current_Band.ValidStation_Step =FM_50KHz_STEP ;			
@@ -1081,10 +1083,10 @@ void load_band_info(void)
     else if(cur_sw_fm_band==1){
 		
 		Current_Band.Band=MW_MODE;
-		Current_Band.MAX_CH=AM_MAX_CH;
+		Current_Band.MAX_CH=AM_MAX_CH-1;
 
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
-		if(get_band_info_config()){
+		if(get_band_info_config()==0){
 
 			Current_Band.Tune_Step=AM_10KHz_STEP;
 			Current_Band.Seek_Step = AM_10KHz_STEP;		
@@ -1219,6 +1221,11 @@ xd_u8 KT_FMGetST(void)
 {
 	xd_u16 regx;
     regx = KT_Bus_Read(0x06);
+
+#ifdef DEBUG_SW    	
+	printf("  ------->>KT_FMGetST   %x \r\n",(regx & 0x7F00));
+#endif	
+	
 	return ((regx & 0x7F00) < TST_TH);
 }
 
@@ -1239,6 +1246,10 @@ xd_u8 KT_FMReadRSSI(char *RSSI) //range from -100 to -6, unit is dbm
 	xd_u16 regx;
 	regx = KT_Bus_Read(0x12);
 	*RSSI = -(100 - (((regx >> 3) & 0x001F) * 3));
+#ifdef DEBUG_SW    	
+	printf("  ------->>KT_FMReadRSSI   %x \r\n",*RSSI);
+#endif	
+
 	return(1);
 }
 

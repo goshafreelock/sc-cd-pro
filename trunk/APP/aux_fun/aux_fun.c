@@ -107,16 +107,18 @@ void deal_aux( void )
 /*----------------------------------------------------------------------------*/
 void aux_function(void)
 {
-    if (!aux_online)
-    {
-        work_mode = SYS_RTC;//SYS_MP3DECODE;
-        return;
-    }
+#ifdef USE_LINE_IN_DETECT_FUNC
+	    if (!aux_online)
+	    {
+	     	 Set_Curr_Func(SYS_MP3DECODE_USB);
+	        return;
+	    }
+#endif	
 	sysclock_div2(1);
-    flush_low_msg();
-    Disp_Con(DISP_AUX);
+    	flush_low_msg();
+    	Disp_Con(DISP_AUX);
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
-    deal_aux();
+    	deal_aux();
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
 }
 #endif

@@ -69,7 +69,17 @@ enum {
 
 #define iic_drv_clk_out()    		P2DIR &= ~(BIT(1));P2PU |= BIT(1)
 #define iic_drv_clk_h()      		P21 = 1
-#define iic_drv_clk_l()      		P21= 0
+#define iic_drv_clk_l()      			P21= 0
+#elif defined(IIC_MCU_PORT_USE_P02_P34)
+#define iic_drv_data_out()    	P3DIR &= ~(BIT(4));P3PU |= BIT(4);P34= 1
+#define iic_drv_data_in()     	P3DIR |= BIT(4);P3PU |= BIT(4)
+#define iic_drv_data_r()      	P34
+#define iic_drv_data_h()      	P34= 1
+#define iic_drv_data_l()      	P34 = 0
+
+#define iic_drv_clk_out()    	P0DIR &= ~(BIT(2));P0PU |= BIT(2)
+#define iic_drv_clk_h()      	P02 = 1
+#define iic_drv_clk_l()      		P02= 0
 #else
 #define iic_drv_data_out()    	P0DIR &= ~(BIT(1));P0PU |= BIT(1);P01= 1
 #define iic_drv_data_in()     	P0DIR |= BIT(1);P0PU |= BIT(1)

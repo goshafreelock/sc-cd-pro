@@ -58,6 +58,7 @@ void get_music_file1(u8 dir)
             put_msg_lifo(INFO_NEXTMODE);                //找不到有效设备，需要返回到其它模式
             return;
         }
+	    	Disp_Con(DISP_FILENUM);	
 
         if (given_file_number == 0)                     //given_file_number = 0;说明是后退找文件
             given_file_number = fs_msg.fileTotal;

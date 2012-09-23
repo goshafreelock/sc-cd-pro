@@ -12,14 +12,14 @@
 #include "fm_api.h"
 
 
-extern _xdata u8 fre_point[];
+extern _xdata u8 fre_preset[];
 extern bit key_voice_disable;
 extern u8 device_active;                           ///< 当前活动的设备
 extern xd_u8 all_channl;                              ///< FM收音当前搜索到的台总数
 extern xd_u16 frequency;                              ///< 当前频率
 extern xd_u8 fre_channl;                              ///< FM收音当前所在的台号
 extern xd_u8 given_device;
-extern xd_u8 work_mode;
+extern _xdata SYS_WORK_MODE  work_mode;
 
 extern void KT_AMFMStandby(void);
 extern xd_u8 KT_AMFMWakeUp(void);
