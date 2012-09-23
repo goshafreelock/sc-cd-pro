@@ -37,6 +37,7 @@ typedef enum
     REPEAT_RANDOM,
     REPEAT_INTRO,    
     REPEAT_FOLDER,    
+    REPEAT_OFF,    
 
 }PLAY_MODE;
 #else

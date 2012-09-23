@@ -14,8 +14,9 @@
 #define USE_EEPROM     0   // 使用EEPROM记忆
 #define USE_RTCRAM     1   // 使用RTC_RAM记忆
 #define USE_DEVICE     2   // 使用播放设备记忆
+#define USE_RTC_EEPROM	3
 
-#define MEMORY_STYLE    USE_RTCRAM      //记忆方式选择
+#define MEMORY_STYLE    USE_RTC_EEPROM      //记忆方式选择
 #ifdef __C51__
 #include "AC209N.h"
 #include "typedef.h"
@@ -85,26 +86,28 @@ void write_eerom(u8 addr,u8 dat);
 
 
 
-#define MEM_ACTIVE_DEV     0
-#define MEM_EQ_MODE        1
-#define MEM_PLAY_MODE      2
-#define MEM_VOL            3
-#define MEM_SYSMODE        4
+#define MEM_ACTIVE_DEV     	0
+#define MEM_EQ_MODE        	1
+#define MEM_PLAY_MODE      	2
+#define MEM_VOL            		3
+#define MEM_SYSMODE        	4
 
-#define MEM_ALM_SW		   5
-#define MEM_ALM_HOUR       6
-#define MEM_ALM_MIN        7
+#define MEM_ALM_SW		   	5
+#define MEM_ALM_HOUR       	6
+#define MEM_ALM_MIN        	7
 
-#define MEM_BAND_SEL          4
 
-#define MEM_FM_CHANNL           8
+#define MEM_PRESET_REG       	7
+#define MEM_BAND_SEL          	9
 
-#define MEM_FRE            8
-#define MEM_ALL_CHANNL     9
-#define MEM_FRE_CHANNL     10
-#define MEM_CHANNL         11
+#define MEM_FREQ_BASE         	10
 
-#define FM_CH_OFFSET	11	
+#define MEM_ALL_CHANNL     	15
+#define MEM_FRE_CHANNL     	16
+
+#define MEM_CHANNL         	20
+#define FM_CH_OFFSET		20
+
 #define AM_CH_OFFSET	70
 
 #define MEM_SD_PLAYPOINT_INFO  41
@@ -116,10 +119,10 @@ void write_eerom(u8 addr,u8 dat);
 #define MEM_SD_FRAME_CNT	53
 #define MEM_SD_NEXT_FRAME   57	
 
-#define IIC_VERIFY_BYTE_ADDR	65
 #define MEM_APP_VOL         62
 #define MEM_USB_VOL         63
 #define MEM_EEPROM          64	
 
+#define IIC_VERIFY_BYTE_ADDR	100
 
 #endif

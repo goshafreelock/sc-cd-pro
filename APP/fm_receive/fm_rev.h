@@ -15,9 +15,26 @@
 #define MAX_CHANNL 30
 
 
-#define FM_MAX_CH    20
-#define AM_MAX_CH    20
+#define FM_MAX_CH    10
+#define AM_MAX_CH    10
 
+#define PRESET_MASK				0xF0
+#define PRESET_OK				0xA0
+#define PRESET_ZONE_MASK		0x01
+
+#define PRESET_SAVE_MASK		0x0E
+#define PRESET_SAVE_OK			0x0A
+
+
+#define SAVE_FREQ_MASK			0x80
+enum{
+
+	RESET_FM_PRESET,
+	RESET_EUR_AM_PRESET,
+	RESET_USA_AM_PRESET,
+	GET_FM_PRESET_FROM_EPPROM=0xFE,
+	GET_AM_PRESET_FROM_EPPROM,
+};
 #ifdef __C51__
 #include "fm_api.h"
 #include "typedef.h"

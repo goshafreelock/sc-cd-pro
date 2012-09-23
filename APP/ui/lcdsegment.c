@@ -95,7 +95,10 @@ void disp_icon(u8 id)
 #if defined(NEW_DH_LCD_MODULE)
 		F_P1_DEV |=FM_P1_MASK;
 #endif					
-		break;				
+		break;	
+	case ICON_RADIO_ST:
+		F_ST_DEV|=RADIO_ST_MASK;
+		break;	
 	case ICON_REP_1:
 		F_REP_ONE|=REP_ONE_MASK;
 		break;
@@ -163,7 +166,10 @@ void disp_clr_icon(u8 id)
 #if defined(NEW_DH_LCD_MODULE)
 		F_P1_DEV &=~FM_P1_MASK;
 #endif					
-		break;			
+		break;	
+	case ICON_RADIO_ST:
+		F_ST_DEV&=~RADIO_ST_MASK;
+		break;	
 	case ICON_REP_1:
 		F_REP_ONE&=~REP_ONE_MASK;
 		break;
@@ -277,17 +283,17 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
        lcd_buff[4] |= (((letter_data & DIG_D)>>2)|((letter_data & DIG_E)>>4))<<digit_idx;   	 
 }
 #elif defined(JK_CD_ZG_KS218_V001)
-u8 _code lcd_disbuf_offset[4] ={0,2,4,6};
+u8 _code lcd_disbuf_offset[4] ={0,4,2,0};
 void align_lcd_disp_buff(u8 offset,u8 letter_data)
 {
 	u8 digit_idx=offset;
-	
+	if(offset==0)return;
 	digit_idx= lcd_disbuf_offset[offset];
 
-	lcd_buff[0] &= ~(0x0001<<digit_idx);
-	lcd_buff[1] &= ~(0x0003<<digit_idx);
-	lcd_buff[2] &= ~(0x0003<<digit_idx);
-	lcd_buff[3] &= ~(0x0003<<digit_idx);
+	lcd_buff[0] &= ~(0x0002<<digit_idx);
+	lcd_buff[1] &= ~(0x0006<<digit_idx);
+	lcd_buff[2] &= ~(0x0006<<digit_idx);
+	lcd_buff[3] &= ~(0x0006<<digit_idx);
 
        lcd_buff[0] |= ((letter_data & DIG_A)<<1)<<digit_idx;
        lcd_buff[1] |= (((letter_data & DIG_B))|((letter_data & DIG_F)>>3))<<digit_idx;
@@ -415,6 +421,7 @@ void disp_putchar(u8 chardata,u8 loc)
     }
     else if (chardata == '-')
     {
+         align_lcd_disp_buff(loc,0x40);
     }
 }
 //extern void Bat_icon_chk(void);
@@ -524,7 +531,6 @@ void disp_scan(void)
 	disp_putchar('0',0);
 	disp_putchar('1',1);
 	disp_putchar('2',2);
-	disp_putchar('3',3);
 #endif	
 
     TRADEMARK_ICON |=TRADEMARK_MASK;

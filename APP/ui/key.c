@@ -20,7 +20,7 @@ extern void putbyte(u8);
 extern void P0IE_ctl(u8, u8);
 extern u8 return_cnt(u8, u8);
 extern xd_u8 bP0IE;
-extern xd_u8 work_mode;
+extern _xdata SYS_WORK_MODE  work_mode;
 
 bool key_voice_disable;
 u8 keyBack;  ///<上一次按键扫描结果

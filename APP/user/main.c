@@ -57,7 +57,7 @@ extern bool mode_switch_protect_bit;
 extern bool alarm_power_on_protect;
 #endif
 
-#if defined(EEPROM_RTC_RAM_COMPATIBLE)
+#if ((USE_RTC_EEPROM == MEMORY_STYLE))
 extern void check_eeprom_status(void);
 #endif
 
@@ -461,17 +461,21 @@ void sys_info_init(void)
 	get_info_memory();
 	get_info();
 #endif  
-#if defined(EEPROM_RTC_RAM_COMPATIBLE)
+#if ((USE_RTC_EEPROM == MEMORY_STYLE))
 	check_eeprom_status();
 #endif
-#if 0
+
+#if 1
 	music_vol = read_info(MEM_VOL);
     	if ((music_vol > MAX_MAIN_VOL) || (music_vol == 0))              //每次开机时，不要超过最大音量的一半，以免开机音量过大
     	{
-        	music_vol = MAX_MAIN_VOL;
+        	music_vol = 10;
     	}
 #endif
-     	music_vol = 26;
+
+#if VOLUME_DEFAULT
+     	music_vol = VOLUME_DEFAULT;
+#endif
    	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);
    	main_vol_set(music_vol, CHANGE_VOL_MEM);
 	main_fade_en = 1;
@@ -493,7 +497,7 @@ void sys_info_init(void)
 #ifdef USE_USB_SD_DECODE_FUNC	               	
 		work_mode = SYS_MP3DECODE_USB;
 #else
-		work_mode = SYS_MCU_CD;
+		work_mode = SYS_FMREV;
 #endif
 	}
 #else
@@ -656,6 +660,9 @@ void idle_mode(void)
 void main(void)
 {
      xd_u8 sys_timer=0;
+
+      Mute_Ext_PA(MUTE);
+	 
 #ifdef PWR_CTRL_IN_IDLE_MODE
 
 #if defined(PWR_CTRL_WKUP)
@@ -667,7 +674,6 @@ void main(void)
 
 #endif
 
-	Mute_Ext_PA(MUTE);
 #ifdef ALARM_USE_MULTI_SOURCE_FUNC
 	alarm_power_on_protect=0;
 #endif
@@ -691,7 +697,12 @@ void main(void)
 	AD_Debug_func();
 #endif
 
-//	work_mode=SYS_FMREV;
+#ifdef SYS_POWER_ON_DEFAULT_IN_RADIO
+	Set_Curr_Func(SYS_FMREV);
+#elif defined(SYS_POWER_ON_DEFAULT_IN_CD)
+	Set_Curr_Func(SYS_FMREV);
+#endif
+
 	while (1)
        {
 		Set_Curr_Func(work_mode);
