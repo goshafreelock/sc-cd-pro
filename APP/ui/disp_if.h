@@ -37,6 +37,7 @@ typedef enum
     DISP_NOFILE,
     DISP_NODEVICE,
     DISP_FILENUM,
+    DISP_PROG_FILENUM,    
     DISP_DWORD_NUMBER,
     DISP_WAIT,
     DISP_USBDEV,
