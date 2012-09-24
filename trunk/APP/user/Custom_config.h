@@ -134,8 +134,8 @@
 /////#define JK2092_DH_289_V001
 //#define K2092_DH_228_V001
 //#define K2092_DH_129_V001
-//#define JK_CD_HYH_727_V001
-#define JK_CD_ZG_KS218_V001
+#define JK_CD_HYH_727_V001
+//#define JK_CD_ZG_KS218_V001
 
 #ifdef JK_CD_ZG_KS218_V001
 
@@ -144,6 +144,7 @@
 #define DISP_LCD_GPIO_DRV		//GPIOÖ±½ÓÇý¶¯LCD
 #define SEG_LCD_4COM_8SEG_DRV
 #define WELCOME_DISP_ON_STR
+#define USE_PROG_PLAY_MODE
 
 #define IIC_MCU_PORT_USE_P02_P34
 #define VOLUME_DEFAULT			MAX_MAIN_VOL

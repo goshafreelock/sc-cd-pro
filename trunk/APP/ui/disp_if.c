@@ -38,6 +38,10 @@ extern bool alm_sw;
 extern xd_u8 station_save_pos;
 extern _xdata SYS_WORK_MODE  work_mode;
 
+#ifdef USE_PROG_PLAY_MODE
+extern  xd_u8 prog_total_num,prog_cur_num;
+#endif
+
 #ifdef RADIO_ST_INDICATOR
 extern bool radio_st_ind;
 #endif
@@ -109,6 +113,13 @@ void Disp_Num(void)
 
 	}
 }
+#ifdef USE_PROG_PLAY_MODE
+void Disp_prog_num(void)
+{
+	printf_num(prog_total_num,2,2);
+	printf_num(prog_cur_num,0,2);
+}
+#endif
 void Disp_Filenum(void)
 {
     	printf_num(given_file_number,0,4);
@@ -521,7 +532,12 @@ void Disp_Con(u8 LCDinterf)
         break;		
     case DISP_DWORD_NUMBER:
         Disp_Num();
-        break;
+        break;		
+#ifdef USE_PROG_PLAY_MODE
+    case DISP_PROG_FILENUM:
+        Disp_prog_num();
+        break;			
+#endif
     case DISP_FILENUM:
         Disp_Filenum();
         break;
