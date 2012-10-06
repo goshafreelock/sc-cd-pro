@@ -38,7 +38,7 @@ enum
 #if RTC_ENABLE
 #define MAX_WORK_MODE  SYS_RTC
 #else
-#define MAX_WORK_MODE  SYS_AUX
+#define MAX_WORK_MODE  SYS_IDLE
 #endif
 
 

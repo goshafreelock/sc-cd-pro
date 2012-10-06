@@ -618,6 +618,10 @@ xd_u8 KT_AMFMUnMute(void)
 xd_u8 KT_FMTune(xd_u16 Frequency) //87.5MHz-->Frequency=8750; Mute the chip and Tune to Frequency
 {
 	xd_u16 regx;
+	
+#ifdef RADIO_ST_INDICATOR
+	radio_st_ind=0;
+#endif
 
 	//KT_AMFMMute();
 	regx = KT_Bus_Read(0x0F);       
@@ -651,16 +655,6 @@ xd_u8 KT_FMTune(xd_u16 Frequency) //87.5MHz-->Frequency=8750; Mute the chip and 
 	KT_Bus_Write(0x03, (regx & 0xF000) | 0x8000 | (Frequency / 5));	   		//set tune bit to 1
 
 	delay_10ms(2);
-
-#ifdef RADIO_ST_INDICATOR
-
-	if(KT_FMGetST()>0){
-		radio_st_ind=1;
-	}
-	else{
-		radio_st_ind=0;
-	}
-#endif
 
 	regx = KT_Bus_Read(0x0F);       
 	KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0
@@ -784,25 +778,43 @@ xd_u8 KT_AMTune(xd_u16 Frequency) //1710KHz --> Frequency=1710; Mute the chip an
 	}
 */
 
-	if((Frequency == 1368) || (Frequency == 1370) || (Frequency == 1404))
+	regx = KT_Bus_Read(0x0A);
+	KT_Bus_Write(0x0A, regx & 0xFFBF);
+			
+ 	if(Frequency ==1368) 
 	{
-		KT_Bus_Write(0x1E, 0x0001);								//DIVIDERP<9:0>=1
-		KT_Bus_Write(0x1F, 0x029E);								//DIVIDERN<9:0>=670
+		KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		KT_Bus_Write(0x1F, 0x029F);        //DIVIDERN<9:0>=670
 		regx = KT_Bus_Read(0x16);
-		KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);			//CTCLK=1;reference clock=32.768K;
-		KT_Bus_Write(0x17, 0x8000 | (Frequency - 4));	   			//set tune bit to 1
+		KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		KT_Bus_Write(0x17, 0x8000 | (Frequency - 6));       //set tune bit to 1
 	}
-	else if(Frequency == 1629)
+	else if(Frequency ==1370) 
+	{
+		KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		KT_Bus_Write(0x1F, 0x029F);        //DIVIDERN<9:0>=670
+		regx = KT_Bus_Read(0x16);
+		KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		KT_Bus_Write(0x17, 0x8000 | (Frequency - 6));       //set tune bit to 1
+	}
+	else if(Frequency ==1404) 
+	{
+		KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		KT_Bus_Write(0x1F, 0x0292);        //DIVIDERN<9:0>=670
+		regx = KT_Bus_Read(0x16);
+		KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		KT_Bus_Write(0x17, 0x8000 | (Frequency+21));       //set tune bit to 1
+	}
+	else if(Frequency ==1629)
 	{
 		KT_Bus_Write(0x1E, 0x0001);								//DIVIDERP<9:0>=1
 		KT_Bus_Write(0x1F, 0x029E);								//DIVIDERN<9:0>=670
 		regx = KT_Bus_Read(0x16);
 		KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);			//CTCLK=1;reference clock=32.768K;
-		KT_Bus_Write(0x17, 0x8000 | (Frequency - 5));	   			//set tune bit to 1
+		KT_Bus_Write(0x17, 0x8000 | (Frequency-5));	   			//set tune bit to 1
 	}
 	else
 	{
-		
 		KT_Bus_Write(0x1E, 0x0001);								//DIVIDERP<9:0>=1
 		KT_Bus_Write(0x1F, 0x029C);								//DIVIDERN<9:0>=668
 		regx = KT_Bus_Read(0x16);
@@ -1859,6 +1871,25 @@ void KT_Mute_Ctrl(bool m_f)
 		KT_Bus_Write(0x0f, regx & 0xFFE0 | 0x1D); 
 	}
 }
+#ifdef RADIO_ST_INDICATOR
+void KT_Radio_ST_Check()
+{
+	static u8 st_check_timer=0;
+
+	
+	if((st_check_timer++>6)&&(cur_sw_fm_band==FM_MODE)){
+
+		st_check_timer=0;
+		if(KT_FMGetST()>0){
+			radio_st_ind=1;
+		}
+		else{
+			radio_st_ind=0;
+		}
+	}
+}
+#endif
+
 /*****************************************************************************/
 /*函 数 名：KT_AM_SOFTMUTE												 	 */
 /*功能描述：AM 自动静音程序												  	 */

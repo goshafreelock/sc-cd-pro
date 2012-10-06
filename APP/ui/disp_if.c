@@ -40,6 +40,7 @@ extern _xdata SYS_WORK_MODE  work_mode;
 
 #ifdef USE_PROG_PLAY_MODE
 extern  xd_u8 prog_total_num,prog_cur_num;
+extern bool prog_icon_bit;
 #endif
 
 #ifdef RADIO_ST_INDICATOR
@@ -96,28 +97,19 @@ void disp_active(void)
     {
         disp_icon(ICON_SD);
     }
+     disp_icon(ICON_MP3);
 }
 void Disp_Num(void)
 {
-#ifdef USE_CD_MCU_MASTER_FUNC
-	if(work_mode == SYS_MCU_CD){
-		printf_char('C',0);
-		printf_char('d',1);
-
-		printf_num(cfilenum,2,2);
-	}
-	else
-#endif
-	{
-		printf_num(cfilenum,0,4);
-
-	}
+	printf_num(cfilenum,0,4);
 }
 #ifdef USE_PROG_PLAY_MODE
 void Disp_prog_num(void)
 {
-	printf_num(prog_total_num,2,2);
-	printf_num(prog_cur_num,0,2);
+	printf_num(prog_total_num,0,2);
+	printf_num(prog_cur_num,2,2);
+
+	disp_icon(ICON_PROG);	
 }
 #endif
 void Disp_Filenum(void)
@@ -127,7 +119,11 @@ void Disp_Filenum(void)
 }
 void Disp_Nofile(void)
 {
+#ifdef MCU_CD_728_LCD_MODULE
+    	printf_str("Nod",1);
+#else
     	printf_str("NO d",0);
+#endif
 }
 
 void Disp_waiting(void)
@@ -204,6 +200,7 @@ void disp_file_time(void)
 	    printf_num(min,0,2);
     }
 
+    disp_icon(ICON_PLAY);
     disp_icon(ICON_COL);
     disp_active();
     Disp_Playmode_icon();
@@ -212,7 +209,6 @@ void disp_file_time(void)
 
 void Disp_Pause(void)
 {
-    disp_icon(ICON_PAUSE);
     disp_active();
 #ifdef DISP_PAUS_STR
     printf_str("PAUS",0);
@@ -221,17 +217,33 @@ void Disp_Pause(void)
 #else
     disp_file_time();
 #endif
+    disp_icon(ICON_PAUSE);
 }
 void Disp_Stop(void)
 {
+#ifdef USE_CD_MCU_MASTER_FUNC
+	if(work_mode == SYS_MCU_CD){
+#if defined(MCU_CD_728_LCD_MODULE)
+
+#else			
+		printf_char('C',0);
+		printf_char('d',1);
+#endif
+		printf_num(cfilenum,2,2);
+	}	
+	else
+#endif
+	{
+    		printf_str("STOP",0);
+	}
     disp_active();
-    printf_str("STOP",0);
+
 }
 void Disp_Play(void)
 {
-    disp_icon(ICON_PLAY);
     disp_active();
     disp_file_time();
+    disp_icon(ICON_PLAY);	
 }
 void Disp_Hello(void)
 {
@@ -364,12 +376,6 @@ void Disp_freq(void )
     }
 #endif
 
-#ifdef RADIO_ST_INDICATOR
-	if(radio_st_ind)
-	 	disp_icon(ICON_RADIO_ST);		
-	else
-		disp_clr_icon(ICON_RADIO_ST);		
-#endif
 }
 void Disp_Aux(void )
 {
@@ -502,6 +508,26 @@ void custom_buf_update(void)
 	 	disp_clr_icon(ICON_BELL);		
 	}
 #endif
+
+#ifdef USE_CD_MCU_MASTER_FUNC
+	if(work_mode == SYS_MCU_CD){
+	 	disp_icon(ICON_CD);	
+	 	disp_clr_icon(ICON_USB);		
+	 	disp_clr_icon(ICON_SD);		
+	}
+#endif
+#ifdef USE_PROG_PLAY_MODE
+	if(prog_icon_bit){
+		disp_icon(ICON_PROG);
+	}
+#endif
+#ifdef RADIO_ST_INDICATOR
+	if(radio_st_ind)
+	 	disp_icon(ICON_RADIO_ST);		
+	else
+		disp_clr_icon(ICON_RADIO_ST);		
+#endif
+
 #if defined(USE_BAT_MANAGEMENT)
 	Bat_icon_chk();
 #endif

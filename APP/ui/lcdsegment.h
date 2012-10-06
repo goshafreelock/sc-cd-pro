@@ -56,11 +56,11 @@ SEG8     P34
 #define   seg07_port(n)   	P1 = n
 #else
 
-#define   com_init()      P3PU |= (0x1F);P3PD |= (0x1F)
-#define   close_com(n)    com_init();P3DIR |= (0x1F);P3DIR &= ~(1<<(n))
+#define   com_init()      	P3PU |= (0x1F);P3PD |= (0x1F)
+#define   close_com(n)    	com_init();P3DIR |= (0x1F);P3DIR &= ~(1<<(n))
     
-#define	set_com(n)      P3 |= (1<<(n))
-#define   clr_com(n)       P3 &= ~(1<<(n)) 
+#define	set_com(n)      	P3 |= (1<<(n))
+#define   clr_com(n)      	P3 &= ~(1<<(n)) 
 	
 #define   seg_init()      	P1DIR = 0;P0DIR &= ~(BIT(2));P0PU &= ~(BIT(2))//;P3PD &= ~(BIT(4))
 #define   seg07_port(n)   	P1 = n
@@ -92,6 +92,8 @@ enum {
 	ICON_PAUSE,
 	ICON_USB,
 	ICON_SD,
+	ICON_CD,
+	ICON_MP3,
 	ICON_AUX,
 	ICON_FM,
 	ICON_FM_MHZ,
@@ -105,6 +107,7 @@ enum {
 	ICON_COL,
 	ICON_MUTE,
 	ICON_BELL,
+	ICON_PROG,
 	
 	ICON_BAT,
 	ICON_BAT_S1,
@@ -193,16 +196,16 @@ enum {
 #define FIGURE_NUM	4
 #elif defined(JK_CD_ZG_KS218_V001)
 
-#define USB_DEV_MASK	0x0001
+#define USB_DEV_MASK	0x0080
 #define F_USB_DEV  		(lcd_buff[3])	
 
 #define AUX_DEV_MASK	0x0000
 #define F_AUX_DEV  		(lcd_buff[0])
 
-#define SD_DEV_MASK	0x0001
+#define SD_DEV_MASK	0x0000
 #define F_SD_DEV		(lcd_buff[3])	
 
-#define FM_DEV_MASK	0x0004
+#define FM_DEV_MASK	0x0000
 #define F_FM_DEV		(lcd_buff[3])	
 
 #define AM_DEV_MASK	0x0000
@@ -223,10 +226,109 @@ enum {
 #define SW_MHZ_MASK	0x0000
 #define F_SW_DEV		(lcd_buff[2])	
 
-#define RADIO_ST_MASK	0x0001
+#define MP3_ICON_MASK	0x0080
+#define F_MP3_DEV		(lcd_buff[0])	
+
+#define RADIO_ST_MASK	0x0000
 #define F_ST_DEV		(lcd_buff[3])	
 
-#define PLAY_ICON_MASK	0x0010
+#define PLAY_ICON_MASK	0x0008
+#define F_PLAY_DEV		(lcd_buff[0])	
+
+#define PAUS_ICON_MASK	0x0000
+#define F_PAUS_DEV		(lcd_buff[3])	
+
+#define RTC_ICON_MASK	0x0000
+#define F_RTC_ICON		(lcd_buff[3])
+
+#define RTC_ALM_MASK	0x0000
+#define F_RTC_ALM		(lcd_buff[4])	
+
+#define RTC_PM_MASK	0x0000
+#define F_RTC_PM		(lcd_buff[2])
+
+#define RTC_AM_MASK	0x0000
+#define F_RTC_AM		(lcd_buff[3])
+
+#define REC_ICON_MASK	0x0000
+#define F_REC_DEV		(lcd_buff[4])	
+
+#define SPK_MUTE_MASK	0x0000
+#define F_SPK_DEV		(lcd_buff[3])	
+
+#define BATTERY_MASK	0x0000
+#define F_BAT_ICON_BUF	(lcd_buff[0])	
+
+#define PROG_ICON_MASK	0x0000
+#define F_PROG_ICON_BUF	(lcd_buff[0])	
+
+#define TRADEMARK_MASK	0x0000
+#define TRADEMARK_ICON		(lcd_buff[0])	
+
+#define NUM_1BC_MASK	0x0000
+#define F_NUM_1BC		(lcd_buff[2])	
+
+#define REP_ALL_MASK	0x0002
+#define REP_ONE_MASK	0x0001
+#define REP_RDM_MASK	0x0001
+#define F_REP_ALL		(lcd_buff[0])
+#define F_REP_ONE 		(lcd_buff[2])
+#define F_REP_RDM 		(lcd_buff[1])
+
+//#define L_ICON_BUF		(lcd_buff[4])
+#define S1_ICON_MASK	0x0000
+#define S1_ICON_BUF		(lcd_buff[0])
+#define S2_ICON_MASK	0x0000
+#define S2_ICON_BUF		(lcd_buff[0])
+#define S3_ICON_MASK	0x0000
+#define S3_ICON_BUF		(lcd_buff[0])
+#define S4_ICON_MASK	0x0000
+#define S4_ICON_BUF		(lcd_buff[0])
+
+#define FIGURE_NUM	4
+#elif defined(MCU_CD_728_LCD_MODULE)
+
+#define USB_DEV_MASK	0x0001
+#define F_USB_DEV  		(lcd_buff[4])	
+
+#define AUX_DEV_MASK	0x0000
+#define F_AUX_DEV  		(lcd_buff[0])
+
+#define SD_DEV_MASK	0x0100
+#define F_SD_DEV		(lcd_buff[4])	
+
+#define CD_DEV_MASK	0x0004
+#define F_CD_DEV		(lcd_buff[4])	
+
+#define MP3_ICON_MASK	0x0002
+#define F_MP3_DEV		(lcd_buff[4])	
+
+#define FM_DEV_MASK	0x0010
+#define F_FM_DEV		(lcd_buff[4])	
+
+#define AM_DEV_MASK	0x0080
+#define F_AM_DEV		(lcd_buff[3])	
+
+#define POINTS_MASK		0x0080
+#define F_POINTS		(lcd_buff[1])	
+
+#define FM_MHZ_MASK	0x0080
+#define F_MHZ_DEV		(lcd_buff[2])	
+
+#define AM_KHZ_MASK	0x0090
+#define F_KHZ_DEV		(lcd_buff[4])	
+
+#define FM_P1_MASK		0x0000
+#define F_P1_DEV		(lcd_buff[2])	
+
+#define RADIO_ST_MASK	0x0020
+#define F_ST_DEV		(lcd_buff[4])	
+
+#define SW_MHZ_MASK	0x0000
+#define F_SW_DEV		(lcd_buff[2])	
+
+
+#define PLAY_ICON_MASK	0x0080
 #define F_PLAY_DEV		(lcd_buff[0])	
 
 #define PAUS_ICON_MASK	0x0000
@@ -254,6 +356,11 @@ enum {
 #define F_BAT_ICON_BUF	(lcd_buff[0])	
 
 
+
+#define PROG_ICON_MASK		0x0040
+#define F_PROG_ICON_BUF	(lcd_buff[2])	
+
+
 #define TRADEMARK_MASK	0x0000
 #define TRADEMARK_ICON		(lcd_buff[0])	
 
@@ -261,10 +368,10 @@ enum {
 #define F_NUM_1BC		(lcd_buff[2])	
 
 #define REP_ALL_MASK	0x0040
-#define REP_ONE_MASK	0x0080
-#define REP_RDM_MASK	0x0080
-#define F_REP_ALL		(lcd_buff[0])
-#define F_REP_ONE 		(lcd_buff[2])
+#define REP_ONE_MASK	0x0040
+#define REP_RDM_MASK	0x0040
+#define F_REP_ALL		(lcd_buff[4])
+#define F_REP_ONE 		(lcd_buff[3])
 #define F_REP_RDM 		(lcd_buff[1])
 
 //#define L_ICON_BUF		(lcd_buff[4])
@@ -278,6 +385,8 @@ enum {
 #define S4_ICON_BUF		(lcd_buff[0])
 
 #define FIGURE_NUM	4
+
+
 #elif defined(MCU_CD_727_LCD_MODULE)
 #define USB_DEV_MASK	0x0000
 #define F_USB_DEV  		(lcd_buff[1])	
@@ -287,6 +396,12 @@ enum {
 
 #define SD_DEV_MASK	0x0000
 #define F_SD_DEV		(lcd_buff[4])	
+
+#define CD_DEV_MASK	0x0000
+#define F_CD_DEV		(lcd_buff[4])	
+
+#define MP3_ICON_MASK	0x0000
+#define F_MP3_DEV		(lcd_buff[0])	
 
 #define FM_DEV_MASK	0x0004
 #define F_FM_DEV		(lcd_buff[3])	
@@ -298,7 +413,7 @@ enum {
 #define F_POINTS		(lcd_buff[0])	
 
 #define FM_MHZ_MASK	0x0000
-#define F_MHZ_DEV		(lcd_buff[0])	
+#define F_MHZ_DEV		(lcd_buff[2])	
 
 #define AM_KHZ_MASK	0x0200
 #define F_KHZ_DEV		(lcd_buff[1])	
@@ -346,6 +461,10 @@ enum {
 
 #define NUM_1BC_MASK	0x0000
 #define F_NUM_1BC		(lcd_buff[2])	
+
+
+#define PROG_ICON_MASK		0x0000
+#define F_PROG_ICON_BUF	(lcd_buff[2])	
 
 #define REP_ALL_MASK	0x0080
 #define REP_ONE_MASK	0x0080

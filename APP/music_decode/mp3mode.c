@@ -80,13 +80,15 @@ extern xd_u8 rtc_setting,rtc_set,rtc_set_cnt;
 /*----------------------------------------------------------------------------*/
 void music_info_init(void)
 {
-
+#ifdef USB_SD_DECODE_DEFAULT_REP_OFF
+    	play_mode=REPEAT_OFF;
+#else
     play_mode = read_info(MEM_PLAY_MODE);
     if (play_mode > REPEAT_RANDOM)
     {
         play_mode = REPEAT_ALL;
     }
-
+#endif
     if (given_device == 0)		  //设备启动时，given_device为0；
     {
         given_device = read_info(MEM_ACTIVE_DEV);
@@ -114,7 +116,7 @@ void music_info_init(void)
 void stop_decode(void)
 {
     play_status = MUSIC_PAUSE;
-	main_vol_set(0, CHANGE_VOL_NO_MEM);//digital_fade_out();
+	//main_vol_set(0, CHANGE_VOL_NO_MEM);//digital_fade_out();
     read_usb_remain_data();
     disable_decode_isr();
     disable_softint();
@@ -160,17 +162,23 @@ bool start_decode(void)
 
 #if EQ_WORK_USE == DSP_EQ
     sysclock_div2(0);
+#ifndef NO_SD_DECODE_FUNC						
     sd_speed_init(1, 100);
+#endif
 #else
 	if (music_type == 2) 							//wav
 	{
     		sysclock_div2(0);
+#ifndef NO_SD_DECODE_FUNC						
     		sd_speed_init(1, 100);
+#endif
 	}
 	else
 	{
 		sysclock_div2(1);
+#ifndef NO_SD_DECODE_FUNC			
     		sd_speed_init(0, 50);
+#endif
 	}
 #endif
     get_filetag(buffer);
@@ -336,8 +344,12 @@ void music_play(void)
         case INFO_NEXTMODE:                     ///<下一个模式
 		//work_mode = SYS_IDLE;
             //return;
+#ifdef NO_DEV_SHOW_NO_DEV
+		Disp_Con(DISP_NOFILE);
+#else
              	Disp_Con(DISP_RTC);
 		disp_scenario = DISP_RTC_SCEN;
+#endif		
 		break;
         case INFO_PLAY | KEY_SHORT_UP :
 			
@@ -454,6 +466,13 @@ void music_play(void)
                 	disp_file_time();
             }
 
+#ifdef NO_DEV_SHOW_NO_DEV
+		if(get_device_online_status()==0){
+			Disp_Con(DISP_NOFILE);
+			break;
+		}
+#endif            
+
             return_cnt++;
             if (RETURN_TIME == return_cnt)
             {
@@ -461,7 +480,7 @@ void music_play(void)
 #if defined(USE_TIMER_POWER_OFF_FUNC)	
 			timer_setting_enable=0;
 #endif
-            
+
                 if (DISP_DWORD_NUMBER == curr_menu)
                 {
 			Disp_Con(DISP_NULL);
@@ -486,9 +505,11 @@ void music_play(void)
 #endif
 		break;
 
+	 case INFO_MODE | KEY_SHORT_UP:
+
         case INFO_PLAY_MODE :
 		play_mode++;
-            	if (play_mode > REPEAT_ONE)
+            	if (play_mode > REPEAT_RANDOM)
             	{
                 	play_mode = REPEAT_ALL;
             	}
@@ -601,7 +622,10 @@ void decode_play(void)
 	disp_scenario = DISP_NORMAL;
 	Disp_Con(DISP_SCAN_DISK);
 	sysclock_div2(1);
+#ifndef NO_SD_DECODE_FUNC	
     	sd_speed_init(0, 50);
+#endif
+		
 	decodeclock_div2(DECODE_CLK_DIV2);				//decoder分频，可以减少功耗
     	music_info_init();
     	dsp_hi_pro();
