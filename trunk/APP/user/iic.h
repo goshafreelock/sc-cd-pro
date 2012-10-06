@@ -97,15 +97,14 @@ void write_eerom(u8 addr,u8 dat);
 #define MEM_ALM_MIN        	7
 
 
-#define MEM_PRESET_REG       	7
+#define MEM_PRESET_REG       	8
 #define MEM_BAND_SEL          	9
 
 #define MEM_FREQ_BASE         	10
 
-#define MEM_ALL_CHANNL     	15
-#define MEM_FRE_CHANNL     	16
+#define MEM_FM_ALL_CH     	15
+#define MEM_AM_ALL_CH     	16
 
-#define MEM_CHANNL         	20
 #define FM_CH_OFFSET		20
 
 #define AM_CH_OFFSET	70

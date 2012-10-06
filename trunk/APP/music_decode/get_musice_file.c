@@ -176,6 +176,44 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
         }
         break;
 
+    case REPEAT_OFF:
+        if (searchMode == 1)					//prev file
+        {
+            given_file_number--;
+            if (given_file_number == 0)
+            {
+			    if(0x03 != (0x03&get_device_online_status()))
+				{
+				    clean_playpoint_info(device_active);
+					return 0;
+				}
+				if(BIT(SDMMC) == device_active)
+				    clean_playpoint_info(BIT(USB_DISK));
+                if(BIT(USB_DISK) == device_active)
+				    clean_playpoint_info(BIT(SDMMC));
+				return 0;
+            }
+        }
+        else					                //next file
+        {
+            given_file_number++;
+            if (given_file_number > fileTotal)
+            {
+            		stop_decode();
+			if(0x03 != (0x03&get_device_online_status()))
+			{
+				clean_playpoint_info(device_active);
+				return 0;
+			}
+                	else
+			{
+				clean_playpoint_info(BIT(SDMMC));
+				clean_playpoint_info(BIT(USB_DISK));
+			}
+			return 0;
+            }
+        }
+        break;	
     case REPEAT_FOLDER:
         if (searchMode == 1)
         {

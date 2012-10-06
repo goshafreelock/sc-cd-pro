@@ -273,6 +273,7 @@ void timer1isr(void)
 
 #ifdef USE_USB_SD_DECODE_FUNC	       
 
+#ifndef NO_SD_DECODE_FUNC
 #if SDMMC_CMD_MODE
 		sd_online_check();
 #elif SDMMC_CLK_MODE
@@ -280,6 +281,8 @@ void timer1isr(void)
 #elif SDMMC_GPIO_MODE
 	  	sdmmc_detect();
 #endif
+#endif	
+
 #endif	
         ms_cnt++;
 
@@ -432,9 +435,11 @@ void sys_init(void)
     keyInit();
     timer1Init();
     timer3Init();
-#ifdef USE_USB_SD_DECODE_FUNC	       
+#ifdef USE_USB_SD_DECODE_FUNC	    
+#ifndef NO_SD_DECODE_FUNC
     sd_speed_init(1,100);
     init_port_sd();
+#endif
 #endif
 #if SDMMC_CMD_MODE
 	sd_chk_ctl(SET_SD_H_CHK);
@@ -493,7 +498,10 @@ void sys_info_init(void)
 
 #ifdef USE_SYS_MODE_RECOVER
         work_mode = read_info(MEM_SYSMODE);
-        if (work_mode > MAX_WORK_MODE){
+#ifdef UART_ENABLE
+    	printf("------->- MEM_SYSMODE restored   work_mode:%d   \r\n",(u16)work_mode);
+#endif
+        if (work_mode > SYS_IDLE){
 #ifdef USE_USB_SD_DECODE_FUNC	               	
 		work_mode = SYS_MP3DECODE_USB;
 #else
@@ -549,6 +557,7 @@ void idle_mode(void)
 #ifdef ADKEY_SELECT_MODE
    mode_switch_protect_bit=0;
 #endif
+
 
    while (1)
     {
@@ -700,9 +709,12 @@ void main(void)
 #ifdef SYS_POWER_ON_DEFAULT_IN_RADIO
 	Set_Curr_Func(SYS_FMREV);
 #elif defined(SYS_POWER_ON_DEFAULT_IN_CD)
-	Set_Curr_Func(SYS_FMREV);
+	Set_Curr_Func(SYS_MCU_CD);
 #endif
 
+#ifdef UART_ENABLE
+    	printf("------->- SYS INIT   work_mode:%d   \r\n",(u16)work_mode);
+#endif
 	while (1)
        {
 		Set_Curr_Func(work_mode);
@@ -721,6 +733,9 @@ void main(void)
 #endif			
 #ifdef USE_RADIO_FUNC
 	        	case SYS_FMREV:
+#ifdef AM_RADIO_FUNC
+	        	case SYS_AMREV:
+#endif					
 	            		fm_radio();
 	            	break;
 #endif					
@@ -759,7 +774,6 @@ void main(void)
 	        }
 #ifdef USE_SYS_MODE_RECOVER
 	if(work_mode !=SYS_IDLE){
-		//sys_printf("Write EEPROM in main While !! ");
               write_info(MEM_SYSMODE,work_mode);
     	}
 #endif	

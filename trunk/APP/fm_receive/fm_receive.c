@@ -43,6 +43,7 @@ xd_u8 freq_step =0;
 xd_u8 sw_fm_mod=0,cur_sw_fm_band=0;
 xd_u16 REG_MAX_FREQ=0,REG_MIN_FREQ=0;
 xd_u8 sw_fm_pos=0;
+xd_u8 radio_scan_ch=0;
 xd_u8 station_save_pos=0;
 
 #ifdef RADIO_ST_INDICATOR
@@ -249,18 +250,26 @@ void set_radio_freq(u8 mode)
     if (mode == FM_FRE_INC)
     {
         frequency=frequency+freq_step;
+		
+	 if (frequency > REG_MAX_FREQ)
+	     frequency = REG_MAX_FREQ;		
     }
     else if (mode == FM_FRE_DEC)
     {
         frequency=frequency-freq_step;
+		
+	 if (frequency < REG_MIN_FREQ)
+	      frequency =REG_MAX_FREQ;		
+    }
+    else{
+		
+	    if (frequency > REG_MAX_FREQ)
+	        frequency = REG_MAX_FREQ;
+		
+	    if (frequency < REG_MIN_FREQ)
+	        frequency =REG_MIN_FREQ;
     }
 	
-    if (frequency > REG_MAX_FREQ)
-        frequency = REG_MAX_FREQ;
-	
-    if (frequency < REG_MIN_FREQ)
-        frequency =REG_MIN_FREQ;
-
     if(cur_sw_fm_band==0){
 
 		KT_FMTune(frequency);
@@ -300,11 +309,18 @@ void radio_band_hdlr()
 
 	station_save_pos=0;
 
+	write_info(MEM_BAND_SEL,cur_sw_fm_band);
+
 	load_band_info();
 
 	KT_AMFMSetMode(cur_sw_fm_band);	
 
     	set_radio_freq(FM_CUR_FRE);
+}
+void restore_last_radio_band()
+{
+	cur_sw_fm_band = read_info(MEM_BAND_SEL);
+	if(cur_sw_fm_band>MW_MODE)cur_sw_fm_band=FM_MODE;
 }
 #ifdef SEMI_AUTO_SCAN_FUNC
 
@@ -322,6 +338,88 @@ bool radio_get_validstation(u16 freq)
     }
 #endif
 }
+void full_band_scan_hdlr()
+{
+    u8 key=0;
+
+    flush_low_msg();
+#ifdef RADIO_ST_INDICATOR
+    radio_st_ind=0;
+#endif
+
+	frequency =REG_MIN_FREQ;
+	radio_scan_ch=0;
+	
+   	dac_mute_control(1,1);		
+	
+    do   
+    {
+	 key = get_msg();	
+	 
+        if ((key==(INFO_NEXT_FIL|KEY_SHORT_UP))||
+		( key==(INFO_PREV_FIL | KEY_SHORT_UP))||
+		( key==(INFO_PLAY |KEY_SHORT_UP))
+	    )
+        {
+            break;
+        }
+		
+	if(( key==INFO_NEXT_SYS_MODE)){
+		put_msg_fifo(INFO_NEXT_SYS_MODE);
+            	break;
+	}
+	
+	if(( key==INFO_NEXT_FM_MODE))
+	{
+		put_msg_fifo(INFO_NEXT_FM_MODE);
+            	break;
+	}
+	
+	 frequency=frequency+ Current_Band.Seek_Step;
+        if(frequency>=REG_MAX_FREQ){
+
+			frequency = REG_MAX_FREQ;
+        		Disp_Con(DISP_FREQ);
+			break;
+        }
+
+        Disp_Con(DISP_FREQ);
+
+	 if(radio_get_validstation(frequency))
+        {	
+#ifdef RADIO_ST_INDICATOR
+	     	radio_st_ind=1;
+#endif
+            	Disp_Con(DISP_FREQ);
+
+	     	if(cur_sw_fm_band==0){
+			save_radio_freq(frequency,radio_scan_ch*2+FM_CH_OFFSET);
+	     	}
+	     	else if(cur_sw_fm_band==1){
+			save_radio_freq(frequency,radio_scan_ch*2+AM_CH_OFFSET);
+	     	}
+
+		radio_scan_ch++;   
+
+		if(radio_scan_ch>Current_Band.MAX_CH){
+			
+			break;
+		}			 
+        }
+
+    }while(1);
+
+	if(cur_sw_fm_band==0){
+		write_info(MEM_FM_ALL_CH,radio_scan_ch);
+	}
+	else if(cur_sw_fm_band==1){
+		write_info(MEM_AM_ALL_CH,radio_scan_ch);
+	}
+	set_radio_freq(FM_CUR_FRE);
+
+   dac_mute_control(0,1);		
+
+}
 #define SEMI_AUTO_SCAN_KEY_UP		INFO_NEXT_FIL | KEY_LONG
 #define SEMI_AUTO_SCAN_KEY_DOWN	INFO_PREV_FIL | KEY_LONG
 void semi_auto_scan(u8 scan_dir)
@@ -330,6 +428,9 @@ void semi_auto_scan(u8 scan_dir)
     u8 key=0;
 
     flush_low_msg();
+#ifdef RADIO_ST_INDICATOR
+    radio_st_ind=0;
+#endif
 
    dac_mute_control(1,1);		
     do   
@@ -375,6 +476,9 @@ void semi_auto_scan(u8 scan_dir)
 
 	if(radio_get_validstation(frequency))
         {
+#ifdef RADIO_ST_INDICATOR
+	     radio_st_ind=1;
+#endif
             Disp_Con(DISP_FREQ);
 	     break;
         }
@@ -400,6 +504,9 @@ void radio_save_station_hdlr()
 		key = get_msg();
 		switch(key)
 		{
+		     	case INFO_MODE| KEY_HOLD:
+				timerout_cnt=0;	
+				break;
         		case INFO_NEXT_FIL | KEY_SHORT_UP:
 
 				station_save_pos++;
@@ -549,6 +656,10 @@ void fm_hdlr( void )
 	       timer_pwr_off_hdlr();
 #endif
 
+#ifdef RADIO_ST_INDICATOR
+	 	KT_Radio_ST_Check();
+#endif
+
             set_brightness_fade_out();
             if (return_cnt < RETURN_TIME)
             {
@@ -669,9 +780,14 @@ void fm_radio(void)
 
 #ifdef USE_KEY_FOR_BAND_SELECT
 		cur_sw_fm_band = read_info(MEM_BAND_SEL);
-		if(cur_sw_fm_band>MAX_BAND)cur_sw_fm_band=0;
+		if(cur_sw_fm_band>MW_MODE)cur_sw_fm_band=FM_MODE;
 #endif
 
+#ifdef AM_RADIO_FUNC	
+		if(work_mode == SYS_AMREV){
+			cur_sw_fm_band = MW_MODE;
+		}
+#endif
 #endif
 	     	radio_band_hdlr();   
 	    	flush_low_msg();
@@ -692,6 +808,10 @@ void fm_radio(void)
 
 #ifndef DISABLE_P05_OSC_OUTPUT
     		fm_osc_output_select(FALSE);
+#endif
+
+#ifdef RADIO_ST_INDICATOR
+	     radio_st_ind=0;
 #endif
 
 	}

@@ -22,6 +22,7 @@ extern xd_u8 eq_mode;
 extern xd_u8 play_status;
 
 extern xd_u8 rtc_mode;
+
 extern xd_u8 alm_flag,rtc_set,alm_set;
 extern bool alm_sw;
 extern xd_u8 return_cnt;
@@ -317,7 +318,7 @@ u8 ap_handle_hotkey(u8 key)
 #endif
 
 		mode_reg =Next_Func();
-	        printf(" ----->Next_Func %x -- \r\n",(u16)mode_reg);
+	        //printf(" ----->Next_Func %x -- \r\n",(u16)mode_reg);
 
 		if(work_mode ==mode_reg){
 			break;
@@ -325,7 +326,7 @@ u8 ap_handle_hotkey(u8 key)
 		else{
 			work_mode = mode_reg;
 		}
-	        printf(" ----->INFO_MODE %x -- \r\n",(u16)work_mode);
+	        //printf(" ----->INFO_MODE %x -- \r\n",(u16)work_mode);
 
 		Set_Curr_Func(work_mode);
 	   
@@ -351,7 +352,14 @@ u8 ap_handle_hotkey(u8 key)
 	 	}
 #ifdef AM_RADIO_FUNC	
 		else if(work_mode==SYS_AMREV){
-			
+
+#ifdef USE_SYS_MODE_RECOVER
+#ifdef UART_ENABLE
+    			printf("------->- MEM_SYSMODE saved   work_mode:%d   \r\n",(u16)work_mode);
+#endif	
+
+              	write_info(MEM_SYSMODE,work_mode);
+#endif	
 			if(cur_sw_fm_band==0){
 				cur_sw_fm_band=1;
 				put_msg_lifo(INFO_NEXT_FM_MODE); 
@@ -389,6 +397,8 @@ u8 ap_handle_hotkey(u8 key)
 #endif		
 		set_brightness_all_on();
 
+#ifdef RTC_DISP_IN_IDLE_MODE
+
 		if(rtc_setting!=0){
 			
                 	rtc_set_cnt=30;	
@@ -409,15 +419,16 @@ u8 ap_handle_hotkey(u8 key)
 				rtc_disp_hdlr();
 		}
 		else{
-#ifdef RTC_DISP_IN_IDLE_MODE
+
 		        if (work_mode == SYS_IDLE)
 		            break;		
-#endif				
 			disp_scenario = DISP_NORMAL;
 	              Disp_Con(DISP_PLAY);
 		}
+#endif				
+		
 		break;
-#if 1		
+#ifdef RTC_DISP_IN_IDLE_MODE
     case INFO_MODE | KEY_LONG:
 	       //set_brightness_all_on();
 		if(disp_scenario == DISP_RTC_SCEN){

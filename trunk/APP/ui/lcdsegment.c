@@ -74,15 +74,21 @@ void disp_icon(u8 id)
 		break;
 	case ICON_USB:
 		F_USB_DEV |=USB_DEV_MASK;
+		F_MP3_DEV |=MP3_ICON_MASK;		
 		break;
 	case ICON_SD:
 		F_SD_DEV |=SD_DEV_MASK;
 		break;
+	case ICON_CD:
+		F_CD_DEV |=CD_DEV_MASK;
+		break;			
+	case ICON_MP3:
+		F_MP3_DEV |=MP3_ICON_MASK;
+		break;		
 	case ICON_AUX:
 		F_AUX_DEV |=AUX_DEV_MASK;
 		break;
 	case ICON_FM_MHZ:
-
 		F_FM_DEV |= FM_DEV_MASK;
 		F_MHZ_DEV |=FM_MHZ_MASK;
 		break;
@@ -119,6 +125,10 @@ void disp_icon(u8 id)
 		F_RTC_ALM |=RTC_ALM_MASK;
 		break;
 #endif		
+
+	case ICON_PROG:
+		F_PROG_ICON_BUF |=PROG_ICON_MASK;
+		break;	
 	case ICON_BAT:
 		F_BAT_ICON_BUF |=BATTERY_MASK;
 		break;	
@@ -148,10 +158,17 @@ void disp_clr_icon(u8 id)
 		break;    
 	case ICON_USB:
 		F_USB_DEV &=~USB_DEV_MASK;
+		F_MP3_DEV &=~MP3_ICON_MASK;		
 		break;
 	case ICON_SD:
 		F_SD_DEV &=~SD_DEV_MASK;
 		break;
+	case ICON_CD:
+		F_CD_DEV &=~CD_DEV_MASK;
+		break;		
+	case ICON_MP3:
+		F_MP3_DEV &=~MP3_ICON_MASK;
+		break;			
 	case ICON_AUX:
 		F_AUX_DEV &=~AUX_DEV_MASK;
 		break;
@@ -189,7 +206,10 @@ void disp_clr_icon(u8 id)
 	case ICON_BELL:
 		F_RTC_ALM &=~RTC_ALM_MASK;
 		break;
-#endif				
+#endif
+	case ICON_PROG:
+		F_PROG_ICON_BUF &=~PROG_ICON_MASK;
+		break;
 	case ICON_BAT:
 		F_BAT_ICON_BUF &=~BATTERY_MASK;
 		break;	
@@ -283,6 +303,7 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
        lcd_buff[4] |= (((letter_data & DIG_D)>>2)|((letter_data & DIG_E)>>4))<<digit_idx;   	 
 }
 #elif defined(JK_CD_ZG_KS218_V001)
+#if 1
 u8 _code lcd_disbuf_offset[4] ={0,4,2,0};
 void align_lcd_disp_buff(u8 offset,u8 letter_data)
 {
@@ -299,6 +320,38 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
        lcd_buff[1] |= (((letter_data & DIG_B))|((letter_data & DIG_F)>>3))<<digit_idx;
        lcd_buff[2] |= (((letter_data & DIG_C)>>1)|((letter_data & DIG_G)>>4))<<digit_idx;
        lcd_buff[3] |= (((letter_data & DIG_D)>>2)|((letter_data & DIG_E)>>2))<<digit_idx;   	 
+}
+#else
+u8 _code lcd_disbuf_offset[4] ={0,1,3,5};
+void align_lcd_disp_buff(u8 offset,u8 letter_data)
+{
+	u8 digit_idx=offset;
+	if(offset==0)return;
+	digit_idx= lcd_disbuf_offset[offset];
+
+	lcd_buff[0] &= ~(0x0002<<digit_idx);
+	lcd_buff[1] &= ~(0x0003<<digit_idx);
+	lcd_buff[2] &= ~(0x0003<<digit_idx);
+	lcd_buff[3] &= ~(0x0003<<digit_idx);
+
+       lcd_buff[0] |= ((letter_data & DIG_A)<<1)<<digit_idx;
+       lcd_buff[1] |= (((letter_data & DIG_B))|((letter_data & DIG_F)>>5))<<digit_idx;
+       lcd_buff[2] |= (((letter_data & DIG_C)>>1)|((letter_data & DIG_G)>>6))<<digit_idx;
+       lcd_buff[3] |= (((letter_data & DIG_D)>>2)|((letter_data & DIG_E)>>4))<<digit_idx;   	 
+}
+#endif
+#elif defined(JK_CD_HYH_728_V001)
+u8 _code lcd_disbuf_offset[4] ={0,1,2,3};
+void align_lcd_disp_buff(u8 offset,u8 letter_data)
+{
+	u8 digit_idx=offset;
+
+	digit_idx= lcd_disbuf_offset[offset];
+	
+	lcd_buff[digit_idx] &= ~(0x017E);
+
+	lcd_buff[digit_idx] |= (letter_data>>1);
+	lcd_buff[digit_idx] |=((letter_data & DIG_A)>0)? 0x0100:0;
 }
 #elif defined(JK_CD_HYH_727_V001)
 u8 _code lcd_disbuf_offset[4] ={5,3,1,0};
@@ -399,6 +452,13 @@ void disp_putchar(u8 chardata,u8 loc)
     {
         return;
     }
+#ifdef LCD_MODULE_WITHOUT_F_DIGIT
+    if(loc==0){
+		if((chardata =='0' )||(chardata=='4')||(chardata=='6')||(chardata=='8')||(chardata=='9')){
+			return;
+		}
+    }
+#endif
 
     if ((chardata >= '0') && (chardata <= '9'))
     {
@@ -573,6 +633,14 @@ void disp_scan(void)
     static bool flash;
 
     custom_buf_update();
+
+#if 0
+	init_disp_buf();
+	//disp_putchar('0',0);
+	//disp_putchar('1',1);
+	//disp_putchar('2',2);
+	disp_icon(ICON_FM_MHZ);
+#endif	
 
     TRADEMARK_ICON |=TRADEMARK_MASK;
 	

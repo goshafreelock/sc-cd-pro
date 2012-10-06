@@ -11,6 +11,7 @@
 #include "mcu_master.h"
 #include "fat_memory.h"
 #include "voice_time.h"
+#include "lcdsegment.h"
 
 #ifdef USE_CD_MCU_MASTER_FUNC			
 
@@ -38,6 +39,13 @@ bool toc_flag=0,send_buf_cmd=0;
 xd_u8 fast_fr_release_cnt=0;
 xd_u16 send_buf=0;
 xd_u8 rev_buf[10]={0};
+
+
+#ifdef USE_PROG_PLAY_MODE
+bool play_prog_mode=0,prog_icon_bit=0;
+xd_u8 prog_total_num=0,prog_cur_num=0;
+
+#endif
 
 void master_push_cmd(u8 cmd)
 {
@@ -127,7 +135,12 @@ void mcu_master_info_hdlr()
 			//if((curr_menu != DISP_STOP)&&(info_timer_3>12))
 			//	Disp_Con(DISP_STOP);			
 		}
+#ifdef USE_PROG_PLAY_MODE
+		if((rev_buf[0]&(BIT(5)))>0){
 
+			 prog_icon_bit=1;
+		}	      
+#endif
 //4 TOC 
 		if((rev_buf[1]&(BIT(2)))==0){
 
@@ -168,9 +181,11 @@ void mcu_master_info_hdlr()
 				given_file_number=rev_buf[2];
 				
 #ifdef USE_PROG_PLAY_MODE
-				if(prog_cur_num!=rev_buf[2]){
-					prog_cur_num=rev_buf[2];
-		                    		Disp_Con(DISP_PROG_FILENUM);
+				if(play_prog_mode){
+					if(prog_cur_num!=rev_buf[2]){
+						prog_cur_num=rev_buf[2];
+			                    		Disp_Con(DISP_PROG_FILENUM);
+					}
 				}
 				else
 #endif			
@@ -193,7 +208,24 @@ void mcu_master_info_hdlr()
 				}
 			}
 		}
+#ifdef USE_PROG_PLAY_MODE
+		if(play_prog_mode&&(rev_buf[0]&(BIT(6)))){
 
+			if(rev_buf[8]!=0xff){
+				if(rev_buf[8]!=prog_total_num){
+					prog_total_num = rev_buf[8];
+					Disp_Con(DISP_PROG_FILENUM);				
+				}
+			}
+			
+			if(rev_buf[9]!=0xff){			
+				if(rev_buf[9]!=prog_cur_num){
+					prog_cur_num = rev_buf[9];
+					Disp_Con(DISP_PROG_FILENUM);				
+				}
+			}
+		}
+#endif
 //4 total file time
 		if(rev_buf[6]<59){
 			//printf("--------------6666------------%x   \r\n",(u16)rev_buf[6]);
@@ -205,14 +237,22 @@ void mcu_master_info_hdlr()
 //4 get cur play time		
 		if(rev_buf[3]<59){
 			cur_time.MIN=rev_buf[3];
+			//printf("--------------MIN------------%u  \r\n",(u16)cur_time.MIN);
+			
 		}
 		if(rev_buf[4]<59){
 			cur_time.SEC=rev_buf[4];
+			//printf("--------------SEC------------%u   \r\n",(u16)cur_time.SEC);
+			
 		}
 //4 end  get cur play time		
 		
 	//for(rev_loop=0;rev_loop<9;rev_loop++)
 		//printf("----------------------------------%x  ----rev  %x \r\n",(u16)rev_loop,(u16)rev_buf[rev_loop]);
+		//printf("----------------------------------%x  ----rev  %x \r\n",(u16)rev_loop,(u16)rev_buf[0]);
+		//printf("----------------------------------9  ----rev  %u \r\n",(u16)rev_buf[8]);
+		//printf("---------------------------------A  ----rev  %u \r\n",(u16)rev_buf[9]);
+		//printf("---------------------------------B ----rev  %u \r\n",(u16)rev_buf[10]);
 		clr_rev_buf();
 	}
 }
@@ -264,15 +304,13 @@ void mcu_master_send()
 
 }
 #ifdef USE_PROG_PLAY_MODE
-bool play_prog_mode=0;
-xd_u8 prog_total_num=0,prog_cur_num=0;
-xd_u8 prog_file_tab[20]={0};
 void prog_play_init()
 {
-	prog_total_num=0;
+	prog_total_num=1;
+	prog_cur_num=0;	
 	play_prog_mode=1;
-	my_memset(&prog_file_tab[0], 0x0, 20);
-
+	//my_memset(&prog_file_tab[0], 0x0, 20);
+	master_push_cmd(MEM_CMD);
 	Disp_Con(DISP_PROG_FILENUM);
 
 }
@@ -281,7 +319,10 @@ void prog_hdlr(u8 key)
 	switch(key)
 	{
 	        case INFO_MODE | KEY_SHORT_UP :
-			master_push_cmd(MEM_CMD);
+			if(prog_cur_num!=0){
+				prog_cur_num=0;					
+				master_push_cmd(MEM_CMD);
+			}
 			break;		
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
 			master_push_cmd(NEXT_FILE_CMD);
@@ -290,7 +331,10 @@ void prog_hdlr(u8 key)
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
 			master_push_cmd(PREV_FILE_CMD);
 			Disp_Con(DISP_PROG_FILENUM);			
-			break;	
+			break;
+	        case INFO_POWER| KEY_SHORT_UP:
+			play_prog_mode=0;				
+			break;
 	}
 }
 #endif
@@ -306,7 +350,9 @@ void erp_2_timer_hdlr()
 
     			CD_PWR_GPIO_OFF();
 		    	Disp_Con(DISP_POWER_OFF);
+#ifdef USE_POWER_KEY				
 			sys_power_down();
+#endif
 		}
 	}
 	else{
@@ -352,7 +398,7 @@ void mcu_hdlr( void )
 	if(play_prog_mode){
 		
 		prog_hdlr(key);
-		if((key=(INFO_MODE | KEY_SHORT_UP))||(key=(INFO_NEXT_FIL | KEY_SHORT_UP))||(key=(INFO_PREV_FIL | KEY_SHORT_UP))){
+		if((key==INFO_HALF_SECOND)||(key==(INFO_MODE | KEY_SHORT_UP))||(key==(INFO_NEXT_FIL | KEY_SHORT_UP))||(key==(INFO_PREV_FIL | KEY_SHORT_UP))){
 			key = 0xFF;
 		}		
 	}
@@ -373,7 +419,10 @@ void mcu_hdlr( void )
 	        case INFO_PLAY | KEY_SHORT_UP :
 
 			if(!toc_flag)break;		//2 TOC  NOT READY
-			
+
+#ifdef USE_PROG_PLAY_MODE
+			play_prog_mode=0;
+#endif			
 			if(cd_play_status== MUSIC_PLAY){
 
 			      Mute_Ext_PA(MUTE);
@@ -400,7 +449,10 @@ void mcu_hdlr( void )
 			      Mute_Ext_PA(MUTE);
 				cd_play_status=MUSIC_STOP;			
 				master_push_cmd(STOP_CMD);
-				Disp_Con(DISP_STOP);							
+				Disp_Con(DISP_STOP);	
+				if(prog_icon_bit){
+					master_push_cmd(REP_OFF_CMD);
+				}				
 			}
 			break;
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
@@ -436,6 +488,10 @@ void mcu_hdlr( void )
 			 if(play_mode==REPEAT_RANDOM){
 				master_push_cmd(REP_RAND_OFF_CMD);
 			}
+			else{
+				
+				master_push_cmd(REP_OFF_CMD);
+			}
 			 
 			play_mode++;
 #ifdef USE_INTRO_MODE_FUNC
@@ -460,8 +516,9 @@ void mcu_hdlr( void )
 				master_push_cmd(INTRO_ON_CMD);
 			}		
 #endif
-	    		//printf("------->> play_mode   %x---%x \r\n",(u16)send_buf,(u16)play_mode);
-			
+#ifdef UART_ENABLE
+	    		printf("------->> play_mode   %x---%x \r\n",(u16)send_buf,(u16)play_mode);
+#endif			
 			break;			
 #endif				
 		 case INFO_HALF_SECOND :
@@ -502,6 +559,9 @@ void mcu_hdlr( void )
 					
 	                	if (DISP_PLAY != curr_menu)
 	                    		Disp_Con(DISP_PLAY);
+			  }
+			  else if(cd_play_status== MUSIC_STOP){
+				Disp_Con(DISP_STOP);	
 			  }
 	            }
 	            break;
