@@ -373,7 +373,7 @@ keyScan:
 ?C0031:
 	MOV  	A,keyCnt
 	CJNE 	A,#KEY_LONG_CNT,?C0033
-	CALL	key_tone
+	//CALL	key_tone
 	MOV  	A,keyBack
 	ORL  	A,#KEY_LONG
 	MOV  	R5,A
@@ -381,7 +381,7 @@ keyScan:
 ?C0033:
 	MOV  	A,keyCnt
 	CJNE 	A,#(KEY_LONG_CNT + KEY_HOLD_CNT),?C0030
-	CALL	key_tone
+	//CALL	key_tone
 	MOV  	A,keyBack
 	ORL  	A,#KEY_HOLD
 	MOV  	R5,A

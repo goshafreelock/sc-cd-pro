@@ -107,7 +107,7 @@ void write_eerom(u8 addr,u8 dat);
 
 #define FM_CH_OFFSET		20
 
-#define AM_CH_OFFSET	70
+#define AM_CH_OFFSET	80
 
 #define MEM_SD_PLAYPOINT_INFO  41
 #define MEM_USB_PLAYPOINT_INFO 43
@@ -122,6 +122,6 @@ void write_eerom(u8 addr,u8 dat);
 #define MEM_USB_VOL         63
 #define MEM_EEPROM          64	
 
-#define IIC_VERIFY_BYTE_ADDR	100
+#define IIC_VERIFY_BYTE_ADDR	120
 
 #endif

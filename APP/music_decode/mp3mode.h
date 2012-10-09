@@ -34,11 +34,10 @@ typedef enum
 {
     REPEAT_ALL = 0,
     REPEAT_ONE,
-    REPEAT_RANDOM,
-    REPEAT_INTRO,    
-    REPEAT_FOLDER,    
     REPEAT_OFF,    
-
+    REPEAT_RANDOM,
+    REPEAT_FOLDER,    
+    REPEAT_INTRO,       
 }PLAY_MODE;
 #else
 typedef enum
