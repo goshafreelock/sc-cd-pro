@@ -357,6 +357,11 @@ xd_u8 KT_AMFMInit(void)                            //0->Fail 1->Success
 	regx = KT_Bus_Read(0x3F);
 	KT_Bus_Write(0x3F, regx & 0xFF88 | 0x0013);		// RFAGC Patch
 
+#ifdef RADIO_ST_INDICATOR	
+	regx = KT_Bus_Read(0x05);
+	KT_Bus_Write(0x05, (regx | 0x0200));			//
+#endif
+
 #ifdef AM_GAIN
 	regx = KT_Bus_Read(0x22);
 	KT_Bus_Write(0x22, (regx & 0xFFCF) | 0x0020 );	// AM_GAIN = 12dB
@@ -1507,7 +1512,7 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 		if (!freq[i])
 		{
 		    KT_FMTune(nextfreq);
-		    delay_10ms(6);			
+		    delay_10ms(2);			
 			afc[i]=KT_FMGetAFC(nextfreq);
 #ifdef SEEK_WITH_SNR
 			snr[i]=KT_FMGetSNR();
@@ -1529,11 +1534,11 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 
 #ifdef SEEK_WITH_SNR
 		KT_FMTune(Frequency);
-		delay_10ms(6);
+		delay_10ms(2);
 		snr2=KT_FMGetSNR();
 		if ((snr[1]>=FM_SNR_TH) && (snr2>=FM_SNR_TH)) return(1);
 		if ((snr[1]<FM_SNR_TH) && (snr2<FM_SNR_TH)) return(0);
-		delay_10ms(2);
+		delay_10ms(1);
 		snr3=KT_FMGetSNR();
 		if (snr3>=FM_SNR_TH) return(1);
 		else return(0);
@@ -1875,17 +1880,45 @@ void KT_Mute_Ctrl(bool m_f)
 void KT_Radio_ST_Check()
 {
 	static u8 st_check_timer=0;
-
+	u16 regx=0;
+	char rssi_value;
 	
-	if((st_check_timer++>6)&&(cur_sw_fm_band==FM_MODE)){
+	if((st_check_timer++>3)&&(cur_sw_fm_band==FM_MODE)){
 
 		st_check_timer=0;
+		
+#ifdef MANUAL_SEPARATION
+
+		KT_FMReadRSSI(&rssi_value);
+
+		if(rssi_value >= SEPARATION_POINT)
+		{
+			regx = KT_Bus_Read(0x05);					// BLEND DISABLE
+			KT_Bus_Write(0x05, regx | 0x0020);
+			if ( KT_FMGetST() )
+		 	{
+				radio_st_ind=1;
+			}
+			else 
+			{
+				radio_st_ind=0;
+			}
+		}
+		
+		if(rssi_value <= BLEND_POINT)
+		{
+			regx = KT_Bus_Read(0x05);					// BLEND ENABLE
+			KT_Bus_Write(0x05, regx & 0xFFDF);
+			radio_st_ind=0;
+		}
+#else	
 		if(KT_FMGetST()>0){
 			radio_st_ind=1;
 		}
 		else{
 			radio_st_ind=0;
 		}
+#endif		
 	}
 }
 #endif

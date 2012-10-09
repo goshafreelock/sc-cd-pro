@@ -36,7 +36,7 @@ xd_u8 adc_vddio;
 xd_u8 adc_vdd12l;
 xd_u8 adc_vddiol;
 u8 key_value;
-bool sys_pwr_flag=0;
+bool sys_pwr_flag=0,adkey_detect=0;
 
 xd_u8 fm_sw_volt=0,sys_mod_volt=0,cur_work_mod=0,sys_func_sel=0;
 extern xd_u8 sw_fm_mod,cur_sw_fm_band,curr_menu;
@@ -811,6 +811,7 @@ u8 key_power(void)
 void key_tone(void)
 {
 	set_brightness_all_on();
+	adkey_detect=1;
 	return;
 #if 0	
     	power_down_cnt = 0;

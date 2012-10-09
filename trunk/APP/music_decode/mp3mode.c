@@ -30,7 +30,7 @@ extern u8 decode_cmd;
 extern s8 _idata ff_fr_step;  ///<快进 快退步径 负数为快退 正数为快进
 
 //bool play_status;       ///< 播放状态 1:播放;0:暂停;
-xd_u8 play_status;			///< 播放状态 0：暂停；1：播放；2：快进/快退；
+xd_u8 play_status=MUSIC_STOP;			///< 播放状态 0：暂停；1：播放；2：快进/快退；
 xd_u8 given_device;        ///< 指定需要获取的设备 1 SD ; 2 USB; 0:不知道设备；其他：非法值
 /** 音效模式 */
 xd_u8 eq_mode;
@@ -115,12 +115,15 @@ void music_info_init(void)
 /*----------------------------------------------------------------------------*/
 void stop_decode(void)
 {
-    play_status = MUSIC_PAUSE;
+
+    Mute_Ext_PA(MUTE);
+    play_status = MUSIC_STOP;
 	//main_vol_set(0, CHANGE_VOL_NO_MEM);//digital_fade_out();
     read_usb_remain_data();
     disable_decode_isr();
     disable_softint();
     cfilenum = 0;
+	
 }
 
 /*----------------------------------------------------------------------------*/
@@ -201,6 +204,9 @@ bool start_decode(void)
     {
       delay_10ms(5);
     }
+
+	Mute_Ext_PA(UNMUTE);
+	
     	cfilenum = 0;
     	return 1;
 }
@@ -266,7 +272,10 @@ void music_play(void)
         case SEL_GIVEN_DEVICE_GIVEN_FILE:              ///<获取指定设备的指定文件
 		get_music_file2();
             	break;
-
+        case INFO_STOP| KEY_SHORT_UP :
+		stop_decode();
+		Disp_Con(DISP_STOP);			
+		break;
         case INFO_NEXT_FIL | KEY_SHORT_UP:
 	    	if((disp_scenario == DISP_RTC_SCEN)&&(rtc_setting==1)){
 			goto _HOT_KEY_HDLR;
@@ -359,7 +368,7 @@ void music_play(void)
 			break;
 		}
 #endif		
-	     if(get_device_online_status()==0){
+		if((get_device_online_status()&0x03)==0){
 			break;
 	     }		
             if (DISP_DWORD_NUMBER == curr_menu)
@@ -389,6 +398,12 @@ void music_play(void)
                 	read_usb_remain_data();
 			write_playtime(&playpoint_time);	   	//暂停时记忆断点信息（EEPROM）
             }
+            else if (play_status == MUSIC_STOP){
+
+			given_file_number=1;
+                	put_msg_lifo(INIT_PLAY);
+
+	     }
             break;
 
         case INFO_PICK_SONG | KEY_SHORT_UP :
@@ -460,18 +475,19 @@ void music_play(void)
 			rtc_disp_hdlr();
 			break;
 	     }
-#endif		
-            if (DISP_PLAY == curr_menu)
-            {
-                	disp_file_time();
-            }
+#endif	
 
 #ifdef NO_DEV_SHOW_NO_DEV
-		if(get_device_online_status()==0){
+		if((get_device_online_status()&0x03)==0){
 			Disp_Con(DISP_NOFILE);
 			break;
 		}
 #endif            
+
+            if (DISP_PLAY == curr_menu)
+            {
+                	disp_file_time();
+            }
 
             return_cnt++;
             if (RETURN_TIME == return_cnt)
@@ -488,16 +504,19 @@ void music_play(void)
                 }
                 else
                 {
-                    if (!play_status)
-                    {
+                    if (play_status== MUSIC_PAUSE){
                         if (curr_menu != DISP_PAUSE)
                             Disp_Con(DISP_PAUSE);
                     }
-                    else
-                    {
+                    else if(play_status== MUSIC_PLAY){
                         if (curr_menu != DISP_PLAY)
                             Disp_Con(DISP_PLAY);
                     }
+		      else if(play_status== MUSIC_STOP){
+
+                        if (curr_menu != DISP_STOP)
+                            Disp_Con(DISP_STOP);
+			  }
                 }
             }
 #if ( USE_RTCRAM == MEMORY_STYLE  )
@@ -509,7 +528,7 @@ void music_play(void)
 
         case INFO_PLAY_MODE :
 		play_mode++;
-            	if (play_mode > REPEAT_RANDOM)
+            	if (play_mode > REPEAT_FOLDER)
             	{
                 	play_mode = REPEAT_ALL;
             	}

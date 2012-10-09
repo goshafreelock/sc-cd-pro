@@ -35,12 +35,12 @@ xd_u16 filenameNum;
 extern xd_u8 cur_sw_fm_band,rtc_setting,rtc_set,alm_set;
 extern  _xdata u8 filename_buff[100];
 extern bool alm_sw;
-extern xd_u8 station_save_pos;
+extern xd_u8 station_save_pos,station_sel_pos;
 extern _xdata SYS_WORK_MODE  work_mode;
 
 #ifdef USE_PROG_PLAY_MODE
 extern  xd_u8 prog_total_num,prog_cur_num;
-extern bool prog_icon_bit;
+extern bool prog_icon_bit,play_prog_mode;
 #endif
 
 #ifdef RADIO_ST_INDICATOR
@@ -99,9 +99,20 @@ void disp_active(void)
     }
      disp_icon(ICON_MP3);
 }
+void Disp_Null()
+{
+
+}
 void Disp_Num(void)
 {
+#ifdef USE_CD_MCU_MASTER_FUNC			
+	if(work_mode == SYS_MCU_CD){
+		printf_num(cfilenum,2,2);
+	}
+	else
+#endif
 	printf_num(cfilenum,0,4);
+
 }
 #ifdef USE_PROG_PLAY_MODE
 void Disp_prog_num(void)
@@ -114,7 +125,13 @@ void Disp_prog_num(void)
 #endif
 void Disp_Filenum(void)
 {
+	if(given_file_number>999)
     	printf_num(given_file_number,0,4);
+	else if(given_file_number>99)
+    	printf_num(given_file_number,1,3);
+	else 
+    	printf_num(given_file_number,2,2);
+	
     	disp_active();	
 }
 void Disp_Nofile(void)
@@ -148,6 +165,7 @@ void Disp_Playmode_icon()
 	disp_clr_icon(ICON_REP_ALL);
 	disp_clr_icon(ICON_REP_1);
 	disp_clr_icon(ICON_REP_RDM);
+	disp_clr_icon(ICON_REP_FOD);
 
 	if(play_mode==REPEAT_ALL){
 	    disp_icon(ICON_REP_ALL);
@@ -158,6 +176,9 @@ void Disp_Playmode_icon()
 	else if(play_mode == REPEAT_RANDOM){
 	    disp_icon(ICON_REP_RDM);
 	}	
+	else if(play_mode == REPEAT_FOLDER){
+	    disp_icon(ICON_REP_FOD);
+	}
 }
 
 #ifdef USE_CD_MCU_MASTER_FUNC			
@@ -199,6 +220,9 @@ void disp_file_time(void)
 	    printf_num(sec,2,2);
 	    printf_num(min,0,2);
     }
+#if defined(MCU_CD_728_LCD_MODULE)
+    disp_clr_flash_icon(ICON_PLAY);
+#endif
 
     disp_icon(ICON_PLAY);
     disp_icon(ICON_COL);
@@ -217,6 +241,7 @@ void Disp_Pause(void)
 #else
     disp_file_time();
 #endif
+    disp_clr_icon(ICON_PLAY);	
     disp_icon(ICON_PAUSE);
 }
 void Disp_Stop(void)
@@ -234,7 +259,13 @@ void Disp_Stop(void)
 	else
 #endif
 	{
-    		printf_str("STOP",0);
+		if(fs_msg.fileTotal>999)
+			printf_num(fs_msg.fileTotal,0,4);
+		else if(fs_msg.fileTotal>99)
+			printf_num(fs_msg.fileTotal,1,3);
+		else
+			printf_num(fs_msg.fileTotal,2,2);
+    		//printf_str("STOP",0);
 	}
     disp_active();
 
@@ -244,6 +275,7 @@ void Disp_Play(void)
     disp_active();
     disp_file_time();
     disp_icon(ICON_PLAY);	
+    disp_clr_icon(ICON_PAUSE);	
 }
 void Disp_Hello(void)
 {
@@ -270,13 +302,21 @@ void disp_scan_disk(void)
 {
     printf_str(" Lod",0);
 }
+void disp_scan_toc(void)
+{
+    	printf_str("----",0);
+}
 void disp_error(void)
 {
     printf_str(" ERR",0);
 }
 void disp_open(void)
 {
-    printf_str("OPEN",0);
+#ifdef LCD_MODULE_WITHOUT_F_DIGIT
+	printf_str("OPN",1);
+#else
+	printf_str("OPEN",0);
+#endif
 }
 void Disp_Power_up(void)
 {
@@ -304,50 +344,7 @@ void Disp_Timer_OFF(void)
 void Disp_freq(void )
 {
 	u16 freq=0;
-#if defined(K2092_DH_288_V001_000)
-
-	if(cur_sw_fm_band==0){
-		freq =frequency;
-	 	disp_icon(ICON_FM_MHZ);		
-	}
-	else if(cur_sw_fm_band==1){
-		freq =frequency;
-	 	disp_icon(ICON_AM_KHZ);
-	}
-	else if(cur_sw_fm_band==2){
-		
-		freq =frequency;
-		lcd_buff[0]|=0x0080;
-		lcd_buff[1]|=0x0001;
-
-	}
-	else{
-
-		if(frequency<9999){
-			freq =frequency;
-			lcd_buff[0]|=0x0080;
-		}
-		else{
-			freq =frequency/100;
-			lcd_buff[0]|=0x0020;
-		}
-
-	 	disp_icon(ICON_SW);		
-		
-	}	
-    if(freq > 999)
-    {
-        printf_num(freq,0,4);
-    }	
-    else if(freq > 99)
-    {
-        printf_num(freq,1,3);
-    }
-    else{
-
-        printf_num(freq,2,2);
-    }
-#else	
+	
 	if(cur_sw_fm_band==0){
 		freq =frequency/10;
 	 	disp_icon(ICON_FM_MHZ);		
@@ -374,7 +371,6 @@ void Disp_freq(void )
 
         printf_num(freq,2,2);
     }
-#endif
 
 }
 void Disp_Aux(void )
@@ -400,7 +396,14 @@ void Disp_station_ch(void)
 {
     	printf_str("P",1);
     	printf_num((station_save_pos+1),2,2);
+	disp_icon(ICON_PROG);		
 }
+void Disp_sel_station_ch(void)
+{
+    	printf_str("P",1);
+    	printf_num((station_sel_pos+1),2,2);
+}
+
 #if RTC_ENABLE
 xd_u8  clock_points=0;
 extern RTC_TIME curr_date;
@@ -517,8 +520,14 @@ void custom_buf_update(void)
 	}
 #endif
 #ifdef USE_PROG_PLAY_MODE
-	if(prog_icon_bit){
-		disp_icon(ICON_PROG);
+	if(work_mode <=SYS_MCU_CD){
+		
+		if(prog_icon_bit||play_prog_mode){
+			disp_icon(ICON_PROG);
+		}
+		else{
+			disp_clr_icon(ICON_PROG);		
+		}
 	}
 #endif
 #ifdef RADIO_ST_INDICATOR
@@ -526,6 +535,15 @@ void custom_buf_update(void)
 	 	disp_icon(ICON_RADIO_ST);		
 	else
 		disp_clr_icon(ICON_RADIO_ST);		
+#endif
+
+#ifdef FLASH_PLAY_ICON_WHEN_PAUSE
+	if(((cd_play_status == MUSIC_PAUSE)&&(work_mode == SYS_MCU_CD))||((play_status == MUSIC_PAUSE)&&(work_mode <= SYS_MP3DECODE_SD))){
+	    		disp_flash_icon(ICON_PLAY);
+	}
+	else{
+	    		disp_clr_flash_icon(ICON_PLAY);
+	}
 #endif
 
 #if defined(USE_BAT_MANAGEMENT)
@@ -543,19 +561,26 @@ void Disp_Con(u8 LCDinterf)
 {
     return_cnt = 0;
     curr_menu = LCDinterf;
+	
+#ifdef UART_ENABLE
+	    	printf("------->-Disp_Con   %d    \r\n",(u16)LCDinterf);
+#endif
 
     disp_clr_buf();
     switch (LCDinterf)
     {
     case DISP_NULL:
-        //Disp_Play();
+        Disp_Null();
         break;
     case DISP_HELLO:
         Disp_Hello();
         break;		
     case DISP_SCAN_DISK:
        disp_scan_disk();
-        break;		
+        break;	
+    case DISP_SCAN_TOC:
+       disp_scan_toc();
+        break;			
     case DISP_DWORD_NUMBER:
         Disp_Num();
         break;		
@@ -613,6 +638,9 @@ void Disp_Con(u8 LCDinterf)
         break;
     case DISP_SAVE_POS:
         Disp_station_ch();
+        break;
+    case DISP_SEL_POS:
+        Disp_sel_station_ch();
         break;		
     case DISP_BAND_NUM:
         Disp_cur_band();

@@ -113,6 +113,9 @@ void disp_icon(u8 id)
 		break;		
 	case ICON_REP_RDM:
 		F_REP_RDM|=REP_RDM_MASK;
+		break;	
+	case ICON_REP_FOD:
+		F_REP_FOD|=REP_FOD_MASK;
 		break;			
 	case ICON_COL:
 		F_POINTS |=POINTS_MASK;
@@ -195,7 +198,10 @@ void disp_clr_icon(u8 id)
 		break;
 	case ICON_REP_RDM:
 		F_REP_RDM&=~REP_RDM_MASK;
-		break;			
+		break;	
+	case ICON_REP_FOD:
+		F_REP_FOD&=~REP_FOD_MASK;
+		break;				
 	case ICON_COL:
 		F_POINTS &=~POINTS_MASK;
 		break;

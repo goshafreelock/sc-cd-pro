@@ -15,7 +15,7 @@
 #define MAX_CHANNL 30
 
 
-#define FM_MAX_CH    10
+#define FM_MAX_CH    20
 #define AM_MAX_CH    10
 
 #define PRESET_MASK				0xF0

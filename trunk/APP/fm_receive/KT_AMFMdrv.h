@@ -13,7 +13,7 @@
 #define SEEK_WITH_SNR				// Turn on only if SNR double check is required in SEEK process
 //#define DISABLE_FAST_GAIN_UP
 //#define LOWFM_MODE
-//#define MANUAL_SEPARATION				 
+#define MANUAL_SEPARATION				 
 //#define AM_SOFTMUTE
 //#define FM_SOFTMUTE
 //#define AM_GAIN
@@ -181,8 +181,8 @@ typedef struct
 #define SEEKUP 1
 #define SEEKDOWN 0
 
-#define TST_TH 0x2800
-#define FM_SNR_TH 0x40
+#define TST_TH 		0x1600//0x2800
+#define FM_SNR_TH 	0x40
 #define AM_TUNING_LIGHT_TH 30
 #define SEPARATION_POINT -91
 #define BLEND_POINT -97
