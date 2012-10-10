@@ -31,6 +31,7 @@ typedef enum
     DISP_STOP,
     DISP_VOL,
     DISP_EQ,
+    DISP_DIR,
     DISP_POWER_UP,
     DISP_POWER_OFF,
     DISP_PWR_TIMER,

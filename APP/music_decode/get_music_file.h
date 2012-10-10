@@ -29,6 +29,10 @@ void get_music_file2(void);
 void get_music_file3(void);
 bool fs_get_filenum(PLAY_MODE, u8);
 
+#ifdef USE_FOLDER_SELECT_FUNC
+void select_folder_file(u8 cmd);
+#endif
+
 #endif
 
 #define GET_NEXT_FILE       0

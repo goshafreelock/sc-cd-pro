@@ -300,11 +300,11 @@ void Diap_usbslave(void)
 {
     printf_str("U-d",1);
 }
-void disp_scan_disk(void)
+void Disp_scan_disk(void)
 {
     printf_str(" Lod",0);
 }
-void disp_scan_toc(void)
+void Disp_scan_toc(void)
 {
 #ifdef LCD_DISP_THREE_DIGIT
     	printf_str("---",0);
@@ -325,6 +325,18 @@ void disp_open(void)
 #else
 	printf_str("OPEN",0);
 #endif
+}
+void Disp_dir_num(void)
+{
+	//dispNum((u8)((fs_msg.dirTotal/1000)%10),3);
+	disp_active();
+	if(fs_msg.dirTotal==0){
+
+	    printf_str("noF",0);
+	    return ;
+	}
+	printf_char('F',1);
+	printf_num(fs_msg.dirTotal,2,2);
 }
 void Disp_Power_up(void)
 {
@@ -584,10 +596,10 @@ void Disp_Con(u8 LCDinterf)
         Disp_Hello();
         break;		
     case DISP_SCAN_DISK:
-       disp_scan_disk();
+        Disp_scan_disk();
         break;	
     case DISP_SCAN_TOC:
-       disp_scan_toc();
+        Disp_scan_toc();
         break;			
     case DISP_DWORD_NUMBER:
         Disp_Num();
@@ -621,6 +633,9 @@ void Disp_Con(u8 LCDinterf)
     case DISP_EQ:
         Disp_Eq();
         break;
+    case DISP_DIR:					   
+	 Disp_dir_num();			
+	break;		
     case DISP_POWER_UP:
         Disp_Power_up();
         break;
