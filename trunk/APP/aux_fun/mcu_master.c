@@ -467,7 +467,9 @@ void mcu_hdlr( void )
 	        case INFO_STOP| KEY_SHORT_UP :
 			//if(cd_play_status!= MUSIC_STOP)
 			{
-				play_prog_mode=0;			
+#ifdef USE_PROG_PLAY_MODE
+				play_prog_mode=0;	
+#endif
 			      Mute_Ext_PA(MUTE);
 				cd_play_status=MUSIC_STOP;			
 				master_push_cmd(STOP_CMD);
@@ -497,6 +499,7 @@ void mcu_hdlr( void )
 #endif			
 #ifdef MASTER_SEL_CD_PLAY_MODE
 	    	case INFO_MODE | KEY_SHORT_UP:
+        	case INFO_PLAY_MODE :
 
 #ifdef USE_INTRO_MODE_FUNC			
 			if(play_mode==REPEAT_INTRO){

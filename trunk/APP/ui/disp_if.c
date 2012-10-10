@@ -138,6 +138,8 @@ void Disp_Nofile(void)
 {
 #ifdef MCU_CD_728_LCD_MODULE
     	printf_str("Nod",1);
+#elif defined(LCD_DISP_THREE_DIGIT)
+    	printf_str("NOd",1);
 #else
     	printf_str("NO d",0);
 #endif
@@ -304,7 +306,11 @@ void disp_scan_disk(void)
 }
 void disp_scan_toc(void)
 {
+#ifdef LCD_DISP_THREE_DIGIT
+    	printf_str("---",0);
+#else
     	printf_str("----",0);
+#endif
 }
 void disp_error(void)
 {
@@ -313,6 +319,8 @@ void disp_error(void)
 void disp_open(void)
 {
 #ifdef LCD_MODULE_WITHOUT_F_DIGIT
+	printf_str("OPN",1);
+#elif defined(LCD_DISP_THREE_DIGIT)
 	printf_str("OPN",1);
 #else
 	printf_str("OPEN",0);

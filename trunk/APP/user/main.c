@@ -123,6 +123,30 @@ void P0IE_ctl(u8 sel, u8 dat)
 	}
 	P0IE = bP0IE;		
 }
+#ifdef SYS_GPIO_SEL_FUNC
+void gpio_sel_func_mode()
+{
+
+	GPIO_SEL_FUNC_GPIO_INIT();
+	_nop_();
+	
+	if(GPIO_SEL_FUNC_GPIO_READ){
+
+		if(work_mode!= HIGH_LEVEL_SEL_MODE){
+			Set_Curr_Func(HIGH_LEVEL_SEL_MODE);
+      			put_msg_lifo(INFO_NEXT_SYS_MODE);	   
+		}
+	}
+	else{
+
+		if(work_mode!= LOW_LEVEL_SEL_MODE){
+			Set_Curr_Func(LOW_LEVEL_SEL_MODE);
+      			put_msg_lifo(INFO_NEXT_SYS_MODE);	   
+		}
+	}
+}
+#endif
+
 #ifdef USE_LINE_IN_DETECT_FUNC
 /*----------------------------------------------------------------------------*/
 /**@brief LINE IN ÔÚÏß¼ì²â
@@ -299,6 +323,9 @@ void timer1isr(void)
             LDO_IN_Volt=ldoin_voltage();
 #ifdef USE_RTC_ALARM_FUNCTION
             check_alm();
+#endif
+#ifdef SYS_GPIO_SEL_FUNC
+	     gpio_sel_func_mode();
 #endif
 #ifdef ADKEY_SELECT_MODE
 	    ad_mod_sel_hdlr();

@@ -234,7 +234,7 @@ static SYS_WORK_MODE Next_Func()
 				return i;
 			}
 		}				
-		for(i=0;i<=((Sys_Func_List&0xFF0)>>8);i++)
+		for(i=0;i<=((Sys_Func_List&0xFF00)>>8);i++)
 			if((Sys_Func_List&(BIT(i)))>0){
 				return i;
 		}
@@ -266,6 +266,12 @@ u8 ap_handle_hotkey(u8 key)
 
     case MSG_SDMMC_IN :
 
+#ifdef NO_MEDIA_DEV_HOT_PLUG_SEL_FUNC
+        if (work_mode > SYS_MP3DECODE_SD){
+		break;
+	 }
+#endif		
+
         disp_scenario = DISP_NORMAL;
 	 Add_Func_To_List(SD_DEV);
         given_device = BIT(SDMMC);
@@ -275,9 +281,16 @@ u8 ap_handle_hotkey(u8 key)
 	     Set_Curr_Func(SYS_MP3DECODE_SD);
             return 0;
         }
+
         break;
 
     case MSG_USB_DISK_IN  :
+		
+#ifdef NO_MEDIA_DEV_HOT_PLUG_SEL_FUNC
+        if (work_mode > SYS_MP3DECODE_SD){
+		break;
+	 }
+#endif		
 
         disp_scenario = DISP_NORMAL;
 	 Add_Func_To_List(USB_DEV);
