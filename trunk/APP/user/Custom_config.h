@@ -127,13 +127,7 @@
 
 //#define EEPROM_RTC_RAM_COMPATIBLE
 
-//#define NEW_DH_LCD_MODULE
 
-//#define JK2092_AMFM_BK_V001
-//#define JK2092_AMFM_BK5018_V001
-/////#define JK2092_DH_289_V001
-//#define K2092_DH_228_V001
-//#define K2092_DH_129_V001
 //#define JK_CD_HYH_727_V001
 //#define JK_CD_HYH_728_V001
 //#define JK_CD_ZG_KS218_V001
@@ -171,6 +165,7 @@
 #define FLASH_PLAY_ICON_WHEN_PAUSE
 #define USE_POWER_KEY
 
+#define USE_FOLDER_SELECT_FUNC
 
 #define USE_RADIO_FUNC
 #define AM_RADIO_FUNC

@@ -9,6 +9,7 @@
 /*----------------------------------------------------------------------------*/
 
 /*mp3mode.c*/
+#include "Custom_config.h"
 
 #include "mp3mode.h"
 #include "fat_memory.h"
@@ -277,24 +278,32 @@ void music_play(void)
 		Disp_Con(DISP_STOP);			
 		break;
         case INFO_NEXT_FIL | KEY_SHORT_UP:
-	    	if((disp_scenario == DISP_RTC_SCEN)&&(rtc_setting==1)){
-			goto _HOT_KEY_HDLR;
-	    	}			
+			
+#ifdef USE_FOLDER_SELECT_FUNC
+		if(play_mode==REPEAT_FOLDER){
+			select_folder_file(FIND_NEXT_DIR);
+		       Disp_Con(DISP_DIR);	
+			delay_10ms(100);			   
+			break;			   
+		}
+#endif
 		get_music_file1(GET_NEXT_FILE);
             	break;
 
         case INFO_PREV_FIL | KEY_SHORT_UP:
-	    	if((disp_scenario == DISP_RTC_SCEN)&&(rtc_setting==1)){
-			goto _HOT_KEY_HDLR;
-	    	}			
+			
+#ifdef USE_FOLDER_SELECT_FUNC
+		if(play_mode==REPEAT_FOLDER){
+			select_folder_file(FIND_PREV_DIR);
+		       Disp_Con(DISP_DIR);	
+			delay_10ms(100);
+			break;
+		}
+#endif		
 		get_music_file1(GET_PREV_FILE);
             	break;
         case INFO_NEXT_FIL | KEY_HOLD:
 			
-	    	if((disp_scenario == DISP_RTC_SCEN)&&(rtc_setting==1)){
-			goto _HOT_KEY_HDLR;
-	    	}
-
 		if(play_status)
 		{
 			ff_fr_step = FAST_FARWORD_STEP;
@@ -309,14 +318,14 @@ void music_play(void)
             	}
 		break;
         case INFO_PREV_FIL | KEY_HOLD:
-            if(music_type == 2)    //wav文件不支持断点记忆，故可以快退
-            { 
-                playpoint_flag =0;
-            }
+	       if(music_type == 2)    //wav文件不支持断点记忆，故可以快退
+	       { 
+	             playpoint_flag =0;
+	       }
 			
-	    	if((disp_scenario == DISP_RTC_SCEN)&&(rtc_setting==1)){
-			goto _HOT_KEY_HDLR;
-	    	}
+	    	//if((disp_scenario == DISP_RTC_SCEN)&&(rtc_setting==1)){
+		//	goto _HOT_KEY_HDLR;
+	    	//}
 			
 		if(!playpoint_flag) 				//读取断点信息后不支持快退
 		{
@@ -342,7 +351,7 @@ void music_play(void)
         case DECODE_MSG_FILE_END:               ////*将文件结束的消息放到半秒消息中处理，防止单曲循环遇到错误歌曲无法手动切换下一首,或遇到错误歌曲无法到上一首,每首歌曲至少播放约5S*/
 		if (get_music_play_time() < 5)
 		{
-			file_end_time = 7 -  (u8)get_music_play_time();
+			file_end_time = 7 - (u8)get_music_play_time();
             	}
 		else
 		{	

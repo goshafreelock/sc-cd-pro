@@ -7,6 +7,7 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
+#include "Custom_config.h"
 
 #include "get_music_file.h"
 
@@ -232,6 +233,22 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 
     return 1;
 }
+#if defined(USE_FOLDER_SELECT_FUNC)
+void select_folder_file(u8 cmd)
+{
+
+    if (device_check() == 0)                    //如果当前播放的设备不在线，则找下一个设备, 并且选择第一个文件进行播放
+    {
+        if (find_device(0))
+        {
+            put_msg_lifo(INFO_NEXTMODE);                //找不到有效设备，需要返回到其它模式
+            return;
+        }
+    }
+    given_file_number= get_dir_file(cmd);                //查找错误，文件序号已经超出当前设备的范围(也有可能是当前设备已经不存在)
+    put_msg_lifo(INIT_PLAY);
+}
+#endif
 
 
 
