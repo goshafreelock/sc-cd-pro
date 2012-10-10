@@ -309,7 +309,7 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
        lcd_buff[4] |= (((letter_data & DIG_D)>>2)|((letter_data & DIG_E)>>4))<<digit_idx;   	 
 }
 #elif defined(JK_CD_ZG_KS218_V001)
-#if 1
+#if 0
 u8 _code lcd_disbuf_offset[4] ={0,4,2,0};
 void align_lcd_disp_buff(u8 offset,u8 letter_data)
 {

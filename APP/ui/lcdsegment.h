@@ -206,6 +206,9 @@ enum {
 #define SD_DEV_MASK	0x0000
 #define F_SD_DEV		(lcd_buff[3])	
 
+#define CD_DEV_MASK	0x0000
+#define F_CD_DEV		(lcd_buff[4])	
+
 #define FM_DEV_MASK	0x0000
 #define F_FM_DEV		(lcd_buff[3])	
 
@@ -251,17 +254,17 @@ enum {
 #define RTC_AM_MASK	0x0000
 #define F_RTC_AM		(lcd_buff[3])
 
-#define REC_ICON_MASK	0x0000
-#define F_REC_DEV		(lcd_buff[4])	
+#define REC_ICON_MASK		0x0000
+#define F_REC_DEV			(lcd_buff[4])	
 
-#define SPK_MUTE_MASK	0x0000
-#define F_SPK_DEV		(lcd_buff[3])	
+#define SPK_MUTE_MASK		0x0000
+#define F_SPK_DEV			(lcd_buff[3])	
 
-#define BATTERY_MASK	0x0000
-#define F_BAT_ICON_BUF	(lcd_buff[0])	
+#define BATTERY_MASK		0x0000
+#define F_BAT_ICON_BUF		(lcd_buff[0])	
 
-#define PROG_ICON_MASK	0x0000
-#define F_PROG_ICON_BUF	(lcd_buff[0])	
+#define PROG_ICON_MASK		0x0001
+#define F_PROG_ICON_BUF	(lcd_buff[3])	
 
 #define TRADEMARK_MASK	0x0000
 #define TRADEMARK_ICON		(lcd_buff[0])	
@@ -272,9 +275,12 @@ enum {
 #define REP_ALL_MASK	0x0002
 #define REP_ONE_MASK	0x0001
 #define REP_RDM_MASK	0x0001
+#define REP_FOD_MASK	0x0080
+
 #define F_REP_ALL		(lcd_buff[0])
 #define F_REP_ONE 		(lcd_buff[2])
 #define F_REP_RDM 		(lcd_buff[1])
+#define F_REP_FOD 		(lcd_buff[1])
 
 //#define L_ICON_BUF		(lcd_buff[4])
 #define S1_ICON_MASK	0x0000
