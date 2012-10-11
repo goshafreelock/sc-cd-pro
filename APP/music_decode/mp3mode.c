@@ -72,6 +72,144 @@ extern void wkup_pin_ctrl(bool dir);
 extern void rtc_disp_hdlr(void);
 extern xd_u8 rtc_setting,rtc_set,rtc_set_cnt;
 
+extern bool repeat_off_flag;
+
+bool folder_select=0,folder_mode_select=0;
+
+#ifdef USE_USB_PROG_PLAY_MODE
+bool usb_play_prog_mode=0,usb_prog_icon_bit=0;
+xd_u8 usb_prog_total_num=0,usb_prog_cur_num=0;
+xd_u8 usb_play_prog_index=0;
+xd_u8 usb_prog_tab[20]={0};
+
+extern u8 ReadLFSR();
+
+bool get_prog_song_num(u8 get_Mode)
+{
+	repeat_off_flag =0;
+
+	if(play_mode == REPEAT_ALL){
+		usb_play_prog_index++;
+		if(usb_play_prog_index>usb_prog_total_num){
+			usb_play_prog_index =0;
+		}	
+	}
+	else if(play_mode == REPEAT_ONE){
+
+
+	}
+	else if(play_mode == REPEAT_OFF){
+
+		usb_play_prog_index++;
+		if(usb_play_prog_index>usb_prog_total_num){
+			usb_play_prog_index =0;
+
+
+#ifdef UART_ENABLE
+    printf(" ---> 33333333get_prog_song_num	%x \r\n",(u16)get_Mode);
+#endif
+			
+			if(get_Mode==GET_PLAY_FILE){
+				repeat_off_flag =1;
+				return 0;		
+			}			
+		}
+	}
+	else if(play_mode == REPEAT_RANDOM){
+		
+	        CRCREG = T3CNTH;
+	        CRCREG = T3CNTL;
+
+	        usb_play_prog_index = ReadLFSR();
+
+	        usb_play_prog_index = usb_play_prog_index % usb_prog_total_num+ 1;
+
+	}	
+
+	given_file_number =usb_prog_tab[usb_play_prog_index];
+#ifdef UART_ENABLE
+    printf(" ---> get_prog_song_num	%x \r\n",(u16)given_file_number);
+#endif
+
+	return 1;
+
+}
+void usb_prog_play_init()
+{
+	if(!usb_play_prog_mode){
+		
+		usb_play_prog_mode=1;
+		usb_prog_icon_bit=1;	
+
+		usb_play_prog_index=0;
+		usb_prog_total_num=1;
+		usb_prog_cur_num=0;
+		
+		my_memset(&usb_prog_tab[0], 0x0, 20);
+		Disp_Con(DISP_PROG_FILENUM);
+	}
+}
+void usb_prog_mode_cls()
+{
+	if(usb_play_prog_mode||usb_prog_icon_bit){
+
+		usb_play_prog_mode=0;
+		usb_prog_icon_bit=0;	
+
+		usb_prog_total_num=1;
+		usb_prog_cur_num=0;
+			
+		my_memset(&usb_prog_tab[0], 0x0, 20);
+		Disp_Con(DISP_STOP);
+	}
+}
+void usb_prog_hdlr(u8 key)
+{
+	switch(key)
+	{
+	        case INFO_MODE | KEY_SHORT_UP :
+				
+			if((usb_prog_cur_num!=0)&&(usb_prog_total_num<20)){
+				usb_prog_tab[usb_prog_total_num-1]=usb_prog_cur_num;
+				usb_prog_cur_num=0;
+				usb_prog_total_num++;	
+
+#ifdef UART_ENABLE
+    printf(" ---> usb_prog_hdlr	%x \r\n",(u16)usb_prog_total_num);
+#endif
+				Disp_Con(DISP_PROG_FILENUM);
+				
+			}
+			break;		
+	        case INFO_NEXT_FIL | KEY_SHORT_UP:
+			usb_prog_cur_num++;
+			if(usb_prog_cur_num>fs_msg.fileTotal){
+				usb_prog_cur_num=1;
+			}
+			Disp_Con(DISP_PROG_FILENUM);
+			break;
+	        case INFO_PREV_FIL | KEY_SHORT_UP:
+
+			if(usb_prog_cur_num>0){
+
+				usb_prog_cur_num--;
+
+			}
+			else{
+				usb_prog_cur_num=fs_msg.fileTotal;
+			}				
+			Disp_Con(DISP_PROG_FILENUM);			
+			break;
+	        case INFO_POWER| KEY_SHORT_UP:
+			usb_play_prog_mode=0;				
+			break;
+	}
+}
+
+
+#endif
+
+
 /*----------------------------------------------------------------------------*/
 /**@brief MUSIC解码信息初始化
    @param 无
@@ -124,6 +262,9 @@ void stop_decode(void)
     disable_decode_isr();
     disable_softint();
     cfilenum = 0;
+#ifdef UART_ENABLE
+	sys_printf("  STOP DECODE ");
+#endif
 	
 }
 
@@ -148,8 +289,14 @@ bool start_decode(void)
 
 #endif
 
-    if(disp_scenario== DISP_NORMAL)
-    	Disp_Con(DISP_FILENUM);	
+    	if(folder_select){
+		Disp_Con(DISP_DIR);
+    	}
+   	else
+	{
+		Disp_Con(DISP_FILENUM);
+    	}
+	
 #if FILE_ENCRYPTION
     if((fs_msg.fname[8]== 'S')&&(fs_msg.fname[9]== 'M')&&(fs_msg.fname[10]== 'P'))
     {
@@ -240,6 +387,16 @@ void music_play(void)
 		//suspend_sdmmc();
 
 		key = get_msg();
+		
+#ifdef USE_USB_PROG_PLAY_MODE
+		if(usb_play_prog_mode){
+			
+			usb_prog_hdlr(key);
+			if((key==INFO_HALF_SECOND)||(key==(INFO_MODE | KEY_SHORT_UP))||(key==(INFO_NEXT_FIL | KEY_SHORT_UP))||(key==(INFO_PREV_FIL | KEY_SHORT_UP))){
+				key = 0xFF;
+			}		
+		}
+#endif	
 
         switch (key)
         {
@@ -274,16 +431,19 @@ void music_play(void)
 		get_music_file2();
             	break;
         case INFO_STOP| KEY_SHORT_UP :
+
+		usb_prog_mode_cls();
+		flush_all_msg();
 		stop_decode();
 		Disp_Con(DISP_STOP);			
 		break;
         case INFO_NEXT_FIL | KEY_SHORT_UP:
 			
 #ifdef USE_FOLDER_SELECT_FUNC
-		if(play_mode==REPEAT_FOLDER){
+		if(folder_select){
+			
 			select_folder_file(FIND_NEXT_DIR);
 		       Disp_Con(DISP_DIR);	
-			delay_10ms(100);			   
 			break;			   
 		}
 #endif
@@ -293,10 +453,10 @@ void music_play(void)
         case INFO_PREV_FIL | KEY_SHORT_UP:
 			
 #ifdef USE_FOLDER_SELECT_FUNC
-		if(play_mode==REPEAT_FOLDER){
+		if(folder_select){
+			
 			select_folder_file(FIND_PREV_DIR);
 		       Disp_Con(DISP_DIR);	
-			delay_10ms(100);
 			break;
 		}
 #endif		
@@ -323,10 +483,6 @@ void music_play(void)
 	             playpoint_flag =0;
 	       }
 			
-	    	//if((disp_scenario == DISP_RTC_SCEN)&&(rtc_setting==1)){
-		//	goto _HOT_KEY_HDLR;
-	    	//}
-			
 		if(!playpoint_flag) 				//读取断点信息后不支持快退
 		{
 			if(play_status)
@@ -345,6 +501,10 @@ void music_play(void)
 		break;
 
         case DECODE_MSG_DISK_ERR:
+#ifdef UART_ENABLE
+			sys_printf(" DECODE_MSG_DISK_ERR");
+#endif
+			
 		get_music_file3();
             	break;
 
@@ -355,6 +515,11 @@ void music_play(void)
             	}
 		else
 		{	
+
+#ifdef UART_ENABLE
+			sys_printf(" DECODE_MSG_FILE_END");
+#endif
+		
 			get_music_file1(GET_PLAY_FILE);
 		}
 		break;
@@ -363,7 +528,7 @@ void music_play(void)
 		//work_mode = SYS_IDLE;
             //return;
 #ifdef NO_DEV_SHOW_NO_DEV
-		Disp_Con(DISP_NOFILE);
+		Disp_Con(DISP_NODEVICE);
 #else
              	Disp_Con(DISP_RTC);
 		disp_scenario = DISP_RTC_SCEN;
@@ -409,7 +574,11 @@ void music_play(void)
             }
             else if (play_status == MUSIC_STOP){
 
-			given_file_number=1;
+			if(usb_play_prog_mode){
+				given_file_number =usb_prog_tab[0];
+				usb_play_prog_mode=0;
+			}				
+
                 	put_msg_lifo(INIT_PLAY);
 
 	     }
@@ -440,6 +609,19 @@ void music_play(void)
 
             set_brightness_fade_out();
 	     update_playpoint(&playpoint_time);		//半秒更新断点进度，不写入存储器
+
+#if 1//defined(USE_FOLDER_SELECT_FUNC)
+		if(folder_select){
+           	 	return_cnt++;
+            		if (RETURN_TIME == return_cnt){
+				return_cnt=4;
+				folder_select=0;
+			}
+			else{
+				break;
+			}
+		}
+#endif		
 	     
             if (file_end_time)
             {
@@ -488,7 +670,7 @@ void music_play(void)
 
 #ifdef NO_DEV_SHOW_NO_DEV
 		if((get_device_online_status()&0x03)==0){
-			Disp_Con(DISP_NOFILE);
+			Disp_Con(DISP_NODEVICE);
 			break;
 		}
 #endif            
@@ -533,11 +715,27 @@ void music_play(void)
 #endif
 		break;
 
+	 case INFO_MODE | KEY_LONG:
+
+#ifdef USE_USB_PROG_PLAY_MODE
+		if(play_status == MUSIC_STOP){
+			usb_prog_play_init();
+			break;
+		}
+#endif
+		folder_mode_select=~folder_mode_select;
+		folder_select=folder_mode_select;
+		if(folder_mode_select)
+		       Disp_Con(DISP_DIR);	
+		else{
+		       Disp_Con(DISP_PLAY);	
+		}
+		break;
 	 case INFO_MODE | KEY_SHORT_UP:
 
         case INFO_PLAY_MODE :
 		play_mode++;
-            	if (play_mode > REPEAT_FOLDER)
+            	if (play_mode > REPEAT_RANDOM)
             	{
                 	play_mode = REPEAT_ALL;
             	}
@@ -646,6 +844,9 @@ void decode_play(void)
 #ifdef UART_ENABLE
 	sys_printf(" SYS GO IN DECODE MODE");
 #endif
+
+	folder_select=0;
+	folder_mode_select=0;
 	rtc_setting=0;
 	disp_scenario = DISP_NORMAL;
 	Disp_Con(DISP_SCAN_DISK);

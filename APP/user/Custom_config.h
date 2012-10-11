@@ -129,7 +129,7 @@
 
 
 //#define JK_CD_HYH_727_V001
-//#define JK_CD_HYH_728_V001
+#define JK_CD_HYH_728_V001
 //#define JK_CD_ZG_KS218_V001
 
 #ifdef JK_CD_HYH_728_V001
@@ -166,6 +166,8 @@
 #define USE_POWER_KEY
 
 #define USE_FOLDER_SELECT_FUNC
+
+#define USE_USB_PROG_PLAY_MODE
 
 #define USE_RADIO_FUNC
 #define AM_RADIO_FUNC
@@ -236,6 +238,8 @@
 
 
 #define USE_POWER_KEY
+
+#define USE_USB_PROG_PLAY_MODE
 
 
 #define USE_RADIO_FUNC
