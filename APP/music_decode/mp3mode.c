@@ -574,11 +574,12 @@ void music_play(void)
             }
             else if (play_status == MUSIC_STOP){
 
+#ifdef USE_USB_PROG_PLAY_MODE
 			if(usb_play_prog_mode){
 				given_file_number =usb_prog_tab[0];
 				usb_play_prog_mode=0;
 			}				
-
+#endif
                 	put_msg_lifo(INIT_PLAY);
 
 	     }
