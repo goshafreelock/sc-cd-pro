@@ -54,6 +54,16 @@ void get_music_file1(u8 dir)
     }
     if (!fs_get_filenum(play_mode, dir))                //查找错误，文件序号已经超出当前设备的范围(也有可能是当前设备已经不存在)
     {
+
+
+	 if(play_mode == REPEAT_OFF){
+	 	
+      		  stop_decode();      
+		  Disp_Con(DISP_STOP);			  
+                given_file_number = 1;
+		  return;
+	 }
+	 
         if (find_device(0))                            //查找下一个设备
         {
             put_msg_lifo(INFO_NEXTMODE);                //找不到有效设备，需要返回到其它模式
