@@ -21,8 +21,9 @@ extern u8 device_active;
 extern void clean_playpoint(u8 dev);
 extern u16 playpoint_filenum;
 
+#ifdef USE_USB_SD_DECODE_FUNC	       
 extern bool folder_mode_select;
-
+#endif
 bool repeat_off_flag=0;
 
 #ifdef USE_USB_PROG_PLAY_MODE
@@ -84,12 +85,16 @@ void get_music_file1(u8 dir)
 		stop_decode();      
 		Disp_Con(DISP_STOP);	
 
+#ifdef USE_USB_SD_DECODE_FUNC	       
 		if(folder_mode_select){
 			
                 	given_file_number = fs_msg.fileTotalOutDir + 1;
 		}
-		else{
-			given_file_number = 1;
+		else
+#endif			
+		{
+			given_file_number = 1;
+
 		}
 
 #ifdef USE_USB_PROG_PLAY_MODE
@@ -186,6 +191,8 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 
     repeat_off_flag =0;
 
+#ifdef USE_USB_SD_DECODE_FUNC	       
+
     if(folder_mode_select){
 
 		if((playmode == REPEAT_ONE)){
@@ -195,7 +202,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 			playmode = REPEAT_FOLDER;
 		}
     }
-
+#endif
     switch (playmode)
     {
     case REPEAT_RANDOM:
