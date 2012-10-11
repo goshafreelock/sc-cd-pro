@@ -20,6 +20,17 @@ extern u8 device_active;
 
 extern void clean_playpoint(u8 dev);
 extern u16 playpoint_filenum;
+
+extern bool folder_mode_select;
+
+bool repeat_off_flag=0;
+
+#ifdef USE_USB_PROG_PLAY_MODE
+extern bool usb_prog_icon_bit;
+extern xd_u8 usb_prog_tab[20];
+extern bool get_prog_song_num(u8 get_Mode);
+#endif
+
 /*----------------------------------------------------------------------------*/
 /**@brief   获取一个随机数
    @param   无
@@ -44,6 +55,8 @@ u8 ReadLFSR()
 /*----------------------------------------------------------------------------*/
 void get_music_file1(u8 dir)
 {
+
+
 	if (device_check() == 0)                    //如果当前播放的设备不在线，则找下一个设备, 并且选择第一个文件进行播放
     {
         if (find_device(0))
@@ -52,22 +65,46 @@ void get_music_file1(u8 dir)
             return;
         }
     }
+
+#ifdef UART_ENABLE
+    printf(" ---> get_music_file1	%x \r\n",(u16)dir);
+#endif
+	
     if (!fs_get_filenum(play_mode, dir))                //查找错误，文件序号已经超出当前设备的范围(也有可能是当前设备已经不存在)
     {
 
 
-	 if(play_mode == REPEAT_OFF){
-	 	
-      		  stop_decode();      
-		  Disp_Con(DISP_STOP);			  
-                given_file_number = 1;
-		  return;
+	 if(repeat_off_flag){
+
+#ifdef UART_ENABLE
+		sys_printf(" REPEAT_OFF");
+#endif
+
+		repeat_off_flag =0;
+		stop_decode();      
+		Disp_Con(DISP_STOP);	
+
+		if(folder_mode_select){
+			
+                	given_file_number = fs_msg.fileTotalOutDir + 1;
+		}
+		else{
+			given_file_number = 1;
+		}
+
+#ifdef USE_USB_PROG_PLAY_MODE
+    		if(usb_prog_icon_bit){
+			given_file_number =usb_prog_tab[0];
+    		}
+#endif	
+		//folder_mode_select=0;
+		return;
 	 }
 	 
         if (find_device(0))                            //查找下一个设备
         {
-            put_msg_lifo(INFO_NEXTMODE);                //找不到有效设备，需要返回到其它模式
-            return;
+            	put_msg_lifo(INFO_NEXTMODE);                //找不到有效设备，需要返回到其它模式
+            	return;
         }
 	    	Disp_Con(DISP_FILENUM);	
 
@@ -129,12 +166,35 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 {
     u16 fileTotal;
 
+#ifdef UART_ENABLE
+    printf(" ---> fs_get_filenum	%x \r\n",(u16)searchMode);
+#endif
+
+#ifdef USE_USB_PROG_PLAY_MODE
+    if(usb_prog_icon_bit){
+		return  get_prog_song_num(searchMode);
+    }
+#endif	
     fileTotal = fs_msg.fileTotal;
 
     given_file_number = fs_msg.fileNumber;
 
+
     if ((playmode == REPEAT_ONE) && (searchMode != 2))
         playmode = REPEAT_ALL;					//在单曲循环模式下，转换成全循环模式
+
+
+    repeat_off_flag =0;
+
+    if(folder_mode_select){
+
+		if((playmode == REPEAT_ONE)){
+
+		}
+		else{
+			playmode = REPEAT_FOLDER;
+		}
+    }
 
     switch (playmode)
     {
@@ -154,16 +214,17 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
             given_file_number--;
             if (given_file_number == 0)
             {
-			    if(0x03 != (0x03&get_device_online_status()))
-				{
-				    clean_playpoint_info(device_active);
+			if(0x03 != (0x03&get_device_online_status()))
+			{
+				clean_playpoint_info(device_active);
 					return 0;
-				}
-				if(BIT(SDMMC) == device_active)
-				    clean_playpoint_info(BIT(USB_DISK));
-                if(BIT(USB_DISK) == device_active)
-				    clean_playpoint_info(BIT(SDMMC));
-				return 0;
+			}
+			if(BIT(SDMMC) == device_active)
+				clean_playpoint_info(BIT(USB_DISK));
+                	if(BIT(USB_DISK) == device_active)
+				clean_playpoint_info(BIT(SDMMC));
+
+			return 0;
             }
         }
         else					                //next file
@@ -171,18 +232,19 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
             given_file_number++;
             if (given_file_number > fileTotal)
             {
-				given_file_number = 1;
-			    if(0x03 != (0x03&get_device_online_status()))
-				{
-				    clean_playpoint_info(device_active);
-					return 0;
-				}
-                else
-				{
-				    clean_playpoint_info(BIT(SDMMC));
-					clean_playpoint_info(BIT(USB_DISK));
-				}
+			given_file_number = 1;
+			if(0x03 != (0x03&get_device_online_status()))
+			{
+				clean_playpoint_info(device_active);
 				return 0;
+			}
+                	else
+			{
+				 clean_playpoint_info(BIT(SDMMC));
+				 clean_playpoint_info(BIT(USB_DISK));
+			}
+
+			return 0;
             }
         }
         break;
@@ -193,50 +255,70 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
             given_file_number--;
             if (given_file_number == 0)
             {
-			    if(0x03 != (0x03&get_device_online_status()))
-				{
-				    clean_playpoint_info(device_active);
-					return 0;
-				}
-				if(BIT(SDMMC) == device_active)
-				    clean_playpoint_info(BIT(USB_DISK));
-                if(BIT(USB_DISK) == device_active)
-				    clean_playpoint_info(BIT(SDMMC));
-				return 0;
-            }
-        }
-        else					                //next file
-        {
-            given_file_number++;
-            if (given_file_number > fileTotal)
-            {
-            		stop_decode();
 			if(0x03 != (0x03&get_device_online_status()))
 			{
 				clean_playpoint_info(device_active);
 				return 0;
+			}
+			if(BIT(SDMMC) == device_active)
+				clean_playpoint_info(BIT(USB_DISK));
+                	if(BIT(USB_DISK) == device_active)
+				clean_playpoint_info(BIT(SDMMC));
+
+			return 0;
+            }
+        }
+        else					                //next file
+        {
+        
+            given_file_number++;
+            if (given_file_number > fileTotal)
+            {
+			if(0x03 != (0x03&get_device_online_status()))
+			{
+				clean_playpoint_info(device_active);
+				
+				if(searchMode==GET_PLAY_FILE){
+					repeat_off_flag =1;
+					given_file_number =1;
+					return 0;		
+				}
 			}
                 	else
 			{
 				clean_playpoint_info(BIT(SDMMC));
 				clean_playpoint_info(BIT(USB_DISK));
 			}
-			return 0;
-            }
+
+					
+			if(searchMode==GET_PLAY_FILE){
+				repeat_off_flag =1;
+				given_file_number =1;
+				return 0;		
+			}
+		}
         }
         break;	
     case REPEAT_FOLDER:
         if (searchMode == 1)
         {
-            given_file_number--;
-            if (given_file_number == fs_msg.fileTotalOutDir)
-                given_file_number = fs_msg.fileTotalOutDir + fs_msg.fileTotalInDir;
+            	given_file_number--;
+            	if (given_file_number == fs_msg.fileTotalOutDir)
+                	given_file_number = fs_msg.fileTotalOutDir + fs_msg.fileTotalInDir;
         }
         else					//next file
         {
-            given_file_number++;
-            if (given_file_number > (fs_msg.fileTotalOutDir + fs_msg.fileTotalInDir))
-                given_file_number = fs_msg.fileTotalOutDir + 1;
+            	given_file_number++;
+            	if (given_file_number > (fs_msg.fileTotalOutDir + fs_msg.fileTotalInDir)){
+                	given_file_number = fs_msg.fileTotalOutDir + 1;
+				
+		if((play_mode == REPEAT_OFF)&&(searchMode==GET_PLAY_FILE)){
+
+			repeat_off_flag =1;
+			given_file_number =1;
+			return 0;		
+		}
+	     }
         }
         break;
     }

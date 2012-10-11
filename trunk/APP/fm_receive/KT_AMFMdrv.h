@@ -181,7 +181,7 @@ typedef struct
 #define SEEKUP 1
 #define SEEKDOWN 0
 
-#define TST_TH 		0x1600//0x2800
+#define TST_TH 		0x2200//0x2800
 #define FM_SNR_TH 	0x40
 #define AM_TUNING_LIGHT_TH 30
 #define SEPARATION_POINT -91

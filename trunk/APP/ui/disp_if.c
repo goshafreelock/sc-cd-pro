@@ -43,10 +43,18 @@ extern  xd_u8 prog_total_num,prog_cur_num;
 extern bool prog_icon_bit,play_prog_mode;
 #endif
 
+
+#ifdef USE_USB_PROG_PLAY_MODE
+extern bool usb_play_prog_mode,usb_prog_icon_bit;
+extern xd_u8 usb_prog_total_num,usb_prog_cur_num;
+#endif
+
+
 #ifdef RADIO_ST_INDICATOR
 extern bool radio_st_ind;
 #endif
 
+extern bool folder_mode_select;
 
 #if defined(USE_BAT_MANAGEMENT)
 extern void Bat_icon_chk(void);
@@ -114,15 +122,37 @@ void Disp_Num(void)
 	printf_num(cfilenum,0,4);
 
 }
-#ifdef USE_PROG_PLAY_MODE
 void Disp_prog_num(void)
 {
-	printf_num(prog_total_num,0,2);
-	printf_num(prog_cur_num,2,2);
+#ifdef USE_PROG_PLAY_MODE
+	if(work_mode == SYS_MCU_CD){
+		
+		printf_num(prog_total_num,0,2);
 
+		if(prog_total_num==20){
+	    		printf_str("--",2);
+		}
+		else{
+			printf_num(prog_cur_num,2,2);
+		}
+	}
+#endif
+#ifdef USE_USB_PROG_PLAY_MODE
+	if(work_mode <= SYS_MP3DECODE_SD){
+		
+		printf_num(usb_prog_total_num,0,2);
+
+		if(usb_prog_total_num==20){
+	    		printf_str("--",2);
+		}
+		else{
+			printf_num(usb_prog_cur_num,2,2);
+		}
+	}
+#endif
+	
 	disp_icon(ICON_PROG);	
 }
-#endif
 void Disp_Filenum(void)
 {
 	if(given_file_number>999)
@@ -137,11 +167,11 @@ void Disp_Filenum(void)
 void Disp_Nofile(void)
 {
 #ifdef MCU_CD_728_LCD_MODULE
-    	printf_str("Nod",1);
+    	printf_str("No",1);
 #elif defined(LCD_DISP_THREE_DIGIT)
-    	printf_str("NOd",1);
+    	printf_str("NO",1);
 #else
-    	printf_str("NO d",0);
+    	printf_str("NO",0);
 #endif
 }
 
@@ -151,7 +181,22 @@ void Disp_waiting(void)
 }
 void Disp_Nodevice(void)
 {
-    	printf_str("NO",0);
+    	if(work_mode == SYS_MP3DECODE_USB){
+        	disp_icon(ICON_USB);
+	}	
+    	else if(work_mode == SYS_MP3DECODE_SD){
+        	disp_icon(ICON_SD);
+	}
+    	else if(work_mode == SYS_MP3DECODE_SD){
+        	disp_icon(ICON_CD);
+	}
+#ifdef MCU_CD_728_LCD_MODULE
+    	printf_str("Nod",1);
+#elif defined(LCD_DISP_THREE_DIGIT)
+    	printf_str("NOd",1);
+#else
+    	printf_str("NO d",0);
+#endif
 }
 void Disp_Vol(void)
 {
@@ -330,11 +375,6 @@ void Disp_dir_num(void)
 {
 	//dispNum((u8)((fs_msg.dirTotal/1000)%10),3);
 	disp_active();
-	if(fs_msg.dirTotal==0){
-
-	    printf_str("noF",0);
-	    return ;
-	}
 	printf_char('F',1);
 	printf_num(fs_msg.dirTotal,2,2);
 }
@@ -540,7 +580,7 @@ void custom_buf_update(void)
 	}
 #endif
 #ifdef USE_PROG_PLAY_MODE
-	if(work_mode <=SYS_MCU_CD){
+	if(work_mode ==SYS_MCU_CD){
 		
 		if(prog_icon_bit||play_prog_mode){
 			disp_icon(ICON_PROG);
@@ -550,6 +590,25 @@ void custom_buf_update(void)
 		}
 	}
 #endif
+#ifdef USE_USB_PROG_PLAY_MODE
+	if(work_mode <SYS_MCU_CD){
+		
+		if(usb_prog_icon_bit||usb_play_prog_mode){
+			disp_icon(ICON_PROG);
+		}
+		else{
+			disp_clr_icon(ICON_PROG);		
+		}
+	}
+#endif
+
+	if(folder_mode_select){
+	    	disp_icon(ICON_REP_FOD);
+	}
+	else{
+	    	disp_clr_icon(ICON_REP_FOD);
+	}
+	
 #ifdef RADIO_ST_INDICATOR
 	if(radio_st_ind)
 	 	disp_icon(ICON_RADIO_ST);		
@@ -604,11 +663,9 @@ void Disp_Con(u8 LCDinterf)
     case DISP_DWORD_NUMBER:
         Disp_Num();
         break;		
-#ifdef USE_PROG_PLAY_MODE
     case DISP_PROG_FILENUM:
         Disp_prog_num();
         break;			
-#endif
     case DISP_FILENUM:
         Disp_Filenum();
         break;

@@ -74,7 +74,7 @@ void disp_icon(u8 id)
 		break;
 	case ICON_USB:
 		F_USB_DEV |=USB_DEV_MASK;
-		F_MP3_DEV |=MP3_ICON_MASK;		
+		//F_MP3_DEV |=MP3_ICON_MASK;		
 		break;
 	case ICON_SD:
 		F_SD_DEV |=SD_DEV_MASK;

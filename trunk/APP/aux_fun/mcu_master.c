@@ -184,8 +184,8 @@ void mcu_master_info_hdlr()
 
 			info_timer_1++;
 			
-			if((curr_menu != DISP_NOFILE)&&(info_timer_1>2))
-				Disp_Con(DISP_NOFILE);
+			if((curr_menu != DISP_NODEVICE)&&(info_timer_1>2))
+				Disp_Con(DISP_NODEVICE);
 		}
 		else{
 			info_timer_1=0;
