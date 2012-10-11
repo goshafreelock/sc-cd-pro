@@ -54,7 +54,9 @@ extern xd_u8 usb_prog_total_num,usb_prog_cur_num;
 extern bool radio_st_ind;
 #endif
 
+#ifdef USE_USB_SD_DECODE_FUNC	       
 extern bool folder_mode_select;
+#endif
 
 #if defined(USE_BAT_MANAGEMENT)
 extern void Bat_icon_chk(void);
@@ -602,13 +604,16 @@ void custom_buf_update(void)
 	}
 #endif
 
+#ifdef USE_USB_SD_DECODE_FUNC	       
+
 	if(folder_mode_select){
 	    	disp_icon(ICON_REP_FOD);
 	}
 	else{
 	    	disp_clr_icon(ICON_REP_FOD);
 	}
-	
+#endif
+
 #ifdef RADIO_ST_INDICATOR
 	if(radio_st_ind)
 	 	disp_icon(ICON_RADIO_ST);		
