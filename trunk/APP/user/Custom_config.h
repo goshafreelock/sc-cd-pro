@@ -218,7 +218,13 @@
 #define MCU_CD_727_LCD_MODULE
 #define SEG_LCD_4COM_10SEG_DRV
 
+
+#if 0
 //#define NEW_DH_LCD_MODULE
+//#define USE_USB_PROG_PLAY_MODE
+
+#define USE_USB_SD_DECODE_FUNC
+#endif
 
 #define USE_ERP_2_HDLR
 #define WELCOME_DISP_ON_STR

@@ -89,10 +89,23 @@ bool get_prog_song_num(u8 get_Mode)
 	repeat_off_flag =0;
 
 	if(play_mode == REPEAT_ALL){
-		usb_play_prog_index++;
-		if(usb_play_prog_index>usb_prog_total_num){
-			usb_play_prog_index =0;
-		}	
+
+		if(get_Mode==GET_PREV_FILE){
+
+			if(usb_play_prog_index>0){
+				usb_play_prog_index--;
+			}
+			else{
+				usb_play_prog_index=usb_prog_total_num-2;
+			}
+		}
+		else{			
+			usb_play_prog_index++;
+	
+			if(usb_play_prog_index>=usb_prog_total_num){
+				usb_play_prog_index =0;
+			}
+		}
 	}
 	else if(play_mode == REPEAT_ONE){
 
@@ -100,20 +113,30 @@ bool get_prog_song_num(u8 get_Mode)
 	}
 	else if(play_mode == REPEAT_OFF){
 
-		usb_play_prog_index++;
-		if(usb_play_prog_index>usb_prog_total_num){
-			usb_play_prog_index =0;
+		if(get_Mode==GET_PREV_FILE){
 
+			if(usb_play_prog_index>0){
+				usb_play_prog_index--;
+			}
+			else{
+				usb_play_prog_index=usb_prog_total_num-2;
+			}
+		}
+		else{
 
-#ifdef UART_ENABLE
-    printf(" ---> 33333333get_prog_song_num	%x \r\n",(u16)get_Mode);
-#endif
-			
-			if(get_Mode==GET_PLAY_FILE){
-				repeat_off_flag =1;
-				return 0;		
+			usb_play_prog_index++;
+	
+			if(usb_play_prog_index>=usb_prog_total_num){
+				usb_play_prog_index =0;
 			}			
 		}
+		
+			
+		if(get_Mode==GET_PLAY_FILE){
+			repeat_off_flag =1;
+			return 0;		
+		}			
+		
 	}
 	else if(play_mode == REPEAT_RANDOM){
 		
@@ -121,14 +144,17 @@ bool get_prog_song_num(u8 get_Mode)
 	        CRCREG = T3CNTL;
 
 	        usb_play_prog_index = ReadLFSR();
-
-	        usb_play_prog_index = usb_play_prog_index % usb_prog_total_num+ 1;
-
+	        usb_play_prog_index = usb_play_prog_index % (usb_prog_total_num-1)+ 1;
 	}	
 
 	given_file_number =usb_prog_tab[usb_play_prog_index];
+
 #ifdef UART_ENABLE
-    printf(" ---> get_prog_song_num	%x \r\n",(u16)given_file_number);
+    printf(" ---> 1111	get_prog_song_num	IDX%x    FILE NUM %x  \r\n",(u16)usb_play_prog_index,(u16)usb_prog_total_num);
+#endif
+	
+#ifdef UART_ENABLE
+    printf(" ---> 2222	get_prog_song_num	%x \r\n",(u16)given_file_number);
 #endif
 
 	return 1;
@@ -190,12 +216,9 @@ void usb_prog_hdlr(u8 key)
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
 
-			if(usb_prog_cur_num>0){
-
-				usb_prog_cur_num--;
-
-			}
-			else{
+			usb_prog_cur_num--;
+				
+			if((usb_prog_cur_num==0)||(usb_prog_cur_num>fs_msg.fileTotal)){
 				usb_prog_cur_num=fs_msg.fileTotal;
 			}				
 			Disp_Con(DISP_PROG_FILENUM);			
@@ -431,8 +454,9 @@ void music_play(void)
 		get_music_file2();
             	break;
         case INFO_STOP| KEY_SHORT_UP :
-
+#ifdef USE_USB_PROG_PLAY_MODE
 		usb_prog_mode_cls();
+#endif
 		flush_all_msg();
 		stop_decode();
 		Disp_Con(DISP_STOP);			
@@ -726,8 +750,12 @@ void music_play(void)
 #endif
 		folder_mode_select=~folder_mode_select;
 		folder_select=folder_mode_select;
-		if(folder_mode_select)
+		if(folder_mode_select){
+#ifdef USE_USB_PROG_PLAY_MODE
+			usb_prog_mode_cls();
+#endif		
 		       Disp_Con(DISP_DIR);	
+		}
 		else{
 		       Disp_Con(DISP_PLAY);	
 		}
