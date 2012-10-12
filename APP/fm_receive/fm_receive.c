@@ -342,6 +342,7 @@ bool radio_get_validstation(u16 freq)
 	return KT_SMValidStation(freq);
     }
 #endif
+	return 0;
 }
 
 #define BAND_FULL_SCAN_KEY	(INFO_PLAY |KEY_LONG)
@@ -349,9 +350,9 @@ void full_band_scan_hdlr()
 {
     u8 key=0;
 
-    flush_all_msg();
+    	flush_all_msg();
 #ifdef RADIO_ST_INDICATOR
-    radio_st_ind=0;
+    	radio_st_ind=0;
 #endif
 
 #ifdef UART_ENABLE
