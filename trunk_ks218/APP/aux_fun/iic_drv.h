@@ -7,21 +7,16 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
-
 #ifndef _IIC_DRV_H_
 #define _IIC_DRV_H_
-
-
 #ifdef __C51__
 #include "AC209N.h"
 #include "typedef.h"
 #include "uart.h"
 
-
 #define MASTER_SEND_CMD	0x55
 #define MASTER_READ_CMD	0xAA
 enum {
-
 	NOP_CMD,
 	STOP_CMD,
 	PLAY_RESUME_CMD,

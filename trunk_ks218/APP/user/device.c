@@ -79,12 +79,14 @@ u8 device_init(void)
 		fs_scan_disk();
 		playpoint_filenum = get_scan_filenumber();				   //根据对应设备的起始簇找出有断点的文件号
 		/**/
+#ifdef DISABLE_USB_SD_BP_PLAY
+			playpoint_filenum=0;
+#endif		
 		if(0 == playpoint_filenum)
 		{
 		    if(given_file_number)
 			    given_file_number = 1;
 		}
-		
         if (fs_msg.fileTotal == 0)
         {
 

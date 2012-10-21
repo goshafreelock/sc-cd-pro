@@ -78,6 +78,7 @@ typedef enum
 #define EQ_WORK_USE     DECODE_EQ
 /**/
 
+#define USB_PROG_MAX		99
 
 #define  LED_DISP  1
 #define  LCD_DISP  0

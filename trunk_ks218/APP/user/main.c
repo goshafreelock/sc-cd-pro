@@ -124,6 +124,7 @@ void P0IE_ctl(u8 sel, u8 dat)
 	P0IE = bP0IE;		
 }
 #ifdef SYS_GPIO_SEL_FUNC
+bool gpio_sel_func=0;
 void gpio_sel_func_mode()
 {
 
@@ -133,6 +134,7 @@ void gpio_sel_func_mode()
 	if(GPIO_SEL_FUNC_GPIO_READ){
 
 		if(work_mode!= HIGH_LEVEL_SEL_MODE){
+			gpio_sel_func=1;
 			Set_Curr_Func(HIGH_LEVEL_SEL_MODE);
       			put_msg_lifo(INFO_NEXT_SYS_MODE);	   
 		}
@@ -140,6 +142,7 @@ void gpio_sel_func_mode()
 	else{
 
 		if(work_mode!= LOW_LEVEL_SEL_MODE){
+			gpio_sel_func=1;			
 			Set_Curr_Func(LOW_LEVEL_SEL_MODE);
       			put_msg_lifo(INFO_NEXT_SYS_MODE);	   
 		}
@@ -737,6 +740,10 @@ void main(void)
 	Set_Curr_Func(SYS_FMREV);
 #elif defined(SYS_POWER_ON_DEFAULT_IN_CD)
 	Set_Curr_Func(SYS_MCU_CD);
+#endif
+
+#ifdef SYS_GPIO_SEL_FUNC
+	gpio_sel_func_mode();
 #endif
 
 #ifdef UART_ENABLE

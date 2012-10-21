@@ -74,15 +74,26 @@ extern xd_u8 rtc_setting,rtc_set,rtc_set_cnt;
 
 extern bool repeat_off_flag;
 
+#ifdef USB_STOP_MODE_AFTER_TOC
+bool toc_ready_stop=0;
+#endif			
+
+#ifdef SYS_GPIO_SEL_FUNC
+extern bool gpio_sel_func;
+#endif
+
+
 bool folder_select=0,folder_mode_select=0;
 
 #ifdef USE_USB_PROG_PLAY_MODE
-bool usb_play_prog_mode=0,usb_prog_icon_bit=0;
+
+bool usb_play_prog_mode=0,usb_prog_icon_bit=0,exchange_disp=0;
 xd_u8 usb_prog_total_num=0,usb_prog_cur_num=0;
 xd_u8 usb_play_prog_index=0;
-xd_u8 usb_prog_tab[20]={0};
+xd_u8 usb_prog_tab[USB_PROG_MAX]={0};
 
 extern u8 ReadLFSR();
+
 
 bool get_prog_song_num(u8 get_Mode)
 {
@@ -166,12 +177,14 @@ void usb_prog_play_init()
 		
 		usb_play_prog_mode=1;
 		usb_prog_icon_bit=1;	
+		exchange_disp=1;
 
+		
 		usb_play_prog_index=0;
 		usb_prog_total_num=1;
 		usb_prog_cur_num=0;
 		
-		my_memset(&usb_prog_tab[0], 0x0, 20);
+		my_memset(&usb_prog_tab[0], 0x0, USB_PROG_MAX);
 		Disp_Con(DISP_PROG_FILENUM);
 	}
 }
@@ -185,7 +198,7 @@ void usb_prog_mode_cls()
 		usb_prog_total_num=1;
 		usb_prog_cur_num=0;
 			
-		my_memset(&usb_prog_tab[0], 0x0, 20);
+		my_memset(&usb_prog_tab[0], 0x0, USB_PROG_MAX);
 		Disp_Con(DISP_STOP);
 	}
 }
@@ -200,6 +213,8 @@ void usb_prog_hdlr(u8 key)
 				usb_prog_cur_num=0;
 				usb_prog_total_num++;	
 
+				exchange_disp=1;
+
 #ifdef UART_ENABLE
     printf(" ---> usb_prog_hdlr	%x \r\n",(u16)usb_prog_total_num);
 #endif
@@ -208,6 +223,9 @@ void usb_prog_hdlr(u8 key)
 			}
 			break;		
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
+
+			exchange_disp=0;
+					
 			usb_prog_cur_num++;
 			if(usb_prog_cur_num>fs_msg.fileTotal){
 				usb_prog_cur_num=1;
@@ -215,6 +233,8 @@ void usb_prog_hdlr(u8 key)
 			Disp_Con(DISP_PROG_FILENUM);
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
+
+			exchange_disp=0;
 
 			usb_prog_cur_num--;
 				
@@ -225,6 +245,9 @@ void usb_prog_hdlr(u8 key)
 			break;
 	        case INFO_POWER| KEY_SHORT_UP:
 			usb_play_prog_mode=0;				
+			break;
+		default:
+			
 			break;
 	}
 }
@@ -361,7 +384,7 @@ bool start_decode(void)
 //breakpoint
 	load_playpoint();
 	write_playpoint_info(device_active);
-    update_playpoint(&playpoint_time);		//半秒更新断点进度，不写入存储器
+    	update_playpoint(&playpoint_time);		//半秒更新断点进度，不写入存储器
 	write_dev_playtime(device_active);			 //更新断点信息
     	playpoint_filenum = 0;
 //breakpoint
@@ -375,9 +398,12 @@ bool start_decode(void)
     {
       delay_10ms(5);
     }
+#ifdef UART_ENABLE
+    printf(" ---> device_active	%x \r\n",(u16)device_active);
+#endif
+	
 
 	Mute_Ext_PA(UNMUTE);
-	
     	cfilenum = 0;
     	return 1;
 }
@@ -423,7 +449,10 @@ void music_play(void)
 
         switch (key)
         {
-        case INFO_NEXT_SYS_MODE:
+        case INFO_NEXT_SYS_MODE:			
+#ifdef SYS_GPIO_SEL_FUNC
+		gpio_sel_func=0;
+#endif
 		return;
 		
         case INIT_PLAY:                                 //开始解码播放
@@ -437,6 +466,20 @@ void music_play(void)
 		}
 #if FILE_ENCRYPTION
             password_start(0);
+#endif
+	
+#ifdef USB_STOP_MODE_AFTER_TOC
+		if(toc_ready_stop){
+			given_file_number =1;
+			toc_ready_stop=0;
+#ifdef USE_USB_PROG_PLAY_MODE
+			usb_prog_mode_cls();
+#endif
+		       play_mode = REPEAT_OFF;
+			flush_all_msg();
+			stop_decode();
+			break;
+		}
 #endif
             	if (!fs_getfile_bynumber(given_file_number))
             	{
@@ -457,6 +500,9 @@ void music_play(void)
 #ifdef USE_USB_PROG_PLAY_MODE
 		usb_prog_mode_cls();
 #endif
+
+	       play_mode = REPEAT_OFF;
+
 		flush_all_msg();
 		stop_decode();
 		Disp_Con(DISP_STOP);			
@@ -464,12 +510,18 @@ void music_play(void)
         case INFO_NEXT_FIL | KEY_SHORT_UP:
 			
 #ifdef USE_FOLDER_SELECT_FUNC
+#ifdef USE_NEXT_PREV_SEL_FOLDER
 		if(folder_select){
 			
 			select_folder_file(FIND_NEXT_DIR);
 		       Disp_Con(DISP_DIR);	
 			break;			   
 		}
+#else
+		if(folder_select){
+			folder_select=0;
+		}		
+#endif
 #endif
 		get_music_file1(GET_NEXT_FILE);
             	break;
@@ -477,12 +529,18 @@ void music_play(void)
         case INFO_PREV_FIL | KEY_SHORT_UP:
 			
 #ifdef USE_FOLDER_SELECT_FUNC
+#ifdef USE_NEXT_PREV_SEL_FOLDER
 		if(folder_select){
 			
 			select_folder_file(FIND_PREV_DIR);
 		       Disp_Con(DISP_DIR);	
 			break;
 		}
+#else
+		if(folder_select){
+			folder_select=0;
+		}
+#endif		
 #endif		
 		get_music_file1(GET_PREV_FILE);
             	break;
@@ -600,10 +658,22 @@ void music_play(void)
 
 #ifdef USE_USB_PROG_PLAY_MODE
 			if(usb_play_prog_mode){
-				given_file_number =usb_prog_tab[0];
+
+				if(usb_prog_total_num>2){
+					given_file_number =usb_prog_tab[0];
+				}
+				else{
+					given_file_number=1;
+					usb_prog_mode_cls();
+				}
 				usb_play_prog_mode=0;
-			}				
+			}
+			else{
+					given_file_number=1;
+
+			}
 #endif
+
                 	put_msg_lifo(INIT_PLAY);
 
 	     }
@@ -631,6 +701,14 @@ void music_play(void)
 #if defined(USE_TIMER_POWER_OFF_FUNC)
 	       timer_pwr_off_hdlr();
 #endif
+
+#ifdef SYS_GPIO_SEL_FUNC
+	     	if( gpio_sel_func){				
+      			put_msg_lifo(INFO_NEXT_SYS_MODE);
+			break;
+		 }
+#endif
+
 
             set_brightness_fade_out();
 	     update_playpoint(&playpoint_time);		//半秒更新断点进度，不写入存储器
@@ -704,7 +782,16 @@ void music_play(void)
             {
                 	disp_file_time();
             }
+#ifdef PLAY_DISP_FILE_NUM_DIR_ONLY
+            if ((DISP_PAUSE== curr_menu))
+            {
+                	disp_file_time();
+            }
+		if(DISP_STOP== curr_menu){
 
+                       Disp_Con(DISP_STOP);
+		}
+#endif
             return_cnt++;
             if (RETURN_TIME == return_cnt)
             {
@@ -739,8 +826,22 @@ void music_play(void)
 			save_playpoint(2);	   	//2*0.5 = 1s 1s记录一次播放进度,
 #endif
 		break;
-
+#ifdef FOLDER_KEY_IN_USE
+	 case INFO_FOLDER | KEY_SHORT_UP:
+		folder_mode_select=1;
+		folder_select=1;
+		if(folder_mode_select){
+#ifdef USE_USB_PROG_PLAY_MODE
+			usb_prog_mode_cls();
+#endif		
+			select_folder_file(FIND_NEXT_DIR);
+		       Disp_Con(DISP_DIR);	
+		} 	
+		break;
+#endif		
 	 case INFO_MODE | KEY_LONG:
+
+#ifdef MODE_KEY_LONG_PROG
 
 #ifdef USE_USB_PROG_PLAY_MODE
 		if(play_status == MUSIC_STOP){
@@ -748,6 +849,14 @@ void music_play(void)
 			break;
 		}
 #endif
+#else
+		if(folder_mode_select){
+
+			folder_mode_select=0;
+		}
+#endif
+
+#ifndef FOLDER_KEY_IN_USE
 		folder_mode_select=~folder_mode_select;
 		folder_select=folder_mode_select;
 		if(folder_mode_select){
@@ -759,14 +868,22 @@ void music_play(void)
 		else{
 		       Disp_Con(DISP_PLAY);	
 		}
+#endif		
 		break;
 	 case INFO_MODE | KEY_SHORT_UP:
 
+#ifdef USE_USB_PROG_PLAY_MODE
+		if(play_status == MUSIC_STOP){
+			usb_prog_play_init();
+			break;
+		}
+#endif
+
         case INFO_PLAY_MODE :
 		play_mode++;
-            	if (play_mode > REPEAT_RANDOM)
+            	if (play_mode > REPEAT_END)
             	{
-                	play_mode = REPEAT_ALL;
+                	play_mode = REPEAT_HEAD;
             	}
 #ifndef NO_PLAY_MODE_STR_DISP				
             write_info(MEM_PLAY_MODE,play_mode);
@@ -889,6 +1006,10 @@ void decode_play(void)
     	dsp_hi_pro();
     	decodeint_hi_pro();
     	device_active = 0;
+#ifdef USB_STOP_MODE_AFTER_TOC
+	 toc_ready_stop=1;
+#endif
+
     	put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
 	set_max_vol(MAX_ANALOG_VOL-DECODE_ANALOG_VOL_CUT, MAX_DIGITAL_VOL);			//设置Music模式的音量上限
     //suspend_sdmmc();
