@@ -72,8 +72,8 @@ void bmt_hdlr(void);
 #define  INFO_PICK_SONG	    	0x15
 //#define  INFO_PICK_FRE		0x16
 #define  INFO_MODE			0x17
-#define  INFO_PLAY_MODE		0x18
-#define  INFO_PLUS          		0x19
+#define  INFO_PLAY_MODE	0x18
+#define  INFO_FOLDER        	0x19
 #define  INFO_MINUS         	0x1a
 #define  INFO_POWER         	0x1b
 
@@ -278,8 +278,8 @@ void bmt_hdlr(void);
 #define ADKEY_3		INFO_PREV_FIL
 #define ADKEY_4		INFO_STOP
 #define ADKEY_5		INFO_MODE
-#define ADKEY_6		INFO_VOL_PLUS
-#define ADKEY_7		INFO_VOL_MINUS
+#define ADKEY_6		INFO_FOLDER
+#define ADKEY_7		NO_KEY
 #define ADKEY_8		NO_KEY
 #define ADKEY_NOKEY	NO_KEY
 #else

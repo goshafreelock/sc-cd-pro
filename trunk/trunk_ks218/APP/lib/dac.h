@@ -133,7 +133,7 @@ extern u8 _idata dac_channel;
 
 #define MAX_ANALOG_VOL		30		///<最大模拟音量
 #define MAX_DIGITAL_VOL		30  	///<最大数字音量
-#define DECODE_ANALOG_VOL_CUT	4
+#define DECODE_ANALOG_VOL_CUT	6
 
 #define CHANGE_VOL_NO_MEM   0
 #define CHANGE_VOL_MEM   	1

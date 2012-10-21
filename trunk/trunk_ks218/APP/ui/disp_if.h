@@ -15,8 +15,6 @@
 #include "typedef.h"
 #include "uart.h"
 #include "main.h"
-
-
 typedef enum
 {
     DISP_NULL = 0,

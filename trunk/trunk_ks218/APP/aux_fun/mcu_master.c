@@ -40,9 +40,12 @@ xd_u8 fast_fr_release_cnt=0;
 xd_u16 send_buf=0;
 xd_u8 rev_buf[10]={0};
 
+#ifdef SYS_GPIO_SEL_FUNC
+extern bool gpio_sel_func;
+#endif
 
 #ifdef USE_PROG_PLAY_MODE
-bool play_prog_mode=0,prog_icon_bit=0;
+bool play_prog_mode=0,prog_icon_bit=0,cd_exchange_disp=0;
 xd_u8 prog_total_num=0,prog_cur_num=0;
 
 #endif
@@ -97,6 +100,7 @@ void mcu_master_init()
 	cfilenum =0;
 	given_file_number=1;
 	clr_rev_buf();
+	cd_exchange_disp=0;
 	
     	play_mode=REPEAT_OFF;
     	master_push_cmd(REP_OFF_CMD);	
@@ -118,33 +122,6 @@ void mcu_master_info_hdlr()
 	if(info_dispatch_div==5){
 		info_dispatch_div=0;
 
-//4 get cur play status 	
-		if((rev_buf[0]&0x03)==0x02){
-
- 				//info_timer_3=0;
-				if(cd_play_status!=MUSIC_PLAY)
-				cd_play_status=MUSIC_PLAY;
-		}
-		else if((rev_buf[0]&0x03)==0x00){
-
-			if(cd_play_status!=MUSIC_STOP){
-				cd_play_status=MUSIC_STOP;
-			}
-			
-			//info_timer_3++;
-			//if((curr_menu != DISP_STOP)&&(info_timer_3>12))
-			//	Disp_Con(DISP_STOP);			
-		}
-#ifdef USE_PROG_PLAY_MODE
-		if((rev_buf[0]&(BIT(5)))>0){
-
-			 prog_icon_bit=1;
-		}
-		else{
-			 prog_icon_bit=0;
-
-		}
-#endif
 //4 TOC 
 		if((rev_buf[1]&(BIT(2)))==0){
 			
@@ -165,6 +142,43 @@ void mcu_master_info_hdlr()
 			
 			toc_flag=1;
 		}
+		
+//4 get cur play status 	
+		if(toc_flag){
+			
+			if((rev_buf[0]&0x03)==0x02){
+
+	 				//info_timer_3=0;
+					if(cd_play_status!=MUSIC_PLAY)
+					cd_play_status=MUSIC_PLAY;
+			}
+			else if((rev_buf[0]&0x03)==0x00){
+
+				if(cd_play_status!=MUSIC_STOP){
+					cd_play_status=MUSIC_STOP;
+				}
+				
+				//info_timer_3++;
+				//if((curr_menu != DISP_STOP)&&(info_timer_3>12))
+				//	Disp_Con(DISP_STOP);			
+			}
+		}
+#ifdef USE_PROG_PLAY_MODE
+		if((rev_buf[0]&(BIT(5)))>0){
+
+			info_timer_3++;
+			if(info_timer_3>2){
+				prog_icon_bit=1;
+			}
+		}
+		else{
+
+ 			 info_timer_3=0;
+			 prog_icon_bit=0;
+
+		}
+#endif
+
 
 //4 DOOR STATUS
 		if((rev_buf[1]&(BIT(1)))){
@@ -220,6 +234,7 @@ void mcu_master_info_hdlr()
 
 				if(cfilenum!=rev_buf[5]){
 					cfilenum=rev_buf[5];
+					if(cfilenum>0)
 	                    		Disp_Con(DISP_DWORD_NUMBER);
 
 				}
@@ -237,6 +252,7 @@ void mcu_master_info_hdlr()
 			
 			if(rev_buf[9]!=0xff){			
 				if(rev_buf[9]!=prog_cur_num){
+					cd_exchange_disp=0;
 					prog_cur_num = rev_buf[9];
 					Disp_Con(DISP_PROG_FILENUM);				
 				}
@@ -326,6 +342,7 @@ void prog_play_init()
 	prog_total_num=1;
 	prog_cur_num=0;	
 	play_prog_mode=1;
+	cd_exchange_disp=1;
 	//my_memset(&prog_file_tab[0], 0x0, 20);
 	master_push_cmd(MEM_CMD);
 	Disp_Con(DISP_PROG_FILENUM);
@@ -340,8 +357,15 @@ void prog_hdlr(u8 key)
 			//master_push_cmd(STOP_CMD);
 		//	break;
 	        case INFO_MODE | KEY_SHORT_UP :
-			if(prog_cur_num!=0){
-				prog_cur_num=0;					
+
+			//printf("------->-prog_total_num   %x \r\n",(u16)prog_total_num);		
+			if(prog_total_num>=20)break;
+
+			//printf("------->-prog_cur_num   %x \r\n",(u16)prog_cur_num);		
+
+			if((prog_cur_num!=0)&&(cd_exchange_disp==0)){
+				//prog_cur_num=0;	
+				cd_exchange_disp=1;
 				master_push_cmd(MEM_CMD);
 			}
 			break;		
@@ -428,6 +452,11 @@ void mcu_hdlr( void )
 	{
 
 	        case INFO_NEXT_SYS_MODE:
+				
+#ifdef SYS_GPIO_SEL_FUNC
+			gpio_sel_func=0;
+#endif
+				
 #if 0
 			if(cd_play_status!= MUSIC_STOP){
 				//cd_play_status=MUSIC_STOP;			
@@ -442,7 +471,11 @@ void mcu_hdlr( void )
 			if(!toc_flag)break;		//2 TOC  NOT READY
 
 #ifdef USE_PROG_PLAY_MODE
-			play_prog_mode=0;
+			if(play_prog_mode){
+
+			       play_mode = REPEAT_OFF;
+				play_prog_mode=0;
+			}
 #endif			
 			if(cd_play_status== MUSIC_PLAY){
 
@@ -470,10 +503,11 @@ void mcu_hdlr( void )
 #ifdef USE_PROG_PLAY_MODE
 				play_prog_mode=0;	
 #endif
+			       play_mode = REPEAT_OFF;
 			      Mute_Ext_PA(MUTE);
 				cd_play_status=MUSIC_STOP;			
 				master_push_cmd(STOP_CMD);
-	                    	Disp_Con(DISP_DWORD_NUMBER);		
+	                    	//Disp_Con(DISP_DWORD_NUMBER);		
 			}
 			break;
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
@@ -483,13 +517,15 @@ void mcu_hdlr( void )
 			master_push_cmd(PREV_FILE_CMD);
 			break;			
 	        case INFO_NEXT_FIL | KEY_HOLD:
-			fast_fr_release_cnt=6;
+			fast_fr_release_cnt=3;
 			master_push_cmd(FAST_F_CMD);
 			break;
 	        case INFO_PREV_FIL | KEY_HOLD:
-			fast_fr_release_cnt=6;			
+			fast_fr_release_cnt=3;			
 			master_push_cmd(FAST_R_CMD);
 			break;
+#ifdef MODE_KEY_LONG_PROG
+			
 #ifdef USE_PROG_PLAY_MODE
 	    	case INFO_MODE | KEY_LONG:
 			if((cd_play_status== MUSIC_STOP)	&&toc_flag){
@@ -497,8 +533,17 @@ void mcu_hdlr( void )
 			}
 			break;
 #endif			
+#endif		
+
 #ifdef MASTER_SEL_CD_PLAY_MODE
 	    	case INFO_MODE | KEY_SHORT_UP:
+				
+#ifdef USE_PROG_PLAY_MODE
+				
+			if((cd_play_status== MUSIC_STOP)	&&toc_flag){
+				prog_play_init();
+			}	
+#endif
         	case INFO_PLAY_MODE :
 
 #ifdef USE_INTRO_MODE_FUNC			
@@ -520,8 +565,8 @@ void mcu_hdlr( void )
 			if(play_mode>REPEAT_INTRO)
 				play_mode=REPEAT_ALL;
 #else			
-			if(play_mode>REPEAT_RANDOM)
-				play_mode=REPEAT_ALL;
+			if(play_mode>REPEAT_END)
+				play_mode=REPEAT_HEAD;
 			
 #endif
 			if(play_mode==REPEAT_ALL){
@@ -563,10 +608,25 @@ void mcu_hdlr( void )
 #ifdef USE_ERP_2_HDLR
 			erp_2_timer_hdlr();
 #endif
-	            if (DISP_PLAY == curr_menu)
-	            {
-	                	disp_file_time();
-	            }
+
+		     if(toc_flag){
+			 	
+		            if (DISP_PLAY == curr_menu)
+		            {
+		                	disp_file_time();
+		            }
+#ifdef PLAY_DISP_FILE_NUM_DIR_ONLY
+		            if ((DISP_PAUSE== curr_menu))
+		            {
+		                	disp_file_time();
+		            }
+
+			     if(DISP_STOP== curr_menu){
+
+		                     Disp_Con(DISP_STOP);
+			     }
+#endif
+		     }
 				
 	            set_brightness_fade_out();
 	            if (return_cnt < RETURN_TIME)
@@ -623,12 +683,19 @@ void mcu_hdlr( void )
 /*----------------------------------------------------------------------------*/
 void mcu_main_hdlr(void)
 {
+#ifdef UART_ENABLE
+	sys_printf(" SYS GO IN CD .. MODE");
+#endif
+
     Mute_Ext_PA(MUTE);
     CD_PWR_GPIO_CTRL_INIT();
     CD_PWR_GPIO_ON();
     sysclock_div2(1);
     flush_low_msg();
     mcu_master_init();
+
+    Disp_Con(DISP_SCAN_TOC);
+	
     //Disp_Con(DISP_SCAN_DISK);
     set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     mcu_hdlr();

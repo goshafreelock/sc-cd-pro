@@ -7,6 +7,7 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
+#include "Custom_config.h"
 
 #ifndef _MP3_MODE_
 #define _MP3_MODE_
@@ -29,7 +30,21 @@
 
 #define FAST_FARWORD_STEP	5
 
-#ifdef USE_CD_MCU_MASTER_FUNC			
+#ifdef USE_CD_MCU_MASTER_FUNC
+#ifdef JK_CD_ZG_KS218_V001
+typedef enum
+{
+    REPEAT_ONE=0,
+    REPEAT_ALL,
+    REPEAT_RANDOM,    
+    REPEAT_OFF,    
+    REPEAT_FOLDER,    
+    REPEAT_INTRO,       
+
+    REPEAT_HEAD=REPEAT_ONE,
+    REPEAT_END=REPEAT_OFF,    
+}PLAY_MODE;
+#else
 typedef enum
 {
     REPEAT_ALL = 0,
@@ -37,8 +52,15 @@ typedef enum
     REPEAT_OFF,    
     REPEAT_RANDOM,
     REPEAT_FOLDER,    
-    REPEAT_INTRO,       
+    REPEAT_INTRO,  
+
+    REPEAT_HEAD=REPEAT_ALL,
+    REPEAT_END=REPEAT_RANDOM,
+
+	
 }PLAY_MODE;
+#endif
+
 #else
 typedef enum
 {

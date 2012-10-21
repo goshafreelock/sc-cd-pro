@@ -39,6 +39,10 @@ bool sys_mute_flag=0;
 xd_u8 key_100_flag=0;
 xd_u8 my_sys_vol=0;
 
+#ifdef USB_STOP_MODE_AFTER_TOC
+extern bool toc_ready_stop;
+#endif			
+
 extern bool sys_pwr_flag;
 extern xd_u8 cur_sw_fm_band;
 
@@ -49,6 +53,8 @@ extern void set_date_sec();
 extern void alm_time_plus();
 extern void alm_time_minus();
 extern void set_alm_sec(void);
+
+extern void usb_prog_mode_cls();
 
 
 void Mute_Ext_PA(bool M_Type)
@@ -259,9 +265,41 @@ u8 ap_handle_hotkey(u8 key)
    
     case MSG_USB_DISK_OUT: 
 	 Remov_Func_From_List(USB_DEV);
+	 
+	 if(device_active==BIT(USB_DISK)){
+		stop_decode();
+		usb_prog_mode_cls();
+
+		if((get_device_online_status()&0x01)>0){
+	     		Set_Curr_Func(SYS_MP3DECODE_SD);
+        		given_device = BIT(SDMMC);
+        		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
+		}
+		else{
+			Disp_Con(DISP_NODEVICE);
+
+		}
+	 }
         break;
     case MSG_SDMMC_OUT:
 	 Remov_Func_From_List(SD_DEV);
+	 
+	 if(device_active==BIT(SDMMC)){
+	 	
+		stop_decode();
+		usb_prog_mode_cls();
+		
+		if((get_device_online_status()&0x02)>0){
+	     		Set_Curr_Func(SYS_MP3DECODE_USB);
+        		given_device = BIT(USB_DISK);
+        		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
+		}
+		else{
+
+				Disp_Con(DISP_NODEVICE);
+
+		}
+	 }	 
         break;
 
     case MSG_SDMMC_IN :
@@ -271,16 +309,28 @@ u8 ap_handle_hotkey(u8 key)
 		break;
 	 }
 #endif		
+#ifdef USB_DISP_TOC_BAR
+	 Disp_Con(DISP_SCAN_TOC);
+#endif
+
+#ifdef USB_STOP_MODE_AFTER_TOC
+	 toc_ready_stop=1;
+#endif			
+	printf(" --->MSG_SDMMC_IN %x \r\n",(u16)work_mode);
+		stop_decode();
 
         disp_scenario = DISP_NORMAL;
 	 Add_Func_To_List(SD_DEV);
         given_device = BIT(SDMMC);
         put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
-        if ((work_mode != SYS_MP3DECODE_SD) && (work_mode != SYS_USB_DEVICE))
+        //if ((work_mode > SYS_MP3DECODE_SD) )
         {
-	     Set_Curr_Func(SYS_MP3DECODE_SD);
-            return 0;
+	  //   Set_Curr_Func(SYS_MP3DECODE_SD);
+         //   return 0;
         }
+	usb_prog_mode_cls();
+
+       Set_Curr_Func(SYS_MP3DECODE_SD);
 
         break;
 
@@ -290,17 +340,30 @@ u8 ap_handle_hotkey(u8 key)
         if (work_mode > SYS_MP3DECODE_SD){
 		break;
 	 }
-#endif		
+#endif	
 
+#ifdef USB_STOP_MODE_AFTER_TOC
+	 toc_ready_stop=1;
+#endif			
+		stop_decode();
+
+#ifdef USB_DISP_TOC_BAR
+	 Disp_Con(DISP_SCAN_TOC);
+#endif
         disp_scenario = DISP_NORMAL;
 	 Add_Func_To_List(USB_DEV);
         given_device = BIT(USB_DISK);
         put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
-        if (work_mode != SYS_MP3DECODE_USB)
-        {
-	     Set_Curr_Func(SYS_MP3DECODE_USB);
-            return 0;
-        }
+        //if (work_mode > SYS_MP3DECODE_SD)
+     //   {
+	  //   Set_Curr_Func(SYS_MP3DECODE_USB);
+         //   return 0;
+      //  }
+      
+	usb_prog_mode_cls();
+      
+	Set_Curr_Func(SYS_MP3DECODE_USB);
+
         break;
 #endif
 

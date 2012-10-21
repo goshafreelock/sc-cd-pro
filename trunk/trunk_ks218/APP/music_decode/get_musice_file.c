@@ -28,7 +28,7 @@ bool repeat_off_flag=0;
 
 #ifdef USE_USB_PROG_PLAY_MODE
 extern bool usb_prog_icon_bit;
-extern xd_u8 usb_prog_tab[20];
+extern xd_u8 usb_prog_tab[USB_PROG_MAX];
 extern bool get_prog_song_num(u8 get_Mode);
 #endif
 
@@ -80,6 +80,7 @@ void get_music_file1(u8 dir)
 #ifdef UART_ENABLE
 		sys_printf(" REPEAT_OFF");
 #endif
+		folder_mode_select=0;
 
 		repeat_off_flag =0;
 		stop_decode();      
@@ -171,9 +172,6 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 {
     u16 fileTotal;
 
-#ifdef UART_ENABLE
-    printf(" ---> fs_get_filenum	%x \r\n",(u16)searchMode);
-#endif
 
 #ifdef USE_USB_PROG_PLAY_MODE
     if(usb_prog_icon_bit){
@@ -184,6 +182,10 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 
     given_file_number = fs_msg.fileNumber;
 
+#ifdef UART_ENABLE
+    printf(" ---> given_file_number	%x \r\n",(u16)given_file_number);
+    printf(" ---> fs_msg.fileTotal	%x \r\n",(u16)fs_msg.fileTotal);
+#endif
 
     if ((playmode == REPEAT_ONE) && (searchMode != 2))
         playmode = REPEAT_ALL;					//在单曲循环模式下，转换成全循环模式
@@ -287,7 +289,6 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 				
 				if(searchMode==GET_PLAY_FILE){
 					repeat_off_flag =1;
-					given_file_number =1;
 					return 0;		
 				}
 			}
@@ -297,10 +298,10 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 				clean_playpoint_info(BIT(USB_DISK));
 			}
 
-					
+			given_file_number =1;
+
 			if(searchMode==GET_PLAY_FILE){
 				repeat_off_flag =1;
-				given_file_number =1;
 				return 0;		
 			}
 		}

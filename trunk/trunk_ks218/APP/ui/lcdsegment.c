@@ -247,6 +247,7 @@ void disp_flash_icon(u8 id)
 }
 void disp_clr_flash_icon(u8 id)
 {
+	if(lcd_flash_icon==id)
 	lcd_flash_icon =0xFF;
 }
 /*----------------------------------------------------------------------------*/
@@ -261,6 +262,8 @@ void init_disp(void)
     	init_disp_buf();
     	seg_init();
     	com_init();
+	P3 &=~0x0F;
+	P1 &=~0xFF;
 	LCD_BACKLIGHT_INIT();
 	LCD_BACKLIGHT_ON();
 }
