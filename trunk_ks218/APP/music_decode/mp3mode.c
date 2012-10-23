@@ -274,15 +274,30 @@ void music_info_init(void)
         play_mode = REPEAT_ALL;
     }
 #endif
+
+	if((get_device_online_status()&0x02)>0){
+
+            given_device = 0x02;
+
+	}
+	else{
+
+            given_device = 0x01;
+
+	}
+#if 0
     if (given_device == 0)		  //设备启动时，given_device为0；
     {
-        given_device = read_info(MEM_ACTIVE_DEV);
-        if ((given_device != 0x01) && (given_device != 0x02))
-        {
-            given_device = 0x01;
-            given_file_number = 1;
-        }
+
+       //given_device = read_info(MEM_ACTIVE_DEV);
+       // if ((given_device != 0x01) && (given_device != 0x02))
+        //{
+        	
+           // given_device = 0x01;
+            //given_file_number = 1;
+        //}
     }
+#endif
 
     eq_mode = read_info(MEM_EQ_MODE);
     if (eq_mode > CLASSIC)
