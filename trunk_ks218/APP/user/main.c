@@ -141,9 +141,19 @@ void gpio_sel_func_mode()
 	}
 	else{
 
-		if(work_mode!= LOW_LEVEL_SEL_MODE){
-			gpio_sel_func=1;			
-			Set_Curr_Func(LOW_LEVEL_SEL_MODE);
+		if(work_mode> SYS_MP3DECODE_SD){
+			gpio_sel_func=1;		
+			
+			if((get_device_online_status()&0x01)>0){
+
+				Set_Curr_Func(SYS_MP3DECODE_SD);
+
+			}
+			else{
+
+				Set_Curr_Func(LOW_LEVEL_SEL_MODE);
+
+			}
       			put_msg_lifo(INFO_NEXT_SYS_MODE);	   
 		}
 	}
@@ -526,6 +536,7 @@ void sys_info_init(void)
 	}
 #endif
 
+#if 0
 #ifdef USE_SYS_MODE_RECOVER
         work_mode = read_info(MEM_SYSMODE);
 #ifdef UART_ENABLE
@@ -540,6 +551,7 @@ void sys_info_init(void)
 	}
 #else
 	work_mode = SYS_MCU_CD;
+#endif
 #endif
 }
 #ifdef USE_SYS_IDEL_FUNC
@@ -700,6 +712,9 @@ void main(void)
 {
      xd_u8 sys_timer=0;
 
+	Set_Curr_Func(SYS_IDLE);
+
+
       Mute_Ext_PA(MUTE);
 	 
 #ifdef PWR_CTRL_IN_IDLE_MODE
@@ -743,7 +758,7 @@ void main(void)
 #endif
 
 #ifdef SYS_GPIO_SEL_FUNC
-	gpio_sel_func_mode();
+	//gpio_sel_func_mode();
 #endif
 
 #ifdef UART_ENABLE
