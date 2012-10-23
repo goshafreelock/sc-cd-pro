@@ -254,9 +254,9 @@ void Disp_Nodevice(void)
         	disp_icon(ICON_USB);
 	}	
     	else if(work_mode == SYS_MP3DECODE_SD){
-        	disp_icon(ICON_SD);
+        	//disp_icon(ICON_SD);
 	}
-    	else if(work_mode == SYS_MP3DECODE_SD){
+    	else if(work_mode == SYS_MCU_CD){
         	disp_icon(ICON_CD);
 	}
 #ifdef MCU_CD_728_LCD_MODULE
@@ -266,6 +266,9 @@ void Disp_Nodevice(void)
 #else
     	printf_str("NO d",0);
 #endif
+
+	disp_clr_icon(ICON_PLAY);					
+
 }
 void Disp_Vol(void)
 {
@@ -380,7 +383,7 @@ void disp_file_time(void)
 #endif
 
     disp_icon(ICON_PLAY);
-    disp_icon(ICON_COL);
+    //disp_icon(ICON_COL);
     disp_active();
     Disp_Playmode_icon();
 	
@@ -743,21 +746,41 @@ void custom_buf_update(void)
 	 	disp_clr_icon(ICON_BELL);		
 	}
 #endif
-	if(disp_icon_timer>22){
 		
 #ifdef USE_CD_MCU_MASTER_FUNC
-		if(work_mode == SYS_MCU_CD){
-		 	disp_icon(ICON_CD);	
-		 	disp_clr_icon(ICON_USB);		
-		 	disp_clr_icon(ICON_SD);		
-		}
+	if(work_mode == SYS_MCU_CD){
+		 disp_icon(ICON_CD);	
+		 disp_clr_icon(ICON_USB);		
+		 disp_clr_icon(ICON_SD);		
+	}
 #endif
-		if(work_mode ==SYS_MP3DECODE_USB){
-		 	disp_icon(ICON_USB);	
-		 	disp_clr_icon(ICON_CD);		
-	 	}
+	if(work_mode ==SYS_MP3DECODE_USB){
+
+		if(device_active==0x02)
+		 disp_icon(ICON_USB);	
+		 disp_clr_icon(ICON_CD);	
+
+		if(play_status == MUSIC_PLAY){
+	    		disp_icon(ICON_PLAY);		
+		}
+		else{
+	    		disp_clr_icon(ICON_PLAY);		
+		}		 
+	 }
+	else if(work_mode ==SYS_MP3DECODE_SD){
+
+		if(play_status == MUSIC_PLAY){
+	    		disp_icon(ICON_PLAY);		
+		}
+		else{
+	    		disp_clr_icon(ICON_PLAY);		
+		}
+		
+		 disp_clr_icon(ICON_USB);		
+		 disp_clr_icon(ICON_CD);		
 
 	}
+
 #ifdef USE_PROG_PLAY_MODE
 	if(work_mode ==SYS_MCU_CD){
 		

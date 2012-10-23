@@ -273,6 +273,9 @@ u8 ap_handle_hotkey(u8 key)
 		if((get_device_online_status()&0x01)>0){
 	     		Set_Curr_Func(SYS_MP3DECODE_SD);
         		given_device = BIT(SDMMC);
+#ifdef USB_STOP_MODE_AFTER_TOC
+	 		toc_ready_stop=1;
+#endif							
         		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
 		}
 		else{
@@ -292,6 +295,9 @@ u8 ap_handle_hotkey(u8 key)
 		if((get_device_online_status()&0x02)>0){
 	     		Set_Curr_Func(SYS_MP3DECODE_USB);
         		given_device = BIT(USB_DISK);
+#ifdef USB_STOP_MODE_AFTER_TOC
+	 		toc_ready_stop=1;
+#endif			
         		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
 		}
 		else{

@@ -277,12 +277,14 @@ void music_info_init(void)
 
 	if((get_device_online_status()&0x02)>0){
 
-            given_device = 0x02;
+            	given_device = 0x02;
+		Set_Curr_Func(SYS_MP3DECODE_USB);
 
 	}
 	else{
 
-            given_device = 0x01;
+		Set_Curr_Func(SYS_MP3DECODE_SD);
+           	given_device = 0x01;
 
 	}
 #if 0
@@ -468,6 +470,11 @@ void music_play(void)
 #ifdef SYS_GPIO_SEL_FUNC
 		gpio_sel_func=0;
 #endif
+
+#ifdef UART_ENABLE
+	sys_printf(" DECODE INFO_NEXT_SYS_MODE");
+#endif
+
 		return;
 		
         case INIT_PLAY:                                 //开始解码播放
@@ -603,6 +610,10 @@ void music_play(void)
 #endif
 			
 		get_music_file3();
+
+		if((get_device_online_status()&0x03)==0){
+			stop_decode();
+		}
             	break;
 
         case DECODE_MSG_FILE_END:               ////*将文件结束的消息放到半秒消息中处理，防止单曲循环遇到错误歌曲无法手动切换下一首,或遇到错误歌曲无法到上一首,每首歌曲至少播放约5S*/
@@ -618,7 +629,7 @@ void music_play(void)
 #endif
 		
 			get_music_file1(GET_PLAY_FILE);
-		}
+		}		
 		break;
 
         case INFO_NEXTMODE:                     ///<下一个模式
@@ -688,6 +699,9 @@ void music_play(void)
 
 			}
 #endif
+			play_status = MUSIC_PLAY;
+
+			Disp_Con(DISP_PLAY);
 
                 	put_msg_lifo(INIT_PLAY);
 
@@ -1005,6 +1019,7 @@ void decode_play(void)
 #ifdef UART_ENABLE
 	sys_printf(" SYS GO IN DECODE MODE");
 #endif
+    	device_active = 0;
 
 	folder_select=0;
 	folder_mode_select=0;
@@ -1020,7 +1035,6 @@ void decode_play(void)
     	music_info_init();
     	dsp_hi_pro();
     	decodeint_hi_pro();
-    	device_active = 0;
 #ifdef USB_STOP_MODE_AFTER_TOC
 	 toc_ready_stop=1;
 #endif
@@ -1029,6 +1043,11 @@ void decode_play(void)
 	set_max_vol(MAX_ANALOG_VOL-DECODE_ANALOG_VOL_CUT, MAX_DIGITAL_VOL);			//设置Music模式的音量上限
     //suspend_sdmmc();
 	music_play();
+
+
+#ifdef UART_ENABLE
+	sys_printf(" END OF DECODE MODE");
+#endif
 
 #ifdef ADKEY_SELECT_MODE
     	mode_switch_protect_bit=1;
