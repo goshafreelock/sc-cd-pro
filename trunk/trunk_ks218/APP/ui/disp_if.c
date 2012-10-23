@@ -38,6 +38,8 @@ extern bool alm_sw;
 extern xd_u8 station_save_pos,station_sel_pos;
 extern _xdata SYS_WORK_MODE  work_mode;
 
+xd_u8 disp_icon_timer=0;
+
 #ifdef USE_PROG_PLAY_MODE
 extern  xd_u8 prog_total_num,prog_cur_num;
 extern bool prog_icon_bit,play_prog_mode,cd_exchange_disp;
@@ -85,6 +87,7 @@ void disp_init_if(void)
 {
 	init_disp();
 	disp_clr_buf();
+	disp_icon_timer=0;
 }
 xd_u8 backlight_timer=0;
 void set_brightness_fade_out(void)
@@ -727,8 +730,11 @@ void Disp_alarm_up(void)
    }
 }
 #endif
+
 void custom_buf_update(void)
 {
+	disp_icon_timer++;
+	
 #ifdef USE_RTC_ALARM_FUNCTION
 	if(alm_sw){
 	 	disp_icon(ICON_BELL);		
@@ -737,18 +743,21 @@ void custom_buf_update(void)
 	 	disp_clr_icon(ICON_BELL);		
 	}
 #endif
-
+	if(disp_icon_timer>22){
+		
 #ifdef USE_CD_MCU_MASTER_FUNC
-	if(work_mode == SYS_MCU_CD){
-	 	disp_icon(ICON_CD);	
-	 	disp_clr_icon(ICON_USB);		
-	 	disp_clr_icon(ICON_SD);		
-	}
+		if(work_mode == SYS_MCU_CD){
+		 	disp_icon(ICON_CD);	
+		 	disp_clr_icon(ICON_USB);		
+		 	disp_clr_icon(ICON_SD);		
+		}
 #endif
-	if(work_mode < SYS_MCU_CD){
-	 	disp_icon(ICON_USB);	
-	 	disp_clr_icon(ICON_CD);		
- 	}
+		if(work_mode ==SYS_MP3DECODE_USB){
+		 	disp_icon(ICON_USB);	
+		 	disp_clr_icon(ICON_CD);		
+	 	}
+
+	}
 #ifdef USE_PROG_PLAY_MODE
 	if(work_mode ==SYS_MCU_CD){
 		
