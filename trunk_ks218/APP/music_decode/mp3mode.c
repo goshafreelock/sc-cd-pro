@@ -46,6 +46,8 @@ xd_u16 filenameCnt;
 
 bool playpoint_flag;
 
+extern bool adkey_detect;
+
 
 #ifdef USE_USB_SD_DECODE_FUNC	       
 
@@ -84,6 +86,29 @@ extern bool gpio_sel_func;
 
 
 bool folder_select=0,folder_mode_select=0;
+
+#ifdef USB_ERP2_FUNC
+xd_u16 erp2_timer=0;
+bool erp2_func_pwrdn=0;
+void erp2_func_hdlr()
+{
+	if((get_device_online_status()&0x03)==0){
+
+		if(erp2_timer++>=(2*60*60)){
+		//if(erp2_timer++>=(2*6)){
+
+			erp2_timer=0;
+			 erp2_func_pwrdn=1;
+		}
+	}
+	else{
+		
+		erp2_func_pwrdn=0;
+		erp2_timer=0;
+	}
+
+}
+#endif
 
 #ifdef USE_USB_PROG_PLAY_MODE
 
@@ -464,6 +489,24 @@ void music_play(void)
 		}
 #endif	
 
+#ifdef USB_ERP2_FUNC
+		if(erp2_func_pwrdn){
+
+			if((adkey_detect)||((get_device_online_status()&0x03)>0)){
+
+				adkey_detect=0;
+				erp2_func_pwrdn=0;	
+			}
+			else{
+				key = 0xFF;				
+#ifdef UART_ENABLE
+    					printf(" ---> erp2_func_pwrdn DISP_POWER_OFF\r\n");
+#endif
+
+				Disp_Con(DISP_POWER_OFF);						
+			}
+		}
+#endif
         switch (key)
         {
         case INFO_NEXT_SYS_MODE:			
@@ -738,6 +781,9 @@ void music_play(void)
 		 }
 #endif
 
+#ifdef USB_ERP2_FUNC
+	     erp2_func_hdlr();
+#endif
 
             set_brightness_fade_out();
 	     update_playpoint(&playpoint_time);		//半秒更新断点进度，不写入存储器
@@ -914,6 +960,11 @@ void music_play(void)
             	{
                 	play_mode = REPEAT_HEAD;
             	}
+
+#ifdef UART_ENABLE
+    printf(" ---> INFO_PLAY_MODE	%x \r\n",(u16)play_mode);
+#endif
+				
 #ifndef NO_PLAY_MODE_STR_DISP				
             write_info(MEM_PLAY_MODE,play_mode);
             Disp_Con(DISP_PLAYMODE);
