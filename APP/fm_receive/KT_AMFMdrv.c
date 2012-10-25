@@ -1536,11 +1536,21 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 		KT_FMTune(Frequency);
 		delay_10ms(2);
 		snr2=KT_FMGetSNR();
-		if ((snr[1]>=FM_SNR_TH) && (snr2>=FM_SNR_TH)) return(1);
+		if ((snr[1]>=FM_SNR_TH) && (snr2>=FM_SNR_TH)){
+#ifdef RADIO_ST_INDICATOR
+	     		radio_st_ind=1;
+#endif
+			return(1);
+		}
 		if ((snr[1]<FM_SNR_TH) && (snr2<FM_SNR_TH)) return(0);
 		delay_10ms(1);
 		snr3=KT_FMGetSNR();
-		if (snr3>=FM_SNR_TH) return(1);
+		if (snr3>=FM_SNR_TH){
+#ifdef RADIO_ST_INDICATOR
+		     	radio_st_ind=1;
+#endif
+			return(1);
+		}
 		else return(0);
 #else
 		return(1);

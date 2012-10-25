@@ -513,9 +513,6 @@ void semi_auto_scan(u8 scan_dir)
 
 	if(radio_get_validstation(frequency))
         {
-#ifdef RADIO_ST_INDICATOR
-	     radio_st_ind=1;
-#endif
             Disp_Con(DISP_FREQ);
 	     break;
         }

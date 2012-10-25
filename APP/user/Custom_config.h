@@ -128,8 +128,8 @@
 //#define EEPROM_RTC_RAM_COMPATIBLE
 
 
-#define JK_CD_HYH_727_V001
-//#define JK_CD_HYH_728_V001
+//#define JK_CD_HYH_727_V001
+#define JK_CD_HYH_728_V001
 //#define JK_CD_ZG_KS218_V001
 
 #ifdef JK_CD_HYH_728_V001
@@ -143,6 +143,7 @@
 #define LCD_MODULE_WITHOUT_F_DIGIT
 
 #define USE_ERP_2_HDLR
+#define USE_USB_ERP_2_HDLR
 #define WELCOME_DISP_ON_STR
 #define USE_SYS_MODE_RECOVER
 

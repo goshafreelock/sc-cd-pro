@@ -74,6 +74,7 @@ extern xd_u8 rtc_setting,rtc_set,rtc_set_cnt;
 
 extern bool repeat_off_flag;
 
+xd_u8 rew_play_timer=0;
 bool folder_select=0,folder_mode_select=0;
 
 #ifdef USE_USB_PROG_PLAY_MODE
@@ -230,6 +231,28 @@ void usb_prog_hdlr(u8 key)
 }
 
 
+#endif
+
+#ifdef USE_USB_ERP_2_HDLR
+static xd_u16 usb_erp_timer=0;
+void usb_erp_2_timer_hdlr()
+{
+	if((play_status == MUSIC_STOP)||(play_status == MUSIC_PAUSE)){
+
+		usb_erp_timer++;
+		if(usb_erp_timer>=10*60*2){
+
+    			CD_PWR_GPIO_OFF();
+		    	Disp_Con(DISP_POWER_OFF);
+#ifdef USE_POWER_KEY				
+			sys_power_down();
+#endif
+		}
+	}
+	else{
+		usb_erp_timer = 0;
+	}
+}
 #endif
 
 
@@ -447,7 +470,7 @@ void music_play(void)
             	if (!start_decode())
             	{
 			put_msg_lifo(INFO_NEXT_FIL | KEY_SHORT_UP);
-            	}			
+            	}		
             	break;
 
         case SEL_GIVEN_DEVICE_GIVEN_FILE:              ///<获取指定设备的指定文件
@@ -484,7 +507,16 @@ void music_play(void)
 			break;
 		}
 #endif		
-		get_music_file1(GET_PREV_FILE);
+
+		if(rew_play_timer>0){
+
+			rew_play_timer=0;
+                	put_msg_lifo(INIT_PLAY);
+		}
+		else
+		{
+			get_music_file1(GET_PREV_FILE);
+		}
             	break;
         case INFO_NEXT_FIL | KEY_HOLD:
 			
@@ -620,12 +652,16 @@ void music_play(void)
 	     Disp_Con(DISP_ERROR);
             break;
        case INFO_HALF_SECOND :
+	   	
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))      
             updata_fat_memory();
 #endif
 
 #if defined(USE_BAT_MANAGEMENT)
 	     bmt_hdlr();
+#endif
+#ifdef USE_USB_ERP_2_HDLR
+	     usb_erp_2_timer_hdlr();
 #endif
 
 #if defined(USE_TIMER_POWER_OFF_FUNC)
@@ -702,6 +738,7 @@ void music_play(void)
 
             if (DISP_PLAY == curr_menu)
             {
+			rew_play_timer=1;				            
                 	disp_file_time();
             }
 
