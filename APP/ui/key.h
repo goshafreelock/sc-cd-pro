@@ -7,10 +7,10 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
+#include "Custom_config.h"
 
 #ifndef	_KEY_H_
 #define _KEY_H_
-#include "Custom_config.h"
 
 #ifdef __C51__
 #include "config.h"
