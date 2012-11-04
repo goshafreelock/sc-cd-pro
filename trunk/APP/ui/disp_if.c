@@ -193,7 +193,7 @@ void Disp_Nodevice(void)
         	disp_icon(ICON_CD);
 	}
 #ifdef MCU_CD_728_LCD_MODULE
-    	printf_str("Nod",1);
+    	printf_str("No",1);
 #elif defined(LCD_DISP_THREE_DIGIT)
     	printf_str("NOd",1);
 #else
@@ -215,6 +215,13 @@ void Disp_Playmode_icon()
 	disp_clr_icon(ICON_REP_1);
 	disp_clr_icon(ICON_REP_RDM);
 	disp_clr_icon(ICON_REP_FOD);
+
+	if(prog_icon_bit||play_prog_mode){
+		return;
+	}
+	if(usb_play_prog_mode||usb_prog_icon_bit){
+		return;
+	}
 
 	if(play_mode==REPEAT_ALL){
 	    disp_icon(ICON_REP_ALL);
@@ -240,6 +247,8 @@ void disp_file_time(void)
     u16 min;
     u32 file_play_time;
 
+    //disp_clr_buf();
+
 #ifdef USE_CD_MCU_MASTER_FUNC
 
     if(work_mode ==SYS_MCU_CD){
@@ -263,8 +272,8 @@ void disp_file_time(void)
 #endif
     {
 	    file_play_time = get_music_play_time();
-	    sec = file_play_time % 60;
-	    min = (file_play_time/60) % 60;
+	    sec = (u16)(file_play_time % 60);
+	    min = (u16)((file_play_time/60) % 60);
 		
 	    printf_num(sec,2,2);
 	    printf_num(min,0,2);
@@ -418,7 +427,6 @@ void Disp_freq(void )
 	else{
 		freq =frequency/10;
 	 	disp_icon(ICON_SW);		
-
 	}
 	
     if(freq > 999)

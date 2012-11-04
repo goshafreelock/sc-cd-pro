@@ -87,6 +87,26 @@ extern u8 ReadLFSR();
 
 bool get_prog_song_num(u8 get_Mode)
 {
+
+#if 1
+	if(get_Mode==GET_PREV_FILE){
+
+		if(usb_play_prog_index>0){
+			usb_play_prog_index--;
+		}
+		else{
+			usb_play_prog_index=usb_prog_total_num-2;
+		}
+	}
+	else{			
+		usb_play_prog_index++;
+	
+		if(usb_play_prog_index>=usb_prog_total_num){
+			usb_play_prog_index =0;
+		}
+	}
+
+#else
 	repeat_off_flag =0;
 
 	if(play_mode == REPEAT_ALL){
@@ -147,7 +167,7 @@ bool get_prog_song_num(u8 get_Mode)
 	        usb_play_prog_index = ReadLFSR();
 	        usb_play_prog_index = usb_play_prog_index % (usb_prog_total_num-1)+ 1;
 	}	
-
+#endif
 	given_file_number =usb_prog_tab[usb_play_prog_index];
 
 #ifdef UART_ENABLE
@@ -227,6 +247,10 @@ void usb_prog_hdlr(u8 key)
 	        case INFO_POWER| KEY_SHORT_UP:
 			usb_play_prog_mode=0;				
 			break;
+		 case MSG_USB_DISK_OUT: 
+		 	usb_prog_mode_cls();
+			 Remov_Func_From_List(USB_DEV);
+		        break;			
 	}
 }
 
@@ -480,6 +504,11 @@ void music_play(void)
 #ifdef USE_USB_PROG_PLAY_MODE
 		usb_prog_mode_cls();
 #endif
+
+		if((get_device_online_status()==0)){
+			break;
+		}
+		
 		flush_all_msg();
 		stop_decode();
 		Disp_Con(DISP_STOP);			
@@ -779,6 +808,9 @@ void music_play(void)
 
 	 case INFO_MODE | KEY_LONG:
 
+		if((get_device_online_status()==0)){
+			break;
+		}
 #ifdef USE_USB_PROG_PLAY_MODE
 		if(play_status == MUSIC_STOP){
 			usb_prog_play_init();
@@ -800,10 +832,15 @@ void music_play(void)
 	 case INFO_MODE | KEY_SHORT_UP:
 
         case INFO_PLAY_MODE :
+
+		if(usb_play_prog_mode||usb_prog_icon_bit){
+			 break;
+		}			
+		
 		play_mode++;
-            	if (play_mode > REPEAT_RANDOM)
+            	if (play_mode > REPEAT_END)
             	{
-                	play_mode = REPEAT_ALL;
+                	play_mode = REPEAT_HEAD;
             	}
 #ifndef NO_PLAY_MODE_STR_DISP				
             write_info(MEM_PLAY_MODE,play_mode);
