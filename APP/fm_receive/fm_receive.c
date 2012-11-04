@@ -28,7 +28,7 @@ xd_u8 all_channl;
 xd_u16 frequency;
 /** FM收音当前所在的台号*/
 xd_u8 fre_channl;
-xd_u16 fre_preset[10]={0};    ///< FM收音搜索到的台的缓存
+//xd_u16 fre_preset[10]={0};    ///< FM收音搜索到的台的缓存
 extern _idata u16 dac_cnt;
 extern bit key_voice_disable;
 #ifdef ADKEY_SELECT_MODE
@@ -135,6 +135,8 @@ void load_preset_table(u8 pre_cmd)
 	u16 *p;
 	u8 epprom_offset=0;
 
+	u16 fre_preset[10]={0};
+	
 	if(pre_cmd==GET_FM_PRESET_FROM_EPPROM){
 
 		for(i=0;i<10;i++){
@@ -239,7 +241,7 @@ FREQ_RAGE _code radio_freq_tab[MAX_BAND]=
 };
 #endif
 
-void set_radio_freq(u8 mode)
+void set_radio_freq(u8 mode,bool disp_pro)
 {
 
     set_brightness_all_on();
@@ -277,7 +279,9 @@ void set_radio_freq(u8 mode)
 
 		KT_AMTune(frequency);
     }
-    Disp_Con(DISP_FREQ);			
+
+    if(disp_pro)	
+	Disp_Con(DISP_FREQ);			
 
 #if 1//def SAVE_BAND_FREQ_INFO
 #ifdef UART_ENABLE
@@ -320,7 +324,7 @@ void radio_band_hdlr()
 
 	KT_AMFMSetMode(cur_sw_fm_band);	
 
-    	set_radio_freq(FM_CUR_FRE);
+    	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
 }
 void restore_last_radio_band()
 {
@@ -442,7 +446,7 @@ void full_band_scan_hdlr()
 		write_info(MEM_AM_ALL_CH,station_save_pos);
 	}
 	
-	set_radio_freq(FM_CUR_FRE);
+	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
 
    	dac_mute_control(0,1);		
 
@@ -519,7 +523,7 @@ void semi_auto_scan(u8 scan_dir)
 
     }while(1);
 
-   set_radio_freq(FM_CUR_FRE);
+   set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
 
    dac_mute_control(0,1);		
 
@@ -601,7 +605,8 @@ void restore_station_from_ch()
 #ifdef UART_ENABLE
 	printf("------->-station form  TABLE  fre:%4u   \r\n",frequency);
 #endif
-	set_radio_freq(FM_CUR_FRE);
+
+	set_radio_freq(FM_CUR_FRE,NO_SHOW_FREQ);
        Disp_Con(DISP_SEL_POS);
 }
 #endif
@@ -627,7 +632,7 @@ void fm_hdlr( void )
 
 #endif
 
-    	set_radio_freq(FM_CUR_FRE);
+    	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
 #ifdef ADKEY_SELECT_MODE
     	mode_switch_protect_bit=0;
 #endif	
@@ -676,11 +681,11 @@ void fm_hdlr( void )
 #endif
         case INFO_FRE_UP | KEY_SHORT_UP:
         case INFO_NEXT_FIL | KEY_SHORT_UP:			
-             	set_radio_freq(FM_FRE_INC);
+             	set_radio_freq(FM_FRE_INC,SHOW_FREQ);
 		break;
         case INFO_FRE_DOWN | KEY_SHORT_UP:
         case INFO_PREV_FIL | KEY_SHORT_UP:		
-             	set_radio_freq(FM_FRE_DEC);
+             	set_radio_freq(FM_FRE_DEC,SHOW_FREQ);
             break;
         case INFO_HALF_SECOND :
 
@@ -719,7 +724,7 @@ void fm_hdlr( void )
 				}
 				if ((cfilenum <= REG_MAX_FREQ)&&(cfilenum >=REG_MIN_FREQ)){
 			        	frequency =cfilenum;
-				    	set_radio_freq(FM_CUR_FRE);
+				    	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
 				}
 				else{
 	    				Disp_Con(DISP_ERROR);
@@ -740,7 +745,7 @@ void fm_hdlr( void )
     		case INFO_ALM_BELL:
 		    	sys_clock_pll();							
 			alm_bell_mode();
-             		set_radio_freq(FM_FRE_INC);			
+             		set_radio_freq(FM_FRE_INC,SHOW_FREQ);			
 			sysclock_div2(1);
 #ifdef PWR_CTRL_IN_IDLE_MODE
 #if defined(PWR_CTRL_WKUP)

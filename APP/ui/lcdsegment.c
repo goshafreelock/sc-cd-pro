@@ -355,7 +355,7 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
 
 	digit_idx= lcd_disbuf_offset[offset];
 	
-	lcd_buff[digit_idx] &= ~(0x017E);
+	lcd_buff[digit_idx] &= ~(0x017F);
 
 	lcd_buff[digit_idx] |= (letter_data>>1);
 	lcd_buff[digit_idx] |=((letter_data & DIG_A)>0)? 0x0100:0;
@@ -461,7 +461,7 @@ void disp_putchar(u8 chardata,u8 loc)
     }
 #ifdef LCD_MODULE_WITHOUT_F_DIGIT
     if(loc==0){
-		if((chardata =='0' )||(chardata=='4')||(chardata=='6')||(chardata=='8')||(chardata=='9')){
+		if((chardata !='1' )&&(chardata!='2')){
 			return;
 		}
     }
@@ -643,10 +643,11 @@ void disp_scan(void)
 
 #if 0
 	init_disp_buf();
-	//disp_putchar('0',0);
-	//disp_putchar('1',1);
-	//disp_putchar('2',2);
-	disp_icon(ICON_FM_MHZ);
+	disp_putchar('5',0);
+	disp_putchar('5',1);
+	disp_putchar('5',2);
+	disp_putchar('5',3);
+	//disp_icon(ICON_FM_MHZ);
 #endif	
 
     TRADEMARK_ICON |=TRADEMARK_MASK;

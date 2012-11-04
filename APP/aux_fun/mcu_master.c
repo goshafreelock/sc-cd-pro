@@ -105,6 +105,7 @@ void mcu_master_info_hdlr()
 {
 	static u8 info_dispatch_div=0;
 	static u8 info_timer_1=0,info_timer_2=0,info_timer_3=0;
+	static u8 info_timer_toc=0,info_timer_4=0,info_timer_5=0;
 	u8 rev_loop=0;
 	if(fast_fr_release_cnt>0){
 
@@ -138,16 +139,21 @@ void mcu_master_info_hdlr()
 #ifdef USE_PROG_PLAY_MODE
 		if((rev_buf[0]&(BIT(5)))>0){
 
-			 prog_icon_bit=1;
+			if(info_timer_3++>2){
+			 	prog_icon_bit=1;
+			}
 		}
 		else{
+
+			info_timer_3=0;
 			 prog_icon_bit=0;
 
 		}
 #endif
 //4 TOC 
 		if((rev_buf[1]&(BIT(2)))==0){
-			
+
+			info_timer_toc=0;
 #ifdef DISP_TOC_BAR
 			if(curr_menu != DISP_SCAN_TOC){
 				Disp_Con(DISP_SCAN_TOC);
@@ -162,15 +168,17 @@ void mcu_master_info_hdlr()
 #endif			
 		}
 		else{
-			
-			toc_flag=1;
+
+			if(info_timer_toc++>2){
+				toc_flag=1;
+			}
 		}
 
 //4 DOOR STATUS
 		if((rev_buf[1]&(BIT(1)))){
 
 			info_timer_2++;
-			if((curr_menu != DISP_OPEN)&&(info_timer_2>1)){
+			if((curr_menu != DISP_OPEN)&&(info_timer_2>2)){
 				Disp_Con(DISP_OPEN);
 				toc_flag=0;
 			}
@@ -503,6 +511,9 @@ void mcu_hdlr( void )
 	    	case INFO_MODE | KEY_SHORT_UP:
         	case INFO_PLAY_MODE :
 
+			if(prog_icon_bit||play_prog_mode){
+				break;
+			}
 #ifdef USE_INTRO_MODE_FUNC			
 			if(play_mode==REPEAT_INTRO){
 				master_push_cmd(INTRO_OFF_CMD);

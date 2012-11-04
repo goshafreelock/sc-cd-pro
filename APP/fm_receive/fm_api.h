@@ -26,6 +26,10 @@ typedef struct{
 #define FM_FRE_DEC          1
 #define FM_FRE_INC			2
 
+
+#define SHOW_FREQ		1
+#define NO_SHOW_FREQ	0
+
 #define MAX_BAND    12
 
 void get_channl(u8 flag);

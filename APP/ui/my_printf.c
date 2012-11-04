@@ -68,11 +68,21 @@ void printf_num(u16 dat,u8 loc,u8 len)
         return;
     }
     number_ascii(dat);
+#ifdef DISP_DEBUG	
+	printf("-----> \r\n");
+#endif	
     do
     {
         disp_putchar(aisc[--len],loc++);
+#ifdef DISP_DEBUG			
+	printf("----->disp_putchar  %c  \r\n",aisc[len]);
+#endif
     }
     while(len);
+#ifdef DISP_DEBUG		
+	printf("-----> \r\n");
+#endif
+	
 }
 
 #endif

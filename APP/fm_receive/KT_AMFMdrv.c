@@ -1489,6 +1489,10 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 	char i,j;
 	xd_u8 snr2,snr3;
 
+	if(Frequency==9600){
+
+		return 0;
+	}
 	afc[0]=0;afc[1]=0;afc[2]=0;				//initialize
 	freq[0]=0;freq[1]=0;freq[2]=0;			//initialize
 #ifdef SEEK_WITH_SNR
@@ -1918,7 +1922,7 @@ void KT_Radio_ST_Check()
 		if(rssi_value <= BLEND_POINT)
 		{
 			regx = KT_Bus_Read(0x05);					// BLEND ENABLE
-			KT_Bus_Write(0x05, regx & 0xFFDF);
+			KT_Bus_Write(0x05, (regx & 0xFFDF)|0x8000);
 			radio_st_ind=0;
 		}
 #else	
