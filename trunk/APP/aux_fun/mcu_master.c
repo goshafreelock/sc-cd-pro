@@ -346,10 +346,12 @@ void prog_hdlr(u8 key)
 			}
 			break;		
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
+				
 			master_push_cmd(NEXT_FILE_CMD);
 			Disp_Con(DISP_PROG_FILENUM);
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
+				
 			master_push_cmd(PREV_FILE_CMD);
 			Disp_Con(DISP_PROG_FILENUM);			
 			break;
@@ -483,11 +485,11 @@ void mcu_hdlr( void )
 			master_push_cmd(PREV_FILE_CMD);
 			break;			
 	        case INFO_NEXT_FIL | KEY_HOLD:
-			fast_fr_release_cnt=6;
+			fast_fr_release_cnt=3;
 			master_push_cmd(FAST_F_CMD);
 			break;
 	        case INFO_PREV_FIL | KEY_HOLD:
-			fast_fr_release_cnt=6;			
+			fast_fr_release_cnt=3;			
 			master_push_cmd(FAST_R_CMD);
 			break;
 #ifdef USE_PROG_PLAY_MODE
@@ -520,8 +522,8 @@ void mcu_hdlr( void )
 			if(play_mode>REPEAT_INTRO)
 				play_mode=REPEAT_ALL;
 #else			
-			if(play_mode>REPEAT_RANDOM)
-				play_mode=REPEAT_ALL;
+			if(play_mode>REPEAT_END)
+				play_mode=REPEAT_HEAD;
 			
 #endif
 			if(play_mode==REPEAT_ALL){

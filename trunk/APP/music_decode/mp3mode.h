@@ -7,6 +7,7 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
+#include "Custom_config.h"
 
 #ifndef _MP3_MODE_
 #define _MP3_MODE_
@@ -37,7 +38,12 @@ typedef enum
     REPEAT_OFF,    
     REPEAT_RANDOM,
     REPEAT_FOLDER,    
-    REPEAT_INTRO,       
+    REPEAT_INTRO,  
+
+    REPEAT_HEAD=REPEAT_ALL,
+    REPEAT_END=REPEAT_RANDOM,
+
+	
 }PLAY_MODE;
 #else
 typedef enum

@@ -195,6 +195,7 @@ enum {
 #define S4_ICON_BUF		(lcd_buff[0])
 
 #define FIGURE_NUM	4
+
 #elif defined(JK_CD_ZG_KS218_V001)
 
 #define USB_DEV_MASK	0x0080

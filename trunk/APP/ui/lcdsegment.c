@@ -247,6 +247,7 @@ void disp_flash_icon(u8 id)
 }
 void disp_clr_flash_icon(u8 id)
 {
+	if(lcd_flash_icon==id)
 	lcd_flash_icon =0xFF;
 }
 /*----------------------------------------------------------------------------*/

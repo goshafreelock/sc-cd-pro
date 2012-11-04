@@ -80,6 +80,7 @@ void get_music_file1(u8 dir)
 #ifdef UART_ENABLE
 		sys_printf(" REPEAT_OFF");
 #endif
+		folder_mode_select=0;
 
 		repeat_off_flag =0;
 		stop_decode();      
