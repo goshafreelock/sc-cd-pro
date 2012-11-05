@@ -1922,7 +1922,7 @@ void KT_Radio_ST_Check()
 		if(rssi_value <= BLEND_POINT)
 		{
 			regx = KT_Bus_Read(0x05);					// BLEND ENABLE
-			KT_Bus_Write(0x05, (regx & 0xFFDF)|0x8000);
+			KT_Bus_Write(0x05, (regx & 0xFFDF));
 			radio_st_ind=0;
 		}
 #else	
