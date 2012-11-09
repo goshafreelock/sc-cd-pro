@@ -184,6 +184,9 @@
 
 #ifdef JK_CD_ZG_KS218_V001
 
+#define SW_VER_DISP		3
+
+
 #define MUTE_PORT_USE_P03
 #define IIC_GPIO_USE_P00_P01
 #define DISP_LCD_GPIO_DRV		//GPIOÖ±½ÓÇý¶¯LCD

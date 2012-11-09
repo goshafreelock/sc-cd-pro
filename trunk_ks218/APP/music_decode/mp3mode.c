@@ -444,8 +444,6 @@ bool start_decode(void)
     printf(" ---> device_active	%x \r\n",(u16)device_active);
 #endif
 	
-
-	Mute_Ext_PA(UNMUTE);
     	cfilenum = 0;
     	return 1;
 }
@@ -555,13 +553,18 @@ void music_play(void)
             	if (!start_decode())
             	{
 			put_msg_lifo(INFO_NEXT_FIL | KEY_SHORT_UP);
-            	}			
+            	}		
+
+		Mute_Ext_PA(UNMUTE);
+				
             	break;
 
         case SEL_GIVEN_DEVICE_GIVEN_FILE:              ///<获取指定设备的指定文件
 		get_music_file2();
             	break;
         case INFO_STOP| KEY_SHORT_UP :
+		if((get_device_online_status()&0x03)==0)break;
+			
 #ifdef USE_USB_PROG_PLAY_MODE
 		usb_prog_mode_cls();
 #endif
@@ -652,8 +655,58 @@ void music_play(void)
 			sys_printf(" DECODE_MSG_DISK_ERR");
 #endif
 			
-		get_music_file3();
+		//get_music_file3();
 
+	 	if(device_active==BIT(USB_DISK)){
+
+			if((get_device_online_status()&0x02)==0){
+				stop_decode();
+				usb_prog_mode_cls();
+			}
+#ifdef UART_ENABLE
+			sys_printf(" USB_DISK  DECODE_MSG_DISK_ERR");
+#endif
+		
+			if((get_device_online_status()&0x01)>0){
+				
+		     		Set_Curr_Func(SYS_MP3DECODE_SD);
+	        		given_device = BIT(SDMMC);
+#ifdef USB_STOP_MODE_AFTER_TOC
+		 		toc_ready_stop=1;
+#endif							
+	        		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
+			}
+			else{
+				Disp_Con(DISP_NODEVICE);
+
+			}
+	 	}
+
+	 	else if(device_active==BIT(SDMMC)){
+
+			if((get_device_online_status()&0x01)==0){
+				stop_decode();
+				usb_prog_mode_cls();
+			}
+
+#ifdef UART_ENABLE
+			sys_printf(" SDMMC  DECODE_MSG_DISK_ERR");
+#endif
+			
+			if((get_device_online_status()&0x02)>0){
+				
+		     		Set_Curr_Func(SYS_MP3DECODE_USB);
+	        		given_device = BIT(USB_DISK);
+#ifdef USB_STOP_MODE_AFTER_TOC
+		 		toc_ready_stop=1;
+#endif							
+	        		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
+			}
+			else{
+				Disp_Con(DISP_NODEVICE);
+
+			}
+	 	}		
 		if((get_device_online_status()&0x03)==0){
 			stop_decode();
 		}
@@ -949,6 +1002,7 @@ void music_play(void)
 
 #ifdef USE_USB_PROG_PLAY_MODE
 		if(play_status == MUSIC_STOP){
+			if((get_device_online_status()&0x03)>0)
 			usb_prog_play_init();
 			break;
 		}
@@ -1076,7 +1130,13 @@ void decode_play(void)
 	folder_mode_select=0;
 	rtc_setting=0;
 	disp_scenario = DISP_NORMAL;
-	Disp_Con(DISP_SCAN_DISK);
+
+	if(get_device_online_status()==0x00){
+		Disp_Con(DISP_NODEVICE);
+	}
+	else{
+		Disp_Con(DISP_SCAN_DISK);
+	}
 	sysclock_div2(1);
 #ifndef NO_SD_DECODE_FUNC	
     	sd_speed_init(0, 50);

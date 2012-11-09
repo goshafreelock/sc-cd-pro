@@ -39,7 +39,9 @@ extern xd_u8 station_save_pos,station_sel_pos;
 extern _xdata SYS_WORK_MODE  work_mode;
 
 xd_u8 disp_icon_timer=0;
-
+#ifdef SW_VER_DISP
+xd_u8 sw_ver_disp=0;
+#endif
 #ifdef USE_PROG_PLAY_MODE
 extern  xd_u8 prog_total_num,prog_cur_num;
 extern bool prog_icon_bit,play_prog_mode,cd_exchange_disp;
@@ -56,6 +58,7 @@ extern bool usb_play_prog_mode,usb_prog_icon_bit,exchange_disp;
 extern xd_u8 usb_prog_total_num,usb_prog_cur_num;
 #endif
 
+void Disp_Playmode_icon();
 
 void Disp_dir_num(void);
 
@@ -87,7 +90,7 @@ void disp_init_if(void)
 {
 	init_disp();
 	disp_clr_buf();
-	disp_icon_timer=0;
+	//disp_icon_timer=0;
 }
 xd_u8 backlight_timer=0;
 void set_brightness_fade_out(void)
@@ -152,7 +155,7 @@ void Disp_prog_num(void)
 		else{
 			
 			if(prog_total_num==20){
-		    		printf_str("---",1);
+		    		printf_str("FU",2);
 			}
 			else{
 				printf_num(prog_cur_num,2,2);
@@ -165,7 +168,7 @@ void Disp_prog_num(void)
 		printf_num(prog_total_num,0,2);
 
 		if(prog_total_num==20){
-	    		printf_str("--",2);
+	    		printf_str("FU",2);
 		}
 		else{
 			printf_num(prog_cur_num,2,2);
@@ -187,7 +190,7 @@ void Disp_prog_num(void)
 		else{			
 
 			if(usb_prog_total_num==USB_PROG_MAX){
-		    		printf_str("---",1);
+		    		printf_str("FU",2);
 			}
 			else{
 				printf_num(usb_prog_cur_num,1,3);
@@ -200,7 +203,7 @@ void Disp_prog_num(void)
 		printf_num(usb_prog_total_num,0,2);
 
 		if(usb_prog_total_num==20){
-	    		printf_str("--",2);
+	    		printf_str("FU",2);
 		}
 		else{
 			printf_num(usb_prog_cur_num,2,2);
@@ -231,7 +234,9 @@ void Disp_Filenum(void)
     	printf_num(given_file_number,2,2);
 
 #endif	
-    	disp_active();	
+    	disp_active();
+    Disp_Playmode_icon();
+
 }
 void Disp_Nofile(void)
 {
@@ -286,6 +291,12 @@ void Disp_Playmode_icon()
 	disp_clr_icon(ICON_REP_RDM);
 	disp_clr_icon(ICON_REP_FOD);
 
+	if(work_mode == SYS_MCU_CD){
+
+		if(prog_icon_bit||play_prog_mode){
+				return ;	
+		}
+	}
 	if(play_mode==REPEAT_ALL){
 #ifdef LCD_DISP_THREE_DIGIT
 	    disp_icon(ICON_REP_1);
@@ -485,7 +496,7 @@ void Disp_Play(void)
 void Disp_Hello(void)
 {
 #ifdef WELCOME_DISP_BAR_BAR
-    printf_str("----",0);
+    //printf_str("----",0);
 #elif defined(WELCOME_DISP_ON_STR)
     printf_str(" ON",0);
 #else
@@ -513,6 +524,7 @@ void Disp_scan_disk(void)
 }
 void Disp_scan_toc(void)
 {
+
     	if(work_mode == SYS_MP3DECODE_USB){
         	disp_icon(ICON_USB);
 	}	
@@ -535,6 +547,14 @@ void disp_error(void)
 }
 void disp_open(void)
 {
+
+#ifdef SW_VER_DISP
+	if(sw_ver_disp>0){
+    		printf_char('V',1);
+    		printf_num(SW_VER_DISP,2,2);
+		return;
+	}
+#endif
 #ifdef LCD_MODULE_WITHOUT_F_DIGIT
 	printf_str("OPN",1);
 #elif defined(LCD_DISP_THREE_DIGIT)
@@ -736,8 +756,27 @@ void Disp_alarm_up(void)
 
 void custom_buf_update(void)
 {
-	disp_icon_timer++;
+	static bool flash=0;
 	
+	if(work_mode <=SYS_MP3DECODE_SD){
+
+		if((curr_menu == DISP_SCAN_DISK)||(curr_menu == DISP_SCAN_TOC)){
+
+			disp_icon_timer++;
+			if (disp_icon_timer == 250)
+			{
+			        disp_icon_timer = 0;
+			        flash = ~flash;
+			}
+			
+			if(flash){
+    				printf_str("---",1);
+			}
+			else{
+    				disp_clr_buf();
+			}
+		}
+	}	
 #ifdef USE_RTC_ALARM_FUNCTION
 	if(alm_sw){
 	 	disp_icon(ICON_BELL);		
@@ -754,13 +793,14 @@ void custom_buf_update(void)
 		 disp_clr_icon(ICON_SD);		
 	}
 #endif
+
 	if(work_mode ==SYS_MP3DECODE_USB){
 
 		if(device_active==0x02)
 		 disp_icon(ICON_USB);	
 		 disp_clr_icon(ICON_CD);	
 
-		if(play_status == MUSIC_PLAY){
+		if((play_status == MUSIC_PLAY)||(play_status==MUSIC_FF_FR)){
 	    		disp_icon(ICON_PLAY);		
 		}
 		else{
@@ -769,7 +809,7 @@ void custom_buf_update(void)
 	 }
 	else if(work_mode ==SYS_MP3DECODE_SD){
 
-		if(play_status == MUSIC_PLAY){
+		if((play_status == MUSIC_PLAY)||(play_status==MUSIC_FF_FR)){
 	    		disp_icon(ICON_PLAY);		
 		}
 		else{
@@ -863,7 +903,7 @@ void custom_buf_update(void)
 	    		disp_clr_flash_icon(ICON_PLAY);
 	}
 #endif
-
+	
 #if defined(USE_BAT_MANAGEMENT)
 	Bat_icon_chk();
 #endif

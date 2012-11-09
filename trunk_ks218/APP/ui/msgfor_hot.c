@@ -676,12 +676,13 @@ u8 ap_handle_hotkey(u8 key)
 
 #if VOICE_TIME_ENABLE    
     case INFO_EQ_UP | KEY_LONG : 
-         last_work_mode = work_mode;            
-         work_mode =  SYS_RTC;
-         report_nowtime =1;
+         	last_work_mode = work_mode;            
+         	work_mode =  SYS_RTC;
+         	report_nowtime =1;
          return 0;
 #endif  
 
+    	case INFO_STOP| KEY_LONG:
     	case INFO_EQ_DOWN| KEY_SHORT_UP :
 
 		if(work_mode < SYS_MP3DECODE_SD){
@@ -691,7 +692,10 @@ u8 ap_handle_hotkey(u8 key)
 				if((get_device_online_status()&0x01)>0){
 
 				        given_device = BIT(SDMMC);
-				        //given_file_number = 1;
+
+#ifdef USB_STOP_MODE_AFTER_TOC
+					toc_ready_stop=1;
+#endif			
 				        put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
 				}
 			}
@@ -700,7 +704,10 @@ u8 ap_handle_hotkey(u8 key)
 				if((get_device_online_status()&0x02)>0){
 
 				        given_device = BIT(USB_DISK);
-				        //given_file_number = 1;
+
+#ifdef USB_STOP_MODE_AFTER_TOC
+					toc_ready_stop=1;
+#endif			
 				        put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
 				}				
 			}
