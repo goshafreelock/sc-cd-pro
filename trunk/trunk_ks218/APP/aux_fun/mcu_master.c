@@ -44,6 +44,10 @@ xd_u8 rev_buf[10]={0};
 extern bool gpio_sel_func;
 #endif
 
+#ifdef SW_VER_DISP
+extern xd_u8 sw_ver_disp;
+#endif
+
 #ifdef USE_PROG_PLAY_MODE
 bool play_prog_mode=0,prog_icon_bit=0,cd_exchange_disp=0;
 xd_u8 prog_total_num=0,prog_cur_num=0;
@@ -101,7 +105,7 @@ void mcu_master_init()
 	given_file_number=1;
 	clr_rev_buf();
 	cd_exchange_disp=0;
-	
+
     	play_mode=REPEAT_OFF;
     	master_push_cmd(REP_OFF_CMD);	
 }
@@ -432,13 +436,13 @@ void mcu_hdlr( void )
 	{
 		dac_sw(0);
 	}
+	
 	if(mcu_master_tranceive_tick){
 		mcu_master_tranceive_tick =0;
 		mcu_master_send();
 		mcu_master_rev();
 		mcu_master_info_hdlr();
 	}
-
 #ifdef USE_PROG_PLAY_MODE
 	if(play_prog_mode){
 		
@@ -496,7 +500,14 @@ void mcu_hdlr( void )
 				master_push_cmd(PLAY_RESUME_CMD);
 			}			
 			break;
-			
+#ifdef SW_VER_DISP
+	        //case INFO_STOP| KEY_HOLD:
+		//	break;
+	        case INFO_STOP| KEY_LONG:
+			 sw_ver_disp=10;
+			 //Disp_Con(DISP_OPEN);
+			break;
+#endif
 	        case INFO_STOP| KEY_SHORT_UP :
 			//if(cd_play_status!= MUSIC_STOP)
 			{
@@ -609,6 +620,14 @@ void mcu_hdlr( void )
 			erp_2_timer_hdlr();
 #endif
 
+#ifdef SW_VER_DISP
+			if(sw_ver_disp>0){
+
+				sw_ver_disp--;
+				break;
+			}
+#endif
+
 		     if(toc_flag){
 			 	
 		            if (DISP_PLAY == curr_menu)
@@ -693,6 +712,9 @@ void mcu_main_hdlr(void)
     sysclock_div2(1);
     flush_low_msg();
     mcu_master_init();
+#ifdef SW_VER_DISP
+	sw_ver_disp=0;
+#endif				
 
     Disp_Con(DISP_SCAN_TOC);
 	
@@ -701,6 +723,18 @@ void mcu_main_hdlr(void)
     mcu_hdlr();
     main_vol_set(0, CHANGE_VOL_NO_MEM);
     CD_PWR_GPIO_OFF();	
+
+#ifdef USE_PROG_PLAY_MODE
+	prog_total_num=1;
+	prog_cur_num=0;	
+	play_prog_mode=0;
+	prog_icon_bit=0;
+	
+#endif	
+#ifdef SW_VER_DISP
+	sw_ver_disp=0;
+#endif				
+	
 }
 #endif
 

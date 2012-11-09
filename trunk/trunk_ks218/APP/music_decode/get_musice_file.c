@@ -20,6 +20,11 @@ extern u8 device_active;
 
 extern void clean_playpoint(u8 dev);
 extern u16 playpoint_filenum;
+extern xd_u8 play_status;
+
+#ifdef USB_STOP_MODE_AFTER_TOC
+extern bool toc_ready_stop;
+#endif			
 
 #ifdef USE_USB_SD_DECODE_FUNC	       
 extern bool folder_mode_select;
@@ -117,7 +122,12 @@ void get_music_file1(u8 dir)
         if (given_file_number == 0)                     //given_file_number = 0;说明是后退找文件
             given_file_number = fs_msg.fileTotal;
     }
-    put_msg_lifo(INIT_PLAY);
+    if(play_status == MUSIC_STOP){
+
+	    	Disp_Con(DISP_STOP);	
+	}
+	else
+	put_msg_lifo(INIT_PLAY);
 }
 /*----------------------------------------------------------------------------*/
 /**@brief   获取指定设备中的指定文件，如果条件不成立，自动找下一个可播放的文件
@@ -346,7 +356,15 @@ void select_folder_file(u8 cmd)
         }
     }
     given_file_number= get_dir_file(cmd);                //查找错误，文件序号已经超出当前设备的范围(也有可能是当前设备已经不存在)
-    put_msg_lifo(INIT_PLAY);
+
+    if(play_status == MUSIC_STOP){
+		
+	    	Disp_Con(DISP_STOP);	
+    }
+    else{
+		
+   	 put_msg_lifo(INIT_PLAY);
+    }
 }
 #endif
 
