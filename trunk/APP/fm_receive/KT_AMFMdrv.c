@@ -642,16 +642,36 @@ xd_u8 KT_FMTune(xd_u16 Frequency) //87.5MHz-->Frequency=8750; Mute the chip and 
 		(Frequency == 8920) || (Frequency == 8780)	|| (Frequency == 9030)	|| (Frequency == 9440)	||
 		(Frequency == 9850) || (Frequency == 10260) || (Frequency == 10670) || (Frequency == 9170)	|| (Frequency == 9580)	||
 		(Frequency == 9660)	|| (Frequency == 9860)	|| (Frequency == 10230)	|| (Frequency == 10240)	|| (Frequency == 10520) ||
-	       (Frequency == 9470) || (Frequency == 9480)	|| (Frequency == 9490)	|| (Frequency == 10570)	|| (Frequency == 10560)	||
-		(Frequency == 10580) || (Frequency == 10590)	|| (Frequency == 8790)	|| (Frequency == 8810)	|| (Frequency == 9220)	||
-		(Frequency == 10390)|| (Frequency == 10400) || (Frequency == 10540)|| (Frequency == 9710) || (Frequency == 10120)||
-		(Frequency == 9640)|| (Frequency == 10480) || (Frequency == 8750)|| (Frequency == 8760)|| (Frequency == 8770)|| 
+	       /*(Frequency == 9470) ||*/ (Frequency == 9480)	|| (Frequency == 9490)	|| (Frequency == 10570)	|| (Frequency == 10560)	||
+		(Frequency == 10580) || (Frequency == 10590)	/*|| (Frequency == 8790)*/	|| (Frequency == 8810)	|| (Frequency == 9220)	||
+		/*(Frequency == 10390)||*/ (Frequency == 10400) || (Frequency == 10540)|| (Frequency == 9710) || (Frequency == 10120)||
+		(Frequency == 9640)/*|| (Frequency == 10480) */|| (Frequency == 8750)|| (Frequency == 8760)|| (Frequency == 8770)|| 
 		(Frequency == 6700)|| (Frequency == 6710)|| (Frequency == 6720)|| (Frequency == 7110)|| (Frequency == 7120)||
 		(Frequency == 7130)|| (Frequency == 6730)|| (Frequency == 6740)
 	 )
 	{
 		KT_Bus_Write(0x0A, regx | 0x0040);
 	}
+	 else if((Frequency == 8790)||(Frequency == 8820))
+	 {
+		  KT_Bus_Write(0x1F, 0x029F);     //DIVIDERN<9:0>=671
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x03, 0x8000 | (Frequency - 40) / 5 );     //set tune bit to 1
+	 }
+	 
+	 else if((Frequency == 9470)||(Frequency == 9500)||(Frequency == 9600) || (Frequency == 9610)|| (Frequency == 9620)||(Frequency == 10390)||(Frequency == 10480))
+	 {
+		  KT_Bus_Write(0x1F, 0x029D);     //DIVIDERN<9:0>=669
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x03, 0x8000 | (Frequency - 15) / 5 );     //set tune bit to 1
+	 }
+	 else if((Frequency == 10790) || (Frequency == 10800))
+	 {
+		  KT_Bus_Write(0x1F, 0x02A0);     //DIVIDERN<9:0>=672
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x03, 0x8000 | (Frequency - 65) / 5 );     //set tune bit to 1
+	 }
+	
 	else
 	{
 		KT_Bus_Write(0x0A, regx & 0xFFBF);
@@ -818,6 +838,79 @@ xd_u8 KT_AMTune(xd_u16 Frequency) //1710KHz --> Frequency=1710; Mute the chip an
 		KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);			//CTCLK=1;reference clock=32.768K;
 		KT_Bus_Write(0x17, 0x8000 | (Frequency-5));	   			//set tune bit to 1
 	}
+	 else if((Frequency == 620) || (Frequency == 621))
+	 {
+		  KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		  KT_Bus_Write(0x1F, 0x02A8);        //DIVIDERN<9:0>=680
+		  regx = KT_Bus_Read(0x16);
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x17, 0x8000 | (Frequency - 11));       //set tune bit to 1
+	 }
+	 else if((Frequency == 720))
+	 {
+		  KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		  KT_Bus_Write(0x1F, 0x02A1);        //DIVIDERN<9:0>=680
+		  regx = KT_Bus_Read(0x16);
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x17, 0x8000 | (Frequency - 6));       //set tune bit to 1
+	 }
+	 else if((Frequency == 819) || (Frequency == 820))
+	 {
+		  KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		  KT_Bus_Write(0x1F, 0x02A5);        //DIVIDERN<9:0>=680
+		  regx = KT_Bus_Read(0x16);
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x17, 0x8000 | (Frequency - 11));       //set tune bit to 1
+	 }
+	 else if((Frequency == 918) || (Frequency == 920))
+	 {
+		  KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		  KT_Bus_Write(0x1F, 0x02A4);        //DIVIDERN<9:0>=680
+		  regx = KT_Bus_Read(0x16);
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x17, 0x8000 | (Frequency - 11));       //set tune bit to 1
+	 }
+	 else if((Frequency == 1179) || (Frequency == 1180))
+	 {
+		  KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		  KT_Bus_Write(0x1F, 0x02A0);        //DIVIDERN<9:0>=680
+		  regx = KT_Bus_Read(0x16);
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x17, 0x8000 | (Frequency - 7));       //set tune bit to 1
+	 }
+	 else if((Frequency == 1370) || (Frequency == 1377))
+	 {
+		  KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		  KT_Bus_Write(0x1F, 0x029D);        //DIVIDERN<9:0>=680
+		  regx = KT_Bus_Read(0x16);
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x17, 0x8000 | (Frequency - 2));       //set tune bit to 1
+	 }
+	 else if((Frequency == 1440))
+	 {
+		  KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		  KT_Bus_Write(0x1F, 0x02A2);        //DIVIDERN<9:0>=680
+		  regx = KT_Bus_Read(0x16);
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x17, 0x8000 | (Frequency - 13));       //set tune bit to 1
+	 }
+	 else if((Frequency == 1476) || (Frequency == 1480))
+	 {
+		  KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		  KT_Bus_Write(0x1F, 0x02A1);        //DIVIDERN<9:0>=680
+		  regx = KT_Bus_Read(0x16);
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x17, 0x8000 | (Frequency - 11));       //set tune bit to 1
+	 }
+	 else if((Frequency == 1339) || (Frequency == 1340))
+	 {
+		  KT_Bus_Write(0x1E, 0x0001);        //DIVIDERP<9:0>=1
+		  KT_Bus_Write(0x1F, 0x02A6);        //DIVIDERN<9:0>=680
+		  regx = KT_Bus_Read(0x16);
+		  KT_Bus_Write(0x16, (regx & 0xD0FF) | 0x2000);   //CTCLK=1;reference clock=32.768K;
+		  KT_Bus_Write(0x17, 0x8000 | (Frequency - 23));       //set tune bit to 1
+	 }
+	
 	else
 	{
 		KT_Bus_Write(0x1E, 0x0001);								//DIVIDERP<9:0>=1
