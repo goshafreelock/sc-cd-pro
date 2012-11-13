@@ -193,6 +193,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
     given_file_number = fs_msg.fileNumber;
 
 #ifdef UART_ENABLE
+    printf(" ---> PLAY_MODE	%x \r\n",(u16)playmode);
     printf(" ---> given_file_number	%x \r\n",(u16)given_file_number);
     printf(" ---> fs_msg.fileTotal	%x \r\n",(u16)fs_msg.fileTotal);
 #endif
@@ -233,6 +234,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
             given_file_number--;
             if (given_file_number == 0)
             {
+#if 0            
 			if(0x03 != (0x03&get_device_online_status()))
 			{
 				clean_playpoint_info(device_active);
@@ -244,6 +246,9 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 				clean_playpoint_info(BIT(SDMMC));
 
 			return 0;
+#endif
+			given_file_number=fileTotal;
+
             }
         }
         else					                //next file
@@ -252,6 +257,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
             if (given_file_number > fileTotal)
             {
 			given_file_number = 1;
+#if 0			
 			if(0x03 != (0x03&get_device_online_status()))
 			{
 				clean_playpoint_info(device_active);
@@ -264,6 +270,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 			}
 
 			return 0;
+#endif
             }
         }
         break;
@@ -273,9 +280,11 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
         {
             given_file_number--;
             if (given_file_number == 0)
-            {
+            {            
+
+#if 0            
 			if(0x03 != (0x03&get_device_online_status()))
-			{
+			{		
 				clean_playpoint_info(device_active);
 				return 0;
 			}
@@ -283,8 +292,10 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 				clean_playpoint_info(BIT(USB_DISK));
                 	if(BIT(USB_DISK) == device_active)
 				clean_playpoint_info(BIT(SDMMC));
-
 			return 0;
+#endif
+			given_file_number=fileTotal;
+
             }
         }
         else					                //next file
@@ -293,6 +304,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
             given_file_number++;
             if (given_file_number > fileTotal)
             {
+#if 0            
 			if(0x03 != (0x03&get_device_online_status()))
 			{
 				clean_playpoint_info(device_active);
@@ -307,7 +319,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 				clean_playpoint_info(BIT(SDMMC));
 				clean_playpoint_info(BIT(USB_DISK));
 			}
-
+#endif
 			given_file_number =1;
 
 			if(searchMode==GET_PLAY_FILE){

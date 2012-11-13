@@ -47,7 +47,9 @@ xd_u16 filenameCnt;
 bool playpoint_flag;
 
 extern bool adkey_detect;
-
+#ifdef PLAY_DISP_FILE_NUM_DIR_ONLY
+extern xd_u8 disp_timer;
+#endif
 
 #ifdef USE_USB_SD_DECODE_FUNC	       
 
@@ -122,6 +124,24 @@ extern u8 ReadLFSR();
 
 bool get_prog_song_num(u8 get_Mode)
 {
+#if 1
+	if(get_Mode==GET_PREV_FILE){
+
+		if(usb_play_prog_index>0){
+			usb_play_prog_index--;
+		}
+		else{
+			usb_play_prog_index=usb_prog_total_num-2;
+		}
+	}
+	else{			
+		usb_play_prog_index++;
+		if(usb_play_prog_index>=usb_prog_total_num){
+			usb_play_prog_index =0;
+		}
+	}
+#else
+
 	repeat_off_flag =0;
 
 	if(play_mode == REPEAT_ALL){
@@ -182,6 +202,7 @@ bool get_prog_song_num(u8 get_Mode)
 	        usb_play_prog_index = ReadLFSR();
 	        usb_play_prog_index = usb_play_prog_index % (usb_prog_total_num-1)+ 1;
 	}	
+#endif
 
 	given_file_number =usb_prog_tab[usb_play_prog_index];
 
@@ -535,6 +556,10 @@ void music_play(void)
 		if(toc_ready_stop){
 			given_file_number =1;
 			toc_ready_stop=0;
+#ifdef UART_ENABLE
+			sys_printf(" INIT_PLAY: toc_ready_stop");
+#endif
+			
 #ifdef USE_USB_PROG_PLAY_MODE
 			usb_prog_mode_cls();
 #endif
@@ -567,6 +592,10 @@ void music_play(void)
 			
 #ifdef USE_USB_PROG_PLAY_MODE
 		usb_prog_mode_cls();
+#endif
+
+#ifdef PLAY_DISP_FILE_NUM_DIR_ONLY
+		disp_timer=0;
 #endif
 
 	       play_mode = REPEAT_OFF;
@@ -1009,6 +1038,10 @@ void music_play(void)
 #endif
 
         case INFO_PLAY_MODE :
+
+#ifdef USE_USB_PROG_PLAY_MODE
+    		if(usb_prog_icon_bit)break;
+#endif	
 		play_mode++;
             	if (play_mode > REPEAT_END)
             	{
