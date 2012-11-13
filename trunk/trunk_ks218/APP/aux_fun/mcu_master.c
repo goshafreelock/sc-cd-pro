@@ -103,11 +103,12 @@ void mcu_master_init()
 	cur_time.SEC=0;
 	cfilenum =0;
 	given_file_number=1;
-	clr_rev_buf();
 	cd_exchange_disp=0;
 
     	play_mode=REPEAT_OFF;
     	master_push_cmd(REP_OFF_CMD);	
+
+	clr_rev_buf();		
 }
 void mcu_master_info_hdlr()
 {
@@ -191,6 +192,11 @@ void mcu_master_info_hdlr()
 			if((curr_menu != DISP_OPEN)&&(info_timer_2>1)){
 				Disp_Con(DISP_OPEN);
 				toc_flag=0;
+				prog_icon_bit=0;
+				play_prog_mode=0;
+				
+			    	play_mode=REPEAT_OFF;
+			    	master_push_cmd(REP_OFF_CMD);					
 			}
 		}
 		else{
@@ -557,6 +563,8 @@ void mcu_hdlr( void )
 #endif
         	case INFO_PLAY_MODE :
 
+			if(toc_flag==0)break;
+			
 #ifdef USE_INTRO_MODE_FUNC			
 			if(play_mode==REPEAT_INTRO){
 				master_push_cmd(INTRO_OFF_CMD);
@@ -705,13 +713,13 @@ void mcu_main_hdlr(void)
 #ifdef UART_ENABLE
 	sys_printf(" SYS GO IN CD .. MODE");
 #endif
+    mcu_master_init();
 
     Mute_Ext_PA(MUTE);
     CD_PWR_GPIO_CTRL_INIT();
     CD_PWR_GPIO_ON();
     sysclock_div2(1);
     flush_low_msg();
-    mcu_master_init();
 #ifdef SW_VER_DISP
 	sw_ver_disp=0;
 #endif				
@@ -734,6 +742,8 @@ void mcu_main_hdlr(void)
 #ifdef SW_VER_DISP
 	sw_ver_disp=0;
 #endif				
+
+    	play_mode=REPEAT_OFF;
 	
 }
 #endif

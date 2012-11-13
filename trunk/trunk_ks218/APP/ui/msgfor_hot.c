@@ -685,13 +685,18 @@ u8 ap_handle_hotkey(u8 key)
     	case INFO_STOP| KEY_LONG:
     	case INFO_EQ_DOWN| KEY_SHORT_UP :
 
-		if(work_mode < SYS_MP3DECODE_SD){
+		if(work_mode <= SYS_MP3DECODE_SD){
+
 
 		        if (device_active == BIT(USB_DISK)){
 
+#ifdef UART_ENABLE
+	       		printf(" ----->USB_DISK  -- \r\n");
+#endif
 				if((get_device_online_status()&0x01)>0){
 
 				        given_device = BIT(SDMMC);
+					 Set_Curr_Func(SYS_MP3DECODE_SD);
 
 #ifdef USB_STOP_MODE_AFTER_TOC
 					toc_ready_stop=1;
@@ -701,9 +706,13 @@ u8 ap_handle_hotkey(u8 key)
 			}
 			else if (device_active == BIT(SDMMC)){
 
+#ifdef UART_ENABLE
+	       		printf(" ----->SDMMC  -- \r\n");
+#endif
 				if((get_device_online_status()&0x02)>0){
 
 				        given_device = BIT(USB_DISK);
+					 Set_Curr_Func(SYS_MP3DECODE_USB);
 
 #ifdef USB_STOP_MODE_AFTER_TOC
 					toc_ready_stop=1;

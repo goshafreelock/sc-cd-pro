@@ -415,9 +415,9 @@ void Disp_Pause(void)
     disp_icon(ICON_PAUSE);
 }
 #ifdef PLAY_DISP_FILE_NUM_DIR_ONLY
+xd_u8 disp_timer=0;
 void Disp_Stop(void)
 {
-	static xd_u8 disp_timer=0;
 
 #ifdef USE_CD_MCU_MASTER_FUNC
 	if(work_mode == SYS_MCU_CD){
