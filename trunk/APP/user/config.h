@@ -32,7 +32,31 @@ typedef enum
 	SET_SD_L_CHK,		///<在命令检测SD卡在线状态的情况下，SD不在线时检测1S一次
 }Sd_api_cmd;
 
+#if 1
+typedef enum
+{
+    SYS_FMREV,
+#ifdef AM_RADIO_FUNC
+    SYS_AMREV,
+#endif
 
+#ifdef USE_CD_MCU_MASTER_FUNC
+    SYS_MCU_CD,
+#endif
+    SYS_MP3DECODE_USB,
+    SYS_MP3DECODE_SD,
+
+    SYS_AUX,
+
+#if defined(IPONE_INDEPENDENT_MODE)	
+    SYS_IPH,
+#endif    
+
+    SYS_RTC,
+    SYS_IDLE,
+    SYS_USB_DEVICE,
+}SYS_WORK_MODE;
+#else
 typedef enum
 {
     SYS_MP3DECODE_USB,
@@ -66,6 +90,7 @@ typedef enum
     SYS_IDLE,
     SYS_USB_DEVICE,
 }SYS_WORK_MODE;
+#endif
 #endif
 									   
 

@@ -30,7 +30,35 @@ typedef enum {
 	UNMUTE=0,
 	MUTE,
 }MUTE_TYPE;
+#if 1
+typedef enum{
 
+	FM_DEV,
+#ifdef AM_RADIO_FUNC
+    	AM_DEV,
+#endif    	
+	
+#ifdef USE_CD_MCU_MASTER_FUNC
+	CD_DEV,
+#endif
+	USB_DEV,
+	SD_DEV,
+
+
+	AUX_DEV,
+
+#if defined(IPONE_INDEPENDENT_MODE)	
+	IPH_DEV,
+#endif	
+
+#if (RTC_ENABLE)
+	RTC_DEV,
+#endif	
+	IDLE,
+	
+	PC_DEV,
+}DEV_ON_LIST;
+#else
 typedef enum{
 
 	USB_DEV,
@@ -62,7 +90,7 @@ typedef enum{
 	
 	PC_DEV,
 }DEV_ON_LIST;
-
+#endif
 void Init_Func_List();
 void Set_Curr_Func(u8 curr_mod);
 void Remov_Func_From_List(DEV_ON_LIST Dev);

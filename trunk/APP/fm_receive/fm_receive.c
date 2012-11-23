@@ -315,6 +315,9 @@ void radio_band_hdlr()
 #endif
 #endif
 
+	 if((frequency > REG_MAX_FREQ)||(frequency < REG_MIN_FREQ))		
+	 	frequency =REG_MIN_FREQ;
+		
 	station_save_pos=0;
 	station_sel_pos=0;
 
@@ -589,7 +592,7 @@ void radio_save_station_hdlr()
 		}
 	}
 }
-#define MANUAL_SEL_STATION_KEY    	(INFO_MODE| KEY_SHORT_UP)
+#define MANUAL_SEL_STATION_KEY    	(INFO_STOP| KEY_SHORT_UP)
 void restore_station_from_ch()
 {
 	station_sel_pos++;
