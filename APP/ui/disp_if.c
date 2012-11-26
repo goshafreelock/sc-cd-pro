@@ -78,6 +78,7 @@ void disp_init_if(void)
 {
 	init_disp();
 	disp_clr_buf();
+	LCD_BACKLIGHT_OFF();	
 }
 xd_u8 backlight_timer=0;
 void set_brightness_fade_out(void)
@@ -591,8 +592,16 @@ void custom_buf_update(void)
 #endif
 #ifdef USE_PROG_PLAY_MODE
 	if(work_mode ==SYS_MCU_CD){
+
+
+		if(play_prog_mode){
+	    		disp_flash_icon(ICON_PROG);
+		}
+		else{
+	    		disp_clr_flash_icon(ICON_PROG);
+		}
 		
-		if(prog_icon_bit||play_prog_mode){
+		if(prog_icon_bit){
 			disp_icon(ICON_PROG);
 		}
 		else{
@@ -602,8 +611,15 @@ void custom_buf_update(void)
 #endif
 #ifdef USE_USB_PROG_PLAY_MODE
 	if(work_mode <SYS_MCU_CD){
+
+		if(usb_play_prog_mode){
+	    		disp_flash_icon(ICON_PROG);
+		}
+		else{
+	    		disp_clr_flash_icon(ICON_PROG);
+		}
 		
-		if(usb_prog_icon_bit||usb_play_prog_mode){
+		if(usb_prog_icon_bit){
 			disp_icon(ICON_PROG);
 		}
 		else{
