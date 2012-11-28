@@ -7,6 +7,7 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
+#include "key.h"
 
 #include "device.h"
 #include "filesystem.h"
@@ -16,6 +17,8 @@ extern u8 _xdata win_buffer[512];
 extern FSAPIMSG _pdata fs_msg;
 extern void stop_decode(void);
 
+extern bool gpio_sel_func;
+
 volatile u8 _bdata device_online;      ///<当前在线的设备
 extern xd_u16 given_file_number;
 
@@ -24,6 +27,8 @@ sbit udisk_connect = device_online^1;   ///<USB MASS storage在线状态标记寄存器；
 sbit pc_connect = device_online^4;      ///<PC在线状态标记寄存器；1:在线 0：不在线
 u8 device_active;                       ///<当前在线活动设备
 u8 const _code file_type[] = "MP3WAVMP1MP2SMP";  ///<解码文件格式
+
+bool usb_sd_dev_toc=0;
 
 u16 playpoint_filenum;							///<成功读取断点信息后的文件号：0为没有找到 非0为找到
 u16 read_playpoint_info(u8 dev);
@@ -37,6 +42,8 @@ extern PLAYPOINT_TIME playpoint_time;
 /*----------------------------------------------------------------------------*/
 u8 device_init(void)
 {
+		usb_sd_dev_toc=0;		
+
     device_online = get_device_online_status();
 	if(playpoint_time.last_device != device_active)
 	{
@@ -49,10 +56,22 @@ u8 device_init(void)
 #if FILE_ENCRYPTION
          password_start(0);
 #endif
+
+#ifdef SYS_GPIO_SEL_FUNC
+	     	if( gpio_sel_func){				
+			return 0xff;
+		 }
+#endif
+
         if (device_active == BIT(USB_DISK))
         {
 			if (usb_host_emuerate_devcie(win_buffer))     ///<USB MASS STORAGE 枚举
             {
+#ifdef SYS_GPIO_SEL_FUNC
+	     	if( gpio_sel_func){				
+			return 0xff;
+		 }
+#endif            
 				f_init(win_buffer, (u16)usb_otp_read, get_usb_device_pkt_size());      ///<枚举成功后 初始化文件系统参数
             }
             else
@@ -64,6 +83,12 @@ u8 device_init(void)
         {
 			if (init_sd())                  ///<sd 卡鉴定
             {
+#ifdef SYS_GPIO_SEL_FUNC
+	     	if( gpio_sel_func){				
+			return 0xff;
+		 }
+#endif
+            
 				f_init(win_buffer, (u16)sdmmc_otp_read, 1);//get_usb_device_pkt_size());    ///<鉴定成功后 初始化文件系统参数
             }
             else
@@ -72,13 +97,46 @@ u8 device_init(void)
             }
         }
     }
+#ifdef SYS_GPIO_SEL_FUNC
+	     	if( gpio_sel_func){				
+			return 0xff;
+		 }
+#endif
+	
     if (!f_mount())                                      ///<文件系统初始化
     {
+
+#ifdef SYS_GPIO_SEL_FUNC
+	     	if( gpio_sel_func){				
+			return 0xff;
+		 }
+#endif
+    
 		fs_ext_setting(file_type);
+#ifdef SYS_GPIO_SEL_FUNC
+	     	if( gpio_sel_func){				
+			return 0xff;
+		 }
+#endif
+
 		set_playpoint_info(read_playpoint_info(device_active));
+#ifdef SYS_GPIO_SEL_FUNC
+	     	if( gpio_sel_func){				
+			return 0xff;
+		 }
+#endif
+
 		fs_scan_disk();
+#ifdef SYS_GPIO_SEL_FUNC
+	     	if( gpio_sel_func){				
+			return 0xff;
+		 }
+#endif
+
 		playpoint_filenum = get_scan_filenumber();				   //根据对应设备的起始簇找出有断点的文件号
 		/**/
+
+		usb_sd_dev_toc=1;		
 #ifdef DISABLE_USB_SD_BP_PLAY
 			playpoint_filenum=0;
 #endif		

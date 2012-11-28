@@ -184,7 +184,7 @@
 
 #ifdef JK_CD_ZG_KS218_V001
 
-#define SW_VER_DISP		4
+#define SW_VER_DISP		5
 
 
 #define MUTE_PORT_USE_P03

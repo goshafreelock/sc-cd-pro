@@ -41,6 +41,9 @@ typedef enum
     DISP_DWORD_NUMBER,
     DISP_WAIT,
     DISP_USBDEV,
+    DISP_USB,
+    DISP_SD,    
+    DISP_CD,    
     DISP_FREQ,
     DISP_SAVE_POS,
     DISP_SEL_POS,
@@ -60,6 +63,7 @@ void disp_init_if(void);
 void Disp_Con(u8 LCDinterf);
 
 void disp_file_time(void);
+void reset_disp_timer();
 
 void set_brightness_fade_out(void);
 void set_brightness_all_on(void);

@@ -28,6 +28,9 @@ extern xd_u8 fre_channl,play_status;
 extern _xdata u8 fre_preset[];
 extern MAD_DECODE_INFO _pdata mad_decode_dsc;
 
+extern xd_u8 sel_work_mode;
+extern bool gpio_sel_func;
+
 xd_u8 return_cnt;
 xd_u8 curr_menu;
 extern u16 filenameCnt;
@@ -37,6 +40,9 @@ extern  _xdata u8 filename_buff[100];
 extern bool alm_sw;
 extern xd_u8 station_save_pos,station_sel_pos;
 extern _xdata SYS_WORK_MODE  work_mode;
+
+extern bool usb_sd_dev_toc;
+extern xd_u16 play_dir_tatol;
 
 xd_u8 disp_icon_timer=0;
 #ifdef SW_VER_DISP
@@ -55,8 +61,12 @@ extern xd_u8 cd_play_status;
 
 #ifdef USE_USB_PROG_PLAY_MODE
 extern bool usb_play_prog_mode,usb_prog_icon_bit,exchange_disp;
-extern xd_u8 usb_prog_total_num,usb_prog_cur_num;
+extern xd_u16 usb_prog_total_num,usb_prog_cur_num;
 #endif
+
+bool  full_timer_spark=0;
+
+extern bool mode_switch_protect_bit;
 
 void Disp_Playmode_icon();
 
@@ -153,9 +163,12 @@ void Disp_prog_num(void)
 
 		}
 		else{
-			
+
+			full_timer_spark=0;
+
 			if(prog_total_num==20){
-		    		printf_str("FU",2);
+				full_timer_spark=1;				
+		    		printf_str("FUL",1);
 			}
 			else{
 				printf_num(prog_cur_num,2,2);
@@ -167,8 +180,12 @@ void Disp_prog_num(void)
 		
 		printf_num(prog_total_num,0,2);
 
+		full_timer_spark=0;
+
 		if(prog_total_num==20){
-	    		printf_str("FU",2);
+
+			full_timer_spark=1;				
+	    		printf_str("FUL",1);
 		}
 		else{
 			printf_num(prog_cur_num,2,2);
@@ -176,6 +193,7 @@ void Disp_prog_num(void)
 	}
 #endif	
 #endif
+
 #ifdef USE_USB_PROG_PLAY_MODE
 #if defined(LCD_DISP_THREE_DIGIT)
 
@@ -189,8 +207,12 @@ void Disp_prog_num(void)
 		}
 		else{			
 
+			full_timer_spark=0;
+
 			if(usb_prog_total_num==USB_PROG_MAX){
-		    		printf_str("FU",2);
+
+				full_timer_spark=1;				
+		    		printf_str("FUL",1);
 			}
 			else{
 				printf_num(usb_prog_cur_num,1,3);
@@ -202,10 +224,14 @@ void Disp_prog_num(void)
 		
 		printf_num(usb_prog_total_num,0,2);
 
+		full_timer_spark=0;
+
 		if(usb_prog_total_num==20){
-	    		printf_str("FU",2);
+
+			full_timer_spark=1;
+	    		printf_str("FUL",1);
 		}
-		else{
+		else{			
 			printf_num(usb_prog_cur_num,2,2);
 		}
 	}
@@ -219,9 +245,15 @@ void Disp_Filenum(void)
 
 #if defined(LCD_DISP_THREE_DIGIT)
 	if(work_mode == SYS_MCU_CD){
+		
     		printf_num(given_file_number,2,2);
+
+		if((toc_flag)&&(cd_play_status == MUSIC_PLAY)){
+
+			disp_icon(ICON_PLAY);					
+		}			
 	}
-	else{		
+	else{	
     		printf_num(given_file_number,1,3);
 	}
 #else
@@ -294,9 +326,14 @@ void Disp_Playmode_icon()
 	if(work_mode == SYS_MCU_CD){
 
 		if(prog_icon_bit||play_prog_mode){
-				return ;	
+				return ;	
 		}
 	}
+	if(work_mode <SYS_MCU_CD){
+
+		if(!usb_sd_dev_toc)return;
+	}
+	
 	if(play_mode==REPEAT_ALL){
 #ifdef LCD_DISP_THREE_DIGIT
 	    disp_icon(ICON_REP_1);
@@ -310,14 +347,18 @@ void Disp_Playmode_icon()
 	    disp_icon(ICON_REP_RDM);
 	}	
 	else if(play_mode == REPEAT_FOLDER){
+	    disp_icon(ICON_REP_1);		
 	    disp_icon(ICON_REP_FOD);
 	}
 }
 #ifdef PLAY_DISP_FILE_NUM_DIR_ONLY
-
+static xd_u8 mp3_disp_timer=0;
+void reset_disp_timer()
+{
+	mp3_disp_timer=0;
+}
 void disp_file_time(void)
 {
-	static xd_u8 disp_timer=0;
 #ifdef USE_CD_MCU_MASTER_FUNC
 
     if(work_mode ==SYS_MCU_CD){
@@ -327,21 +368,21 @@ void disp_file_time(void)
     else
 #endif
     {
-	disp_timer++;
-	if(disp_timer<5){
+	mp3_disp_timer++;
+	if(mp3_disp_timer<5){
 
     		printf_num(given_file_number,1,3);
 	}
-	else if(disp_timer<10){
+	else if(mp3_disp_timer<10){
 
 		Disp_dir_num();
 	}
 	else{
 
-		if(disp_timer<=10){
+		if(mp3_disp_timer<=10){
     			printf_num(given_file_number,1,3);
 			
-			disp_timer=0;
+			mp3_disp_timer=0;
 		}
 	}
     }
@@ -443,7 +484,9 @@ void Disp_Stop(void)
 		}
 		else if(disp_timer<=10){
 
-			Disp_dir_num();
+			//Disp_dir_num();
+			printf_char('F',1);
+			printf_num((play_dir_tatol+1),2,2);			
 		}
 		else{
 
@@ -558,7 +601,7 @@ void disp_open(void)
 #ifdef LCD_MODULE_WITHOUT_F_DIGIT
 	printf_str("OPN",1);
 #elif defined(LCD_DISP_THREE_DIGIT)
-	printf_str("OPN",1);
+	printf_str("OP ",1);
 #else
 	printf_str("OPEN",0);
 #endif
@@ -655,7 +698,21 @@ void Disp_sel_station_ch(void)
     	printf_str("P",1);
     	printf_num((station_sel_pos+1),2,2);
 }
-
+void Disp_USB_str()
+{
+    	printf_str("USB",1);
+	disp_icon(ICON_USB);	
+}
+void Disp_SD_str()
+{
+	disp_clr_icon(ICON_USB);	
+    	printf_str("Sd",1);
+}
+void Disp_CD_str()
+{
+	disp_clr_icon(ICON_USB);	
+    	printf_str("Cd",1);
+}
 #if RTC_ENABLE
 xd_u8  clock_points=0;
 extern RTC_TIME curr_date;
@@ -757,11 +814,54 @@ void Disp_alarm_up(void)
 void custom_buf_update(void)
 {
 	static bool flash=0;
-	
-	if(work_mode <=SYS_MP3DECODE_SD){
 
+	
+	if(work_mode ==SYS_MP3DECODE_USB){
+
+		
+		if((sel_work_mode==SYS_MCU_CD)&&(gpio_sel_func)&&(!mode_switch_protect_bit)){
+
+			disp_clr_icon(ICON_USB);	
+		  	disp_clr_buf();				
+			printf_str("Cd",1);
+			disp_icon_timer=0;
+			flash=1;				
+			
+			return;
+		}
+
+	}
+
+	if(work_mode ==SYS_MCU_CD){
+
+		
+		if((sel_work_mode==SYS_MP3DECODE_USB)&&(gpio_sel_func)&&(!mode_switch_protect_bit)){
+
+		  	disp_clr_buf();				
+		    	printf_str("USB",1);
+			disp_icon(ICON_USB);	
+			disp_icon_timer=0;
+			flash=1;				
+			
+			return;
+		}
+
+	}	
+	if(work_mode <=SYS_MP3DECODE_SD){
+			
 		if((curr_menu == DISP_SCAN_DISK)||(curr_menu == DISP_SCAN_TOC)){
 
+
+			if((sel_work_mode==SYS_MCU_CD)&&(gpio_sel_func)&&(!mode_switch_protect_bit)){
+
+				disp_clr_icon(ICON_USB);	
+		    		disp_clr_buf();				
+				printf_str("Cd",1);
+				disp_icon_timer=0;
+				flash=1;				
+				return;
+			}
+				
 			disp_icon_timer++;
 			if (disp_icon_timer == 250)
 			{
@@ -770,12 +870,21 @@ void custom_buf_update(void)
 			}
 			
 			if(flash){
+
+    				disp_clr_buf();				
     				printf_str("---",1);
 			}
 			else{
     				disp_clr_buf();
 			}
+			
+			if(work_mode ==SYS_MP3DECODE_USB){
+				 disp_icon(ICON_USB);	
+			}
+			return;
+		
 		}
+
 	}	
 #ifdef USE_RTC_ALARM_FUNCTION
 	if(alm_sw){
@@ -796,9 +905,9 @@ void custom_buf_update(void)
 
 	if(work_mode ==SYS_MP3DECODE_USB){
 
-		if(device_active==0x02)
+
+		//if(device_active==0x02)
 		 disp_icon(ICON_USB);	
-		 disp_clr_icon(ICON_CD);	
 
 		if((play_status == MUSIC_PLAY)||(play_status==MUSIC_FF_FR)){
 	    		disp_icon(ICON_PLAY);		
@@ -830,10 +939,37 @@ void custom_buf_update(void)
 				
 				if(play_prog_mode){
 				    		disp_flash_icon(ICON_PROG);
+
+						if(full_timer_spark){
+
+
+							disp_icon_timer++;
+							if (disp_icon_timer == 250)
+							{
+							        disp_icon_timer = 0;
+							        flash = ~flash;
+							}							
+							if(flash){
+    								disp_clr_buf();								
+								printf_str("FUL",1);
+							}
+							else{
+    								disp_clr_buf();								
+							}
+						}							
 				}
 				else{
 				    		disp_clr_flash_icon(ICON_PROG);
 				}
+
+
+				if(prog_icon_bit){
+					disp_icon(ICON_PROG);
+				}
+				else{
+
+					disp_clr_icon(ICON_PROG);
+				}			
 			}
 			else
 #endif
@@ -858,10 +994,36 @@ void custom_buf_update(void)
 
 				if(usb_play_prog_mode){
 				    		disp_flash_icon(ICON_PROG);
+							
+						if(full_timer_spark){
+
+							disp_icon_timer++;
+							if (disp_icon_timer == 250)
+							{
+							        disp_icon_timer = 0;
+							        flash = ~flash;
+							}							
+							if(flash){
+    								disp_clr_buf();								
+								printf_str("FUL",1);
+							}
+							else{
+    								disp_clr_buf();								
+							}
+						}							
 				}
 				else{
 				    		disp_clr_flash_icon(ICON_PROG);
 				}
+
+				if(usb_prog_icon_bit){
+					disp_icon(ICON_PROG);
+				}
+				else{
+
+					disp_clr_icon(ICON_PROG);
+				}
+
 			}
 			else
 #endif
@@ -877,7 +1039,7 @@ void custom_buf_update(void)
 	}
 #endif
 
-#ifdef USE_USB_SD_DECODE_FUNC	       
+#if 0//def USE_USB_SD_DECODE_FUNC	       
 	if(work_mode <SYS_MCU_CD){
 
 		if(folder_mode_select){
@@ -888,12 +1050,7 @@ void custom_buf_update(void)
 		}
 	}
 #endif
-#ifdef RADIO_ST_INDICATOR
-	if(radio_st_ind)
-	 	disp_icon(ICON_RADIO_ST);		
-	else
-		disp_clr_icon(ICON_RADIO_ST);		
-#endif
+
 
 #ifdef FLASH_PLAY_ICON_WHEN_PAUSE
 	if(((toc_flag)&&(cd_play_status == MUSIC_PAUSE)&&(work_mode == SYS_MCU_CD))||((device_active>0)&&(play_status == MUSIC_PAUSE)&&(work_mode <= SYS_MP3DECODE_SD))){
@@ -923,6 +1080,8 @@ void Disp_Con(u8 LCDinterf)
 #ifdef UART_ENABLE
 	    	printf("------->-Disp_Con   %d    \r\n",(u16)LCDinterf);
 #endif
+
+    full_timer_spark=0;
 
     disp_clr_buf();
     switch (LCDinterf)
@@ -992,6 +1151,15 @@ void Disp_Con(u8 LCDinterf)
     case DISP_USBDEV:
         Diap_usbslave();
         break;
+    case DISP_USB:
+        Disp_USB_str();
+        break;
+    case DISP_SD:
+        Disp_SD_str();
+        break;		
+    case DISP_CD:
+        Disp_CD_str();
+        break;			
     case DISP_FREQ:
         Disp_freq();
         break;
