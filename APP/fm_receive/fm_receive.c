@@ -49,6 +49,7 @@ xd_u8 station_save_pos=0,station_sel_pos=0;
 bool radio_st_ind=0;
 #endif
 
+bool radio_prog_spark=0;
 #ifdef USE_RADIO_FUNC
 
 extern void KT_AMFMSetMode(xd_u8 AMFM_MODE);
@@ -171,7 +172,7 @@ void load_preset_table(u8 pre_cmd)
 	}
 
 	for(i=0;i<10;i++){
-#ifdef UART_ENABLE
+#ifdef FM_UART_ENABLE
 		printf("------->-station form  TABLE  fre:%4u  at : %d \r\n",fre_preset[i],(u16)((i*2)+epprom_offset));
 #endif
 		save_radio_freq(fre_preset[i],(i*2)+epprom_offset);
@@ -184,7 +185,7 @@ void radio_preset_init()
 	preset_reg =read_info(MEM_PRESET_REG);
 
 	if(((preset_reg&PRESET_MASK)==PRESET_OK)&&((preset_reg&PRESET_ZONE_MASK)==gpio_sel_band_info_config)){		
-#ifdef UART_ENABLE
+#ifdef FM_UART_ENABLE
 	    	printf("------->-station form  epprom    \r\n");
 #endif
 		//4 load preset station form  epprom
@@ -194,7 +195,7 @@ void radio_preset_init()
 			load_preset_table(GET_AM_PRESET_FROM_EPPROM);
 	}
 	else{
-#ifdef UART_ENABLE
+#ifdef FM_UART_ENABLE
 	    	printf("------->-station form  TABLE   \r\n");
 #endif		
 		//4  reset FM Preset
@@ -284,7 +285,7 @@ void set_radio_freq(u8 mode,bool disp_pro)
 	Disp_Con(DISP_FREQ);			
 
 #if 1//def SAVE_BAND_FREQ_INFO
-#ifdef UART_ENABLE
+#ifdef FM_UART_ENABLE
     printf("------->- set_radio_freq    fre:%4u   \r\n",frequency);
 #endif
     save_radio_freq(frequency,cur_sw_fm_band*2+MEM_FREQ_BASE);
@@ -310,7 +311,7 @@ void radio_band_hdlr()
 	
 #if 1//def SAVE_BAND_FREQ_INFO	
 	frequency = read_radio_freq(cur_sw_fm_band*2+MEM_FREQ_BASE);
-#ifdef UART_ENABLE
+#ifdef FM_UART_ENABLE
     	printf("------->- radio_band_hdlr    fre:%4u   \r\n",frequency);
 #endif
 #endif
@@ -362,7 +363,7 @@ void full_band_scan_hdlr()
     	radio_st_ind=0;
 #endif
 
-#ifdef UART_ENABLE
+#ifdef FM_UART_ENABLE
 	sys_printf(" RADIO ALL SCAN  MODE");
 #endif
 
@@ -415,7 +416,9 @@ void full_band_scan_hdlr()
 	 if(radio_get_validstation(frequency))
         {	
 #ifdef RADIO_ST_INDICATOR
-	     	radio_st_ind=1;
+	     	if(cur_sw_fm_band==0){
+	     		radio_st_ind=1;
+	     	}
 #endif
             	//Disp_Con(DISP_FREQ);
        	Disp_Con(DISP_SAVE_POS);
@@ -429,6 +432,7 @@ void full_band_scan_hdlr()
 
 		delay_10ms(120);
 		station_save_pos++;   
+	     	radio_st_ind=0;
 
 		if(station_save_pos>Current_Band.MAX_CH){
 			
@@ -453,7 +457,7 @@ void full_band_scan_hdlr()
 
    	dac_mute_control(0,1);		
 
-#ifdef UART_ENABLE
+#ifdef FM_UART_ENABLE
 	sys_printf(" FINISH RADIO ALL SCAN  MODE");
 #endif
 
@@ -540,6 +544,7 @@ void radio_save_station_hdlr()
 {
     	u8 key,timerout_cnt=0;	
 
+	radio_prog_spark=1;
 	station_save_pos=0;
 	Disp_Con(DISP_SAVE_POS);
 
@@ -605,7 +610,7 @@ void restore_station_from_ch()
 	else if(cur_sw_fm_band==1){
 		frequency = read_radio_freq(station_sel_pos*2+AM_CH_OFFSET);
 	}
-#ifdef UART_ENABLE
+#ifdef FM_UART_ENABLE
 	printf("------->-station form  TABLE  fre:%4u   \r\n",frequency);
 #endif
 
@@ -668,6 +673,7 @@ void fm_hdlr( void )
 		break;
      	case MANUAL_STATION_SAVE_KEY:
 		radio_save_station_hdlr();
+		radio_prog_spark=0;		
 		break;
 #endif		
 	case BAND_FULL_SCAN_KEY:
@@ -795,7 +801,7 @@ void fm_osc_output_select(bool flag)
 /*----------------------------------------------------------------------------*/
 void fm_radio(void)
 {
-#ifdef UART_ENABLE
+#ifdef FM_UART_ENABLE
 	sys_printf(" SYS GO IN FM MODE");
 #endif
 

@@ -27,7 +27,7 @@ extern xd_u16 frequency;
 extern xd_u8 fre_channl,play_status;
 extern _xdata u8 fre_preset[];
 extern MAD_DECODE_INFO _pdata mad_decode_dsc;
-
+extern bool radio_prog_spark;
 xd_u8 return_cnt;
 xd_u8 curr_menu;
 extern u16 filenameCnt;
@@ -40,12 +40,12 @@ extern _xdata SYS_WORK_MODE  work_mode;
 
 #ifdef USE_PROG_PLAY_MODE
 extern  xd_u8 prog_total_num,prog_cur_num;
-extern bool prog_icon_bit,play_prog_mode;
+extern bool prog_icon_bit,play_prog_mode,prog_disp_srn;
 #endif
 
 
 #ifdef USE_USB_PROG_PLAY_MODE
-extern bool usb_play_prog_mode,usb_prog_icon_bit;
+extern bool usb_play_prog_mode,usb_prog_icon_bit,toc_flag;
 extern xd_u8 usb_prog_total_num,usb_prog_cur_num;
 #endif
 
@@ -129,28 +129,60 @@ void Disp_prog_num(void)
 {
 #ifdef USE_PROG_PLAY_MODE
 	if(work_mode == SYS_MCU_CD){
-		
+#if 1
+		if(prog_disp_srn){
+			printf_char('P',1);
+			printf_num(prog_total_num,2,2);
+		}
+		else{
+
+			if(prog_total_num==20){
+		    		printf_str("FUL",1);
+			}
+			else{
+				printf_num(prog_cur_num,2,2);
+			}
+		}
+#else
 		printf_num(prog_total_num,0,2);
 
 		if(prog_total_num==20){
-	    		printf_str("--",2);
+	    		printf_str("FUL",1);
 		}
 		else{
 			printf_num(prog_cur_num,2,2);
 		}
+#endif		
 	}
 #endif
 #ifdef USE_USB_PROG_PLAY_MODE
-	if(work_mode <= SYS_MP3DECODE_SD){
-		
+
+	if(work_mode == SYS_MP3DECODE_USB){
+
+#if 1
+		if(prog_disp_srn){
+			printf_char('P',1);
+			printf_num(usb_prog_total_num,2,2);
+		}
+		else{
+
+			if(usb_prog_total_num==20){
+		    		printf_str("FUL",1);
+			}
+			else{
+				printf_num(usb_prog_cur_num,2,2);
+			}
+		}
+#else
 		printf_num(usb_prog_total_num,0,2);
 
 		if(usb_prog_total_num==20){
-	    		printf_str("--",2);
+	    		printf_str("FUL",1);
 		}
 		else{
 			printf_num(usb_prog_cur_num,2,2);
 		}
+#endif		
 	}
 #endif
 	
@@ -313,6 +345,7 @@ void Disp_Stop(void)
 		printf_char('C',0);
 		printf_char('d',1);
 #endif
+		if((cfilenum>0)&&toc_flag)
 		printf_num(cfilenum,2,2);
 	}	
 	else
@@ -610,7 +643,7 @@ void custom_buf_update(void)
 	}
 #endif
 #ifdef USE_USB_PROG_PLAY_MODE
-	if(work_mode <SYS_MCU_CD){
+	if(work_mode ==SYS_MP3DECODE_USB){
 
 		if(usb_play_prog_mode){
 	    		disp_flash_icon(ICON_PROG);
@@ -639,14 +672,28 @@ void custom_buf_update(void)
 #endif
 
 #ifdef RADIO_ST_INDICATOR
-	if(radio_st_ind)
-	 	disp_icon(ICON_RADIO_ST);		
-	else
-		disp_clr_icon(ICON_RADIO_ST);		
+	if(work_mode ==SYS_FMREV){
+
+		if(radio_prog_spark){			
+			disp_icon(ICON_PROG);			
+		}
+		else{
+			disp_clr_icon(ICON_PROG);		
+		}
+		
+		if(radio_st_ind){
+			
+		 	disp_icon(ICON_RADIO_ST);		
+		}
+		else{
+
+			disp_clr_icon(ICON_RADIO_ST);	
+		}
+	}
 #endif
 
 #ifdef FLASH_PLAY_ICON_WHEN_PAUSE
-	if(((cd_play_status == MUSIC_PAUSE)&&(work_mode == SYS_MCU_CD))||((play_status == MUSIC_PAUSE)&&(work_mode <= SYS_MP3DECODE_SD))){
+	if(((toc_flag)&&(cd_play_status == MUSIC_PAUSE)&&(work_mode == SYS_MCU_CD))||((play_status == MUSIC_PAUSE)&&(work_mode == SYS_MP3DECODE_USB))){
 	    		disp_flash_icon(ICON_PLAY);
 	}
 	else{

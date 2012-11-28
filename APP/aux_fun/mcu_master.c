@@ -19,7 +19,7 @@
 
 bool mcu_master_tranceive_tick=0;
 
-xd_u8 cd_play_status=0;
+xd_u8 cd_play_status=0xFF;
 
 extern xd_u16 given_file_number;
 extern xd_u16 cfilenum;
@@ -42,7 +42,7 @@ xd_u8 rev_buf[10]={0};
 
 
 #ifdef USE_PROG_PLAY_MODE
-bool play_prog_mode=0,prog_icon_bit=0;
+bool play_prog_mode=0,prog_icon_bit=0,prog_disp_srn=0;
 xd_u8 prog_total_num=0,prog_cur_num=0;
 
 #endif
@@ -245,6 +245,7 @@ void mcu_master_info_hdlr()
 			
 			if(rev_buf[9]!=0xff){			
 				if(rev_buf[9]!=prog_cur_num){
+					prog_disp_srn=0;					
 					prog_cur_num = rev_buf[9];
 					Disp_Con(DISP_PROG_FILENUM);				
 				}
@@ -278,7 +279,7 @@ void mcu_master_info_hdlr()
 		//printf("----------------------------------9  ----rev  %u \r\n",(u16)rev_buf[8]);
 		//printf("---------------------------------A  ----rev  %u \r\n",(u16)rev_buf[9]);
 		//printf("---------------------------------B ----rev  %x \r\n",(u16)rev_buf[0]);
-		clr_rev_buf();
+		//clr_rev_buf();
 	}
 }
 void mcu_master_rev()
@@ -334,10 +335,18 @@ void prog_play_init()
 	prog_total_num=1;
 	prog_cur_num=0;	
 	play_prog_mode=1;
+	prog_disp_srn=0;
 	//my_memset(&prog_file_tab[0], 0x0, 20);
 	master_push_cmd(MEM_CMD);
 	Disp_Con(DISP_PROG_FILENUM);
 
+}
+void prog_play_clear()
+{
+	prog_total_num=1;
+	prog_cur_num=0;	
+	play_prog_mode=0;
+	prog_disp_srn=0;	
 }
 void prog_hdlr(u8 key)
 {
@@ -348,8 +357,9 @@ void prog_hdlr(u8 key)
 			//master_push_cmd(STOP_CMD);
 		//	break;
 	        case INFO_MODE | KEY_SHORT_UP :
-			if(prog_cur_num!=0){
-				prog_cur_num=0;					
+			if((prog_cur_num!=0)&&(prog_disp_srn==0)){
+				prog_cur_num=0;
+				prog_disp_srn=1;
 				master_push_cmd(MEM_CMD);
 			}
 			break;		
@@ -636,15 +646,16 @@ void mcu_hdlr( void )
 /*----------------------------------------------------------------------------*/
 void mcu_main_hdlr(void)
 {
+    Disp_Con(DISP_SCAN_TOC);
     Mute_Ext_PA(MUTE);
     CD_PWR_GPIO_CTRL_INIT();
     CD_PWR_GPIO_ON();
     sysclock_div2(1);
     flush_low_msg();
     mcu_master_init();
-    //Disp_Con(DISP_SCAN_DISK);
     set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     mcu_hdlr();
+    prog_play_clear();	
     main_vol_set(0, CHANGE_VOL_NO_MEM);
     CD_PWR_GPIO_OFF();	
 }

@@ -78,7 +78,8 @@ xd_u8 rew_play_timer=0;
 bool folder_select=0,folder_mode_select=0;
 
 #ifdef USE_USB_PROG_PLAY_MODE
-bool usb_play_prog_mode=0,usb_prog_icon_bit=0;
+extern bool prog_disp_srn;
+bool usb_play_prog_mode=0,usb_prog_icon_bit=0,usb_prog_play=0;
 xd_u8 usb_prog_total_num=0,usb_prog_cur_num=0;
 xd_u8 usb_play_prog_index=0;
 xd_u8 usb_prog_tab[20]={0};
@@ -101,7 +102,7 @@ bool get_prog_song_num(u8 get_Mode)
 	else{			
 		usb_play_prog_index++;
 	
-		if(usb_play_prog_index>=usb_prog_total_num){
+		if(usb_play_prog_index>(usb_prog_total_num-2)){
 			usb_play_prog_index =0;
 		}
 	}
@@ -170,11 +171,11 @@ bool get_prog_song_num(u8 get_Mode)
 #endif
 	given_file_number =usb_prog_tab[usb_play_prog_index];
 
-#ifdef UART_ENABLE
+#ifdef MP3_UART_ENABLE
     printf(" ---> 1111	get_prog_song_num	IDX%x    FILE NUM %x  \r\n",(u16)usb_play_prog_index,(u16)usb_prog_total_num);
 #endif
 	
-#ifdef UART_ENABLE
+#ifdef MP3_UART_ENABLE
     printf(" ---> 2222	get_prog_song_num	%x \r\n",(u16)given_file_number);
 #endif
 
@@ -191,7 +192,7 @@ void usb_prog_play_init()
 		usb_play_prog_index=0;
 		usb_prog_total_num=1;
 		usb_prog_cur_num=0;
-		
+		prog_disp_srn=0;
 		my_memset(&usb_prog_tab[0], 0x0, 20);
 		Disp_Con(DISP_PROG_FILENUM);
 	}
@@ -202,6 +203,7 @@ void usb_prog_mode_cls()
 
 		usb_play_prog_mode=0;
 		usb_prog_icon_bit=0;	
+		prog_disp_srn=0;
 
 		usb_prog_total_num=1;
 		usb_prog_cur_num=0;
@@ -220,8 +222,9 @@ void usb_prog_hdlr(u8 key)
 				usb_prog_tab[usb_prog_total_num-1]=usb_prog_cur_num;
 				usb_prog_cur_num=0;
 				usb_prog_total_num++;	
+				prog_disp_srn=1;
 
-#ifdef UART_ENABLE
+#ifdef MP3_UART_ENABLE
     printf(" ---> usb_prog_hdlr	%x \r\n",(u16)usb_prog_total_num);
 #endif
 				Disp_Con(DISP_PROG_FILENUM);
@@ -233,6 +236,7 @@ void usb_prog_hdlr(u8 key)
 			if(usb_prog_cur_num>fs_msg.fileTotal){
 				usb_prog_cur_num=1;
 			}
+			prog_disp_srn=0;			
 			Disp_Con(DISP_PROG_FILENUM);
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
@@ -241,11 +245,13 @@ void usb_prog_hdlr(u8 key)
 				
 			if((usb_prog_cur_num==0)||(usb_prog_cur_num>fs_msg.fileTotal)){
 				usb_prog_cur_num=fs_msg.fileTotal;
-			}				
+			}			
+			prog_disp_srn=0;						
 			Disp_Con(DISP_PROG_FILENUM);			
 			break;
 	        case INFO_POWER| KEY_SHORT_UP:
-			usb_play_prog_mode=0;				
+			usb_play_prog_mode=0;		
+			prog_disp_srn=0;						
 			break;
 		 case MSG_USB_DISK_OUT: 
 		 	usb_prog_mode_cls();
@@ -332,7 +338,7 @@ void stop_decode(void)
     disable_decode_isr();
     disable_softint();
     cfilenum = 0;
-#ifdef UART_ENABLE
+#ifdef MP3_UART_ENABLE
 	sys_printf("  STOP DECODE ");
 #endif
 	
@@ -494,7 +500,13 @@ void music_play(void)
             	if (!start_decode())
             	{
 			put_msg_lifo(INFO_NEXT_FIL | KEY_SHORT_UP);
-            	}		
+            	}	
+#ifdef USE_USB_PROG_PLAY_MODE
+		if(usb_prog_icon_bit){
+			usb_prog_play=1;
+		}
+#endif
+				
             	break;
 
         case SEL_GIVEN_DEVICE_GIVEN_FILE:              ///<获取指定设备的指定文件
@@ -502,6 +514,19 @@ void music_play(void)
             	break;
         case INFO_STOP| KEY_SHORT_UP :
 #ifdef USE_USB_PROG_PLAY_MODE
+
+		if(usb_prog_play){
+				
+				usb_prog_play=0;
+				usb_play_prog_index =0;
+				
+				flush_all_msg();
+				stop_decode();
+				Disp_Con(DISP_STOP);
+   			 //printf(" ---> usb_prog_icon_bit	%x \r\n",(u16)usb_prog_icon_bit);
+				
+				break;
+		}
 		usb_prog_mode_cls();
 #endif
 
@@ -586,7 +611,7 @@ void music_play(void)
 		break;
 
         case DECODE_MSG_DISK_ERR:
-#ifdef UART_ENABLE
+#ifdef MP3_UART_ENABLE
 			sys_printf(" DECODE_MSG_DISK_ERR");
 #endif
 			
@@ -601,7 +626,7 @@ void music_play(void)
 		else
 		{	
 
-#ifdef UART_ENABLE
+#ifdef MP3_UART_ENABLE
 			sys_printf(" DECODE_MSG_FILE_END");
 #endif
 		
@@ -944,7 +969,7 @@ _HOT_KEY_HDLR:
 /*----------------------------------------------------------------------------*/
 void decode_play(void)
 {
-#ifdef UART_ENABLE
+#ifdef MP3_UART_ENABLE
 	sys_printf(" SYS GO IN DECODE MODE");
 #endif
 
@@ -973,6 +998,7 @@ void decode_play(void)
 #endif
 	disp_scenario = DISP_NORMAL;
 	stop_decode();
+	usb_prog_mode_cls();	
 #if(MEMORY_STYLE != USE_DEVICE)
 	usb_suspend();			//Entered Suspend mode
 #endif

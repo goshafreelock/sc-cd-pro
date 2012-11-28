@@ -164,9 +164,10 @@ void Init_Func_List()
 #ifdef USE_USB_SD_DECODE_FUNC	       
 	if((get_device_online_status()&0x02))
 		Add_Func_To_List(USB_DEV);
-
+#ifndef NO_SD_DECODE_FUNC
 	if((get_device_online_status()&0x01))
 		Add_Func_To_List(SD_DEV);
+#endif	
 #endif
 #ifdef USE_CD_MCU_MASTER_FUNC
 		Add_Func_To_List(CD_DEV);
@@ -219,6 +220,9 @@ void Init_Func_List()
 	}
 #endif
 #endif
+
+	//sys_printf("Init_Func_List   end....");
+
 }
 static SYS_WORK_MODE Next_Func()
 {
@@ -226,7 +230,7 @@ static SYS_WORK_MODE Next_Func()
 	//printf(" -111-->Sys_Func_List %x \r\n",(u16)Sys_Func_List);
 	//printf(" -222-->CURR FUNC %x \r\n",(u16)((Sys_Func_List&0xFF00)));
 	
-	if((Sys_Func_List&0x0FF)>0)
+	if((Sys_Func_List&0x00FF)>0)
 	{
 		for(i=(((Sys_Func_List&0xFF00)>>8)+1);i<MAX_FUNC_LIST;i++){
 			//printf(" --%x->Next_Func --->BIT  %x \r\n",(u16)i,(u16)(BIT(i)));
@@ -329,9 +333,10 @@ u8 ap_handle_hotkey(u8 key)
 #else
     case INFO_MODE | KEY_SHORT_UP:
 #endif
+	       //printf(" ----->Next_Func work_mode :%x -- \r\n",(u16)work_mode);
 
 		mode_reg =Next_Func();
-	        //printf(" ----->Next_Func %x -- \r\n",(u16)mode_reg);
+	       //printf(" ----->Next_Func mode_reg:%x -- \r\n",(u16)mode_reg);
 
 		if(work_mode ==mode_reg){
 			break;

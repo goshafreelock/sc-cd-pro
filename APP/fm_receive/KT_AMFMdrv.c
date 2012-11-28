@@ -81,7 +81,7 @@ Str_Band  Current_Band;
 xd_u8 KT_FMGetST(void);
 
 #ifdef UART_ENABLE
-#define DEBUG_SW
+//#define KT_DEBUG_SW
 #endif
 #define I2C
 #ifdef I2C
@@ -283,7 +283,7 @@ xd_u8 KT_pre_init(void)
 
 #if 1
 	regx = KT_Bus_Read(0x01);           			//Read Manufactory ID 
-#ifdef DEBUG_SW    	
+#ifdef KT_DEBUG_SW    	
 	printf("  ------->>FM ID  %x   \r\n ",regx);
 #endif	
 	if (regx != 0x4B54) return 0;
@@ -508,7 +508,7 @@ void  KT_AMFMStandby(void)					//0->Fail 1->Success
 	xd_u16 regx;
 	regx = KT_Bus_Read(0x0F);
 	KT_Bus_Write(0x0F, regx | 0x1000);		//Write Standby bit to 1
-	delay_10ms(20);
+	//delay_10ms(20);
 }
 
 /************************************************************************************/
@@ -1169,7 +1169,7 @@ xd_u16 KT_AMGetFreq(void)
 {
 	xd_u16 regx;
 	regx = KT_Bus_Read(0x13);
-#ifdef DEBUG_SW    	
+#ifdef KT_DEBUG_SW    	
 	printf(" ----->KT_AMGetFreq  %u  \r\n ",regx);
 #endif
 	
@@ -1182,7 +1182,7 @@ extern xd_u8 cur_sw_fm_band;
 extern u8 get_band_info_config();
 void load_band_info(void)
 {
-#ifdef DEBUG_SW    	
+#ifdef KT_DEBUG_SW    	
 	printf(" ----->load_band_info  %d  \r\n ",(u16)cur_sw_fm_band);
 #endif
 
@@ -1336,7 +1336,7 @@ xd_u8 KT_FMGetST(void)
 	xd_u16 regx;
     regx = KT_Bus_Read(0x06);
 
-#ifdef DEBUG_SW    	
+#ifdef KT_DEBUG_SW    	
 	printf("  ------->>KT_FMGetST   %x \r\n",(regx & 0x7F00));
 #endif	
 	
@@ -1360,7 +1360,7 @@ xd_u8 KT_FMReadRSSI(char *RSSI) //range from -100 to -6, unit is dbm
 	xd_u16 regx;
 	regx = KT_Bus_Read(0x12);
 	*RSSI = -(100 - (((regx >> 3) & 0x001F) * 3));
-#ifdef DEBUG_SW    	
+#ifdef KT_DEBUG_SW    	
 	printf("  ------->>KT_FMReadRSSI   %x \r\n",*RSSI);
 #endif	
 
@@ -1385,7 +1385,7 @@ xd_u8 KT_AMReadRSSI(char *RSSI) //range from -90 to -6, unit is dbm
 	regx = KT_Bus_Read(0x24);
 	*RSSI = -(90 - (((regx >> 8) & 0x001F) * 3));
 	
-#ifdef DEBUG_SW    	
+#ifdef KT_DEBUG_SW    	
 	printf(" ------------------>KT_AMReadRSSI [ **** ]  %d dB \r\n ",(u16)*RSSI);
 #endif
 	
@@ -1470,12 +1470,12 @@ xd_u16 KT_AMGetFreq(void)
 	char rssi_reg,afc_reg;
 	xd_u16 regx;
 	regx = KT_Bus_Read(0x13);
-#ifdef DEBUG_SW    	
+#ifdef KT_DEBUG_SW    	
 	printf(" ------------------>KT_AMGetFreq  %u  \r\n ",regx);
 #endif
 	KT_AMReadRSSI(&rssi_reg);	
 	afc_reg =KT_AMGetAFC();	
-#ifdef DEBUG_SW    	
+#ifdef KT_DEBUG_SW    	
 	printf(" ------------------>KT_AMGetAFC[ ***** ]  %d  \r\n ",(u16)afc_reg);
 #endif
 
@@ -1587,9 +1587,9 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 	xd_u8 snr2,snr3;
 
 	if(Frequency==9600){
-
 		return 0;
 	}
+	
 	afc[0]=0;afc[1]=0;afc[2]=0;				//initialize
 	freq[0]=0;freq[1]=0;freq[2]=0;			//initialize
 #ifdef SEEK_WITH_SNR
@@ -1802,14 +1802,14 @@ xd_u8 KT_SMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 	rssi_reg[0] = 0;rssi_reg[1] = 0;rssi_reg[2] = 0;	//initialize
 
     //Display_Channel_AM(Frequency);			//display current channel frequency
-#ifdef DEBUG_SW    
+#ifdef KT_DEBUG_SW    
 	printf(" KT %d    AM  SW  %u  \r\n ",(u16)cur_sw_fm_band,Frequency);
 #endif	
 	
 	KT_AMTune( Frequency - Current_Band.ValidStation_Step );
 	delay_10ms(16);
 	AM_afc[0] = KT_AMGetAFC();
-#ifdef DEBUG_SW    	
+#ifdef KT_DEBUG_SW    	
 	printf(" ----------------------------->KT  AM_afc  [ 0000 ]  %d  \r\n ",(u16)AM_afc[0]);
 #endif
 	KT_AMReadRSSI(&rssi_reg[0]);	
@@ -1820,7 +1820,7 @@ xd_u8 KT_SMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 		KT_AMTune(Frequency);
 		delay_10ms(22);		
 		AM_afc[1] = KT_AMGetAFC();
-#ifdef DEBUG_SW    
+#ifdef KT_DEBUG_SW    
 		printf(" ----------------------------------------->KT  AM_afc  [ 1111 ]  %d  \r\n ",(u16)AM_afc[1]);
 #endif
 		KT_AMReadRSSI(&rssi_reg[1]);	
@@ -1832,14 +1832,14 @@ xd_u8 KT_SMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 
 			
 			AM_afc[2] = KT_AMGetAFC();
-#ifdef DEBUG_SW    
+#ifdef KT_DEBUG_SW    
 			printf(" ---------------------------------------------------> KT  AM_afc  [ 2222 ]  %d  \r\n ",(u16)AM_afc[2]);
 #endif
 			KT_AMReadRSSI(&rssi_reg[2]);	
 
 			if(( AM_afc[2] >= Current_Band.AFCTH_Next)||((rssi_reg[0]-rssi_reg[1])<=-Current_Band.RSSI_TH ))
 			{
-#ifdef DEBUG_SW    
+#ifdef KT_DEBUG_SW    
 			printf(" ---------------------------------------------------> KT  (rssi_reg[0]-rssi_reg[1])  [ 3333 ]  %d   (?)  -%d \r\n ",(u16)(rssi_reg[0]-rssi_reg[1]),(u16)Current_Band.RSSI_TH);
 #endif
 			
