@@ -22,6 +22,8 @@ extern void clean_playpoint(u8 dev);
 extern u16 playpoint_filenum;
 extern xd_u8 play_status;
 
+extern bool play_sel_flag;
+
 #ifdef USB_STOP_MODE_AFTER_TOC
 extern bool toc_ready_stop;
 #endif			
@@ -122,12 +124,27 @@ void get_music_file1(u8 dir)
         if (given_file_number == 0)                     //given_file_number = 0;说明是后退找文件
             given_file_number = fs_msg.fileTotal;
     }
-    if(play_status == MUSIC_STOP){
 
-	    	Disp_Con(DISP_STOP);	
+	if(play_status == MUSIC_STOP){
+
+	    	Disp_Con(DISP_FILENUM);	
 	}
-	else
-	put_msg_lifo(INIT_PLAY);
+	else if(play_status == MUSIC_PAUSE){
+
+		play_sel_flag=1;
+		fs_getfile_bynumber(given_file_number);
+	    	Disp_Con(DISP_FILENUM);	
+		
+#ifdef UART_ENABLE
+    printf(" ---> given_file_number	%x \r\n",(u16)given_file_number);
+#endif
+
+	}
+	else{
+
+		put_msg_lifo(INIT_PLAY);
+		
+	}
 }
 /*----------------------------------------------------------------------------*/
 /**@brief   获取指定设备中的指定文件，如果条件不成立，自动找下一个可播放的文件
@@ -162,12 +179,12 @@ void get_music_file2(void)
 /*----------------------------------------------------------------------------*/
 void get_music_file3(void)
 {
-	if (find_device(0))
-    {
+	//if (find_device(0))
+    //{
         put_msg_lifo(INFO_NEXTMODE);                //找不到有效设备，需要返回到其它模式
-		return;
-    }
-    put_msg_lifo(INIT_PLAY);
+	//	return;
+   // }
+    //put_msg_lifo(INIT_PLAY);
 }
 /*----------------------------------------------------------------------------*/
 /**@brief   获取文件号
@@ -190,12 +207,13 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 #endif	
     fileTotal = fs_msg.fileTotal;
 
-    given_file_number = fs_msg.fileNumber;
+   // given_file_number = fs_msg.fileNumber;
 
 #ifdef UART_ENABLE
     printf(" ---> PLAY_MODE	%x \r\n",(u16)playmode);
-    printf(" ---> given_file_number	%x \r\n",(u16)given_file_number);
-    printf(" ---> fs_msg.fileTotal	%x \r\n",(u16)fs_msg.fileTotal);
+    printf(" ---> fs_msg.fileNumber	%4u \r\n",(u16)fs_msg.fileNumber);
+    printf(" ---> given_file_number	%4u \r\n",(u16)given_file_number);
+    printf(" ---> fs_msg.fileTotal	%4u \r\n",(u16)fs_msg.fileTotal);
 #endif
 
     if ((playmode == REPEAT_ONE) && (searchMode != 2))
@@ -205,7 +223,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
     repeat_off_flag =0;
 
 #ifdef USE_USB_SD_DECODE_FUNC	       
-
+#if 0
     if(folder_mode_select){
 
 		if((playmode == REPEAT_ONE)){
@@ -216,6 +234,8 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 		}
     }
 #endif
+#endif
+
     switch (playmode)
     {
     case REPEAT_RANDOM:
@@ -229,6 +249,11 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
         break;
 
     case REPEAT_ALL:
+
+#ifdef UART_ENABLE
+	       printf(" ----->REPEAT_ALL  -- \r\n");
+#endif
+		
         if (searchMode == 1)					//prev file
         {
             given_file_number--;
@@ -276,6 +301,11 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
         break;
 
     case REPEAT_OFF:
+
+#ifdef UART_ENABLE
+	       printf(" ----->REPEAT_OFF  -- \r\n");
+#endif
+		
         if (searchMode == 1)					//prev file
         {
             given_file_number--;
@@ -330,6 +360,10 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
         }
         break;	
     case REPEAT_FOLDER:
+#ifdef UART_ENABLE
+	       printf(" ----->REPEAT_FOLDER  -- \r\n");
+#endif
+		
         if (searchMode == 1)
         {
             	given_file_number--;
@@ -369,9 +403,16 @@ void select_folder_file(u8 cmd)
     }
     given_file_number= get_dir_file(cmd);                //查找错误，文件序号已经超出当前设备的范围(也有可能是当前设备已经不存在)
 
-    if(play_status == MUSIC_STOP){
+#ifdef UART_ENABLE
+    printf(" ---> select_folder_file	given_file_number  :%4u \r\n",(u16)given_file_number);
+    printf(" ---> fs_msg.dirTotal		%4u \r\n",(u16)fs_msg.dirTotal);
+#endif
+
+    if((play_status == MUSIC_STOP)||(play_status==MUSIC_PAUSE)){
+
+		fs_getfile_bynumber(given_file_number);
 		
-	    	Disp_Con(DISP_STOP);	
+		 Disp_Con(DISP_DIR);	
     }
     else{
 		

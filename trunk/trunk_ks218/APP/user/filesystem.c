@@ -143,6 +143,7 @@ u16 get_dir_file(u8 cmd)
 	if (cmd == FIND_NEXT_DIR)
 	{
 		fileNumber = fs_msg.fileTotalInDir + fs_msg.fileTotalOutDir + 1;
+
 	    if (fileNumber > fs_msg.fileTotal)
 		{
 			fileNumber = 1;	

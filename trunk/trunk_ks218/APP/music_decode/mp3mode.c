@@ -46,6 +46,8 @@ xd_u16 filenameCnt;
 
 bool playpoint_flag;
 
+bool play_sel_flag=0;
+
 extern bool adkey_detect;
 #ifdef PLAY_DISP_FILE_NUM_DIR_ONLY
 extern xd_u8 disp_timer;
@@ -62,7 +64,7 @@ extern volatile bool bObufMute;
 extern void DAC_auto_mute(void);
 extern bool dac_stop_mute;
 extern volatile u8 bDACTimeOut;			//等待OBUF 清空timeout
-#ifdef ADKEY_SELECT_MODE
+#if 1//def ADKEY_SELECT_MODE
 extern bool mode_switch_protect_bit;
 #endif
 #if defined(USE_TIMER_POWER_OFF_FUNC)
@@ -77,6 +79,7 @@ extern void rtc_disp_hdlr(void);
 extern xd_u8 rtc_setting,rtc_set,rtc_set_cnt;
 
 extern bool repeat_off_flag;
+extern bool usb_sd_dev_toc;
 
 #ifdef USB_STOP_MODE_AFTER_TOC
 bool toc_ready_stop=0;
@@ -86,6 +89,8 @@ bool toc_ready_stop=0;
 extern bool gpio_sel_func;
 #endif
 
+xd_u16 play_dir_tatol=0;
+extern xd_u8 sel_work_mode;
 
 bool folder_select=0,folder_mode_select=0;
 
@@ -114,8 +119,8 @@ void erp2_func_hdlr()
 
 #ifdef USE_USB_PROG_PLAY_MODE
 
-bool usb_play_prog_mode=0,usb_prog_icon_bit=0,exchange_disp=0;
-xd_u8 usb_prog_total_num=0,usb_prog_cur_num=0;
+bool usb_play_prog_mode=0,usb_prog_icon_bit=0,usb_prog_play=0,exchange_disp=0;
+xd_u16 usb_prog_total_num=0,usb_prog_cur_num=0;
 xd_u8 usb_play_prog_index=0;
 xd_u8 usb_prog_tab[USB_PROG_MAX]={0};
 
@@ -136,7 +141,7 @@ bool get_prog_song_num(u8 get_Mode)
 	}
 	else{			
 		usb_play_prog_index++;
-		if(usb_play_prog_index>=usb_prog_total_num){
+		if(usb_play_prog_index>(usb_prog_total_num-2)){
 			usb_play_prog_index =0;
 		}
 	}
@@ -238,6 +243,10 @@ void usb_prog_mode_cls()
 {
 	if(usb_play_prog_mode||usb_prog_icon_bit){
 
+#ifdef UART_ENABLE
+	sys_printf("  STOP usb_prog_mode_cls ");
+#endif
+
 		usb_play_prog_mode=0;
 		usb_prog_icon_bit=0;	
 
@@ -254,7 +263,7 @@ void usb_prog_hdlr(u8 key)
 	{
 	        case INFO_MODE | KEY_SHORT_UP :
 				
-			if((usb_prog_cur_num!=0)&&(usb_prog_total_num<20)){
+			if((usb_prog_cur_num!=0)&&(usb_prog_total_num<USB_PROG_MAX)){
 				usb_prog_tab[usb_prog_total_num-1]=usb_prog_cur_num;
 				usb_prog_cur_num=0;
 				usb_prog_total_num++;	
@@ -321,18 +330,23 @@ void music_info_init(void)
     }
 #endif
 
-	if((get_device_online_status()&0x02)>0){
+#if 0
 
-            	given_device = 0x02;
-		Set_Curr_Func(SYS_MP3DECODE_USB);
+	if((get_device_online_status()&0x02)==0){
 
+
+		if((get_device_online_status()&0x01)>0){
+
+
+		       Disp_Con(DISP_SD);
+			delay_10ms(80);
+			Set_Curr_Func(SYS_MP3DECODE_SD);
+	           	given_device = 0x01;
+
+		}
 	}
-	else{
-
-		Set_Curr_Func(SYS_MP3DECODE_SD);
-           	given_device = 0x01;
-
-	}
+#endif
+	
 #if 0
     if (given_device == 0)		  //设备启动时，given_device为0；
     {
@@ -468,7 +482,72 @@ bool start_decode(void)
     	cfilenum = 0;
     	return 1;
 }
+void device_auto_select()
+{
+#ifdef UART_ENABLE
+    printf(" -----> device_auto_select	%x \r\n",(u16)device_active);
+#endif
 
+	 	if(device_active==BIT(USB_DISK)){
+
+			if((get_device_online_status()&0x02)==0){
+				stop_decode();
+				usb_prog_mode_cls();
+			}
+#ifdef UART_ENABLE
+			sys_printf(" USB_DISK  DECODE_MSG_DISK_ERR");
+#endif
+		
+			if((get_device_online_status()&0x01)>0){
+
+		     		Set_Curr_Func(SYS_MP3DECODE_SD);
+
+	        		Disp_Con(DISP_SD);
+				delay_10ms(80);
+	        		given_device = BIT(SDMMC);
+#ifdef USB_STOP_MODE_AFTER_TOC
+		 		toc_ready_stop=1;
+#endif							
+	        		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
+			}
+			else{
+				Disp_Con(DISP_NODEVICE);
+
+			}
+	 	}
+	 	else if(device_active==BIT(SDMMC)){
+
+			if((get_device_online_status()&0x01)==0){
+				stop_decode();
+				usb_prog_mode_cls();
+			}
+
+#ifdef UART_ENABLE
+			sys_printf(" SDMMC  DECODE_MSG_DISK_ERR");
+#endif
+			
+			if((get_device_online_status()&0x02)>0){
+
+				
+		     		Set_Curr_Func(SYS_MP3DECODE_USB);
+
+	        		Disp_Con(DISP_USB);
+				delay_10ms(80);
+				
+					
+	        		given_device = BIT(USB_DISK);
+#ifdef USB_STOP_MODE_AFTER_TOC
+		 		toc_ready_stop=1;
+#endif							
+	        		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
+			}
+			else{
+				Disp_Con(DISP_NODEVICE);
+
+			}
+	 	}	
+		
+}
 /*----------------------------------------------------------------------------*/
 /**@brief  解码播放主循环,并处理信息
    @param  无
@@ -485,9 +564,11 @@ void music_play(void)
     u8 key;
     u8 file_end_time;
 
-#ifdef ADKEY_SELECT_MODE
+#if 1//def ADKEY_SELECT_MODE
     mode_switch_protect_bit=0;
 #endif	
+
+
     while (1)
     {	   		
 		if (play_status == MUSIC_PLAY)
@@ -534,7 +615,13 @@ void music_play(void)
 #endif
 
 #ifdef UART_ENABLE
-	sys_printf(" DECODE INFO_NEXT_SYS_MODE");
+    printf(" -USB ---USB----> INFO_NEXT_SYS_MODE	%x \r\n",(u16)sel_work_mode);
+#endif
+
+		Set_Curr_Func(sel_work_mode);
+
+#ifdef UART_ENABLE
+	sys_printf("---USB---------->> DECODE INFO_NEXT_SYS_MODE");
 #endif
 
 		return;
@@ -542,20 +629,23 @@ void music_play(void)
         case INIT_PLAY:                                 //开始解码播放
             	file_end_time = 0;
             	stop_decode();
+				
 		playpoint_flag = 0;
+		
               if(playpoint_filenum)
 		{
 		    playpoint_flag = 1;
 			given_file_number = playpoint_filenum;
 		}
 #if FILE_ENCRYPTION
-            password_start(0);
+            	password_start(0);
 #endif
 	
 #ifdef USB_STOP_MODE_AFTER_TOC
 		if(toc_ready_stop){
 			given_file_number =1;
 			toc_ready_stop=0;
+			play_dir_tatol = fs_msg.dirTotal;
 #ifdef UART_ENABLE
 			sys_printf(" INIT_PLAY: toc_ready_stop");
 #endif
@@ -574,23 +664,71 @@ void music_play(void)
 			put_msg_lifo(INFO_NEXT_FIL | KEY_SHORT_UP);
                 	break;
             	}
-
+			
             	if (!start_decode())
             	{
 			put_msg_lifo(INFO_NEXT_FIL | KEY_SHORT_UP);
             	}		
+
+#ifdef USE_USB_PROG_PLAY_MODE
+			if(usb_prog_icon_bit){
+				usb_prog_play=1;
+			}
+#endif
 
 		Mute_Ext_PA(UNMUTE);
 				
             	break;
 
         case SEL_GIVEN_DEVICE_GIVEN_FILE:              ///<获取指定设备的指定文件
+
+#ifdef SYS_GPIO_SEL_FUNC
+	     	 if( gpio_sel_func){				
+      			put_msg_lifo(INFO_NEXT_SYS_MODE);
+			break;
+		 }
+#endif
+        
+	   	//mode_switch_protect_bit=1;
+
+#ifdef UART_ENABLE
+		sys_printf(" SEL_GIVEN_DEVICE_GIVEN_FILE");
+#endif
+		
+		Disp_Con(DISP_SCAN_DISK);
+		delay_10ms(80);		
 		get_music_file2();
+	   	//mode_switch_protect_bit=0;
+#ifdef SYS_GPIO_SEL_FUNC
+	     	 if( gpio_sel_func){				
+      			put_msg_lifo(INFO_NEXT_SYS_MODE);
+			break;
+		 }
+#endif
+		
             	break;
         case INFO_STOP| KEY_SHORT_UP :
 		if((get_device_online_status()&0x03)==0)break;
+
+		if(usb_sd_dev_toc==0)break;
 			
 #ifdef USE_USB_PROG_PLAY_MODE
+
+   			// printf(" ---> usb_prog_icon_bit	%x \r\n",(u16)usb_prog_icon_bit);
+
+			if(usb_prog_play){
+				
+				usb_prog_play=0;
+				usb_play_prog_index =0;
+				
+				flush_all_msg();
+				stop_decode();
+				Disp_Con(DISP_STOP);
+   			 //printf(" ---> usb_prog_icon_bit	%x \r\n",(u16)usb_prog_icon_bit);
+				
+				break;
+			}
+			
 		usb_prog_mode_cls();
 #endif
 
@@ -598,6 +736,7 @@ void music_play(void)
 		disp_timer=0;
 #endif
 
+		given_file_number=1;
 	       play_mode = REPEAT_OFF;
 
 		flush_all_msg();
@@ -620,6 +759,7 @@ void music_play(void)
 		}		
 #endif
 #endif
+		reset_disp_timer();
 		get_music_file1(GET_NEXT_FILE);
             	break;
 
@@ -639,11 +779,12 @@ void music_play(void)
 		}
 #endif		
 #endif		
+		reset_disp_timer();
 		get_music_file1(GET_PREV_FILE);
             	break;
         case INFO_NEXT_FIL | KEY_HOLD:
 			
-		if(play_status)
+		if(play_status==MUSIC_PLAY)
 		{
 			ff_fr_step = FAST_FARWORD_STEP;
 			play_status = MUSIC_FF_FR;
@@ -664,7 +805,7 @@ void music_play(void)
 			
 		if(!playpoint_flag) 				//读取断点信息后不支持快退
 		{
-			if(play_status)
+			if(play_status==MUSIC_PLAY)
 			{
 				ff_fr_step = -FAST_FARWORD_STEP;
 				play_status = MUSIC_FF_FR;
@@ -685,59 +826,11 @@ void music_play(void)
 #endif
 			
 		//get_music_file3();
+		device_auto_select();
 
-	 	if(device_active==BIT(USB_DISK)){
-
-			if((get_device_online_status()&0x02)==0){
-				stop_decode();
-				usb_prog_mode_cls();
-			}
-#ifdef UART_ENABLE
-			sys_printf(" USB_DISK  DECODE_MSG_DISK_ERR");
-#endif
-		
-			if((get_device_online_status()&0x01)>0){
-				
-		     		Set_Curr_Func(SYS_MP3DECODE_SD);
-	        		given_device = BIT(SDMMC);
-#ifdef USB_STOP_MODE_AFTER_TOC
-		 		toc_ready_stop=1;
-#endif							
-	        		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
-			}
-			else{
-				Disp_Con(DISP_NODEVICE);
-
-			}
-	 	}
-
-	 	else if(device_active==BIT(SDMMC)){
-
-			if((get_device_online_status()&0x01)==0){
-				stop_decode();
-				usb_prog_mode_cls();
-			}
-
-#ifdef UART_ENABLE
-			sys_printf(" SDMMC  DECODE_MSG_DISK_ERR");
-#endif
-			
-			if((get_device_online_status()&0x02)>0){
-				
-		     		Set_Curr_Func(SYS_MP3DECODE_USB);
-	        		given_device = BIT(USB_DISK);
-#ifdef USB_STOP_MODE_AFTER_TOC
-		 		toc_ready_stop=1;
-#endif							
-	        		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
-			}
-			else{
-				Disp_Con(DISP_NODEVICE);
-
-			}
-	 	}		
 		if((get_device_online_status()&0x03)==0){
 			stop_decode();
+			Disp_Con(DISP_NODEVICE);			
 		}
             	break;
 
@@ -760,12 +853,39 @@ void music_play(void)
         case INFO_NEXTMODE:                     ///<下一个模式
 		//work_mode = SYS_IDLE;
             //return;
-#ifdef NO_DEV_SHOW_NO_DEV
+#ifdef UART_ENABLE
+		sys_printf(" INFO_NEXTMODE");
+#endif
 		Disp_Con(DISP_NODEVICE);
-#else
-             	Disp_Con(DISP_RTC);
-		disp_scenario = DISP_RTC_SCEN;
-#endif		
+
+		delay_10ms(100);
+
+#ifdef UART_ENABLE
+    printf(" --ddddddd---> INFO_NEXTMODE	%x \r\n",(u16)device_active);
+#endif
+
+#ifdef SYS_GPIO_SEL_FUNC
+	     	 if( gpio_sel_func){				
+      			put_msg_lifo(INFO_NEXT_SYS_MODE);
+			break;
+		 }
+#endif
+
+		if(device_active==0){
+
+			if((get_device_online_status()&0x01)>0){
+
+		     		Set_Curr_Func(SYS_MP3DECODE_SD);
+	        		Disp_Con(DISP_SD);
+				delay_10ms(80);
+	        		given_device = BIT(SDMMC);
+#ifdef USB_STOP_MODE_AFTER_TOC
+		 		toc_ready_stop=1;
+#endif							
+	        		put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);				
+			}
+		}
+	
 		break;
         case INFO_PLAY | KEY_SHORT_UP :
 			
@@ -775,7 +895,7 @@ void music_play(void)
 			break;
 		}
 #endif		
-		if((get_device_online_status()&0x03)==0){
+	     if((get_device_online_status()&0x03)==0){
 			break;
 	     }		
             if (DISP_DWORD_NUMBER == curr_menu)
@@ -784,7 +904,17 @@ void music_play(void)
 			put_msg_fifo(INFO_PICK_SONG | KEY_SHORT_UP);
                 	break;
             }
+
+	     	if(play_sel_flag){
+
+			play_sel_flag=0;
 			
+			play_status = MUSIC_PLAY;
+			Disp_Con(DISP_PLAY);			
+                	put_msg_lifo(INIT_PLAY);
+			
+			break;
+	     	}			
             if (play_status == MUSIC_PAUSE)
             {
 			play_status = MUSIC_PLAY;
@@ -820,7 +950,7 @@ void music_play(void)
 				usb_play_prog_mode=0;
 			}
 			else{
-					given_file_number=1;
+					//given_file_number=1;
 
 			}
 #endif
@@ -858,8 +988,8 @@ void music_play(void)
 
 #ifdef SYS_GPIO_SEL_FUNC
 	     	if( gpio_sel_func){				
-      			put_msg_lifo(INFO_NEXT_SYS_MODE);
-			break;
+      			//put_msg_lifo(INFO_NEXT_SYS_MODE);
+			//break;
 		 }
 #endif
 
@@ -946,6 +1076,7 @@ void music_play(void)
             }
 		if(DISP_STOP== curr_menu){
 
+			if(usb_sd_dev_toc)
                        Disp_Con(DISP_STOP);
 		}
 #endif
@@ -973,6 +1104,11 @@ void music_play(void)
                             Disp_Con(DISP_PLAY);
                     }
 		      else if(play_status== MUSIC_STOP){
+
+				if(usb_sd_dev_toc==0){
+					Disp_Con(DISP_NODEVICE);
+					break;
+				}
 
                         if (curr_menu != DISP_STOP)
                             Disp_Con(DISP_STOP);
@@ -1157,19 +1293,28 @@ void decode_play(void)
 #ifdef UART_ENABLE
 	sys_printf(" SYS GO IN DECODE MODE");
 #endif
+	play_sel_flag=0;
     	device_active = 0;
-
+	usb_sd_dev_toc=0;
 	folder_select=0;
 	folder_mode_select=0;
 	rtc_setting=0;
 	disp_scenario = DISP_NORMAL;
 
-	if(get_device_online_status()==0x00){
-		Disp_Con(DISP_NODEVICE);
+	given_device = BIT(USB_DISK);
+	Disp_Con(DISP_USB);
+	delay_10ms(80);
+
+	//Disp_Con(DISP_SCAN_DISK);
+	//delay_10ms(100);
+
+#ifdef SYS_GPIO_SEL_FUNC
+	if( gpio_sel_func){
+		gpio_sel_func=0;		
+		return;
 	}
-	else{
-		Disp_Con(DISP_SCAN_DISK);
-	}
+#endif
+	
 	sysclock_div2(1);
 #ifndef NO_SD_DECODE_FUNC	
     	sd_speed_init(0, 50);
@@ -1183,11 +1328,16 @@ void decode_play(void)
 	 toc_ready_stop=1;
 #endif
 
+    	flush_all_msg();
+
     	put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
 	set_max_vol(MAX_ANALOG_VOL-DECODE_ANALOG_VOL_CUT, MAX_DIGITAL_VOL);			//设置Music模式的音量上限
     //suspend_sdmmc();
 	music_play();
 
+   	mode_switch_protect_bit=1;
+
+	usb_sd_dev_toc=0;
 
 #ifdef UART_ENABLE
 	sys_printf(" END OF DECODE MODE");

@@ -123,40 +123,41 @@ void P0IE_ctl(u8 sel, u8 dat)
 	}
 	P0IE = bP0IE;		
 }
+
+bool mode_switch_protect_bit=0;
+
 #ifdef SYS_GPIO_SEL_FUNC
 bool gpio_sel_func=0;
+xd_u8 sel_work_mode=0;
 void gpio_sel_func_mode()
 {
-
+	if(mode_switch_protect_bit)return;
+	
 	GPIO_SEL_FUNC_GPIO_INIT();
 	_nop_();
+
+	    if (GPIO_SEL_FUNC_GPIO_READ)
+	    {
+
+	        if (work_mode!= SYS_MCU_CD)
+	        {
+	        		sel_work_mode=SYS_MCU_CD;
+				gpio_sel_func=1;
+	      			put_msg_lifo(INFO_NEXT_SYS_MODE);	   
+	        }
+	    }
+	    else
+	    {
+
+	            if (work_mode == SYS_MCU_CD)
+	            {
+	            	       sel_work_mode=SYS_MP3DECODE_USB;
+				gpio_sel_func=1;		
+	      			put_msg_lifo(INFO_NEXT_SYS_MODE);	   
+	            }
+	    }	
+
 	
-	if(GPIO_SEL_FUNC_GPIO_READ){
-
-		if(work_mode!= HIGH_LEVEL_SEL_MODE){
-			gpio_sel_func=1;
-			Set_Curr_Func(HIGH_LEVEL_SEL_MODE);
-      			put_msg_lifo(INFO_NEXT_SYS_MODE);	   
-		}
-	}
-	else{
-
-		if(work_mode> SYS_MP3DECODE_SD){
-			gpio_sel_func=1;		
-			
-			if((get_device_online_status()&0x01)>0){
-
-				Set_Curr_Func(SYS_MP3DECODE_SD);
-
-			}
-			else{
-
-				Set_Curr_Func(LOW_LEVEL_SEL_MODE);
-
-			}
-      			put_msg_lifo(INFO_NEXT_SYS_MODE);	   
-		}
-	}
 }
 #endif
 
@@ -329,6 +330,10 @@ void timer1isr(void)
 	 }	 
 #endif
 
+#ifdef SYS_GPIO_SEL_FUNC
+	     gpio_sel_func_mode();
+#endif
+
         if (ms_cnt ==  50)
         {
             ms_cnt = 0;
@@ -336,9 +341,6 @@ void timer1isr(void)
             LDO_IN_Volt=ldoin_voltage();
 #ifdef USE_RTC_ALARM_FUNCTION
             check_alm();
-#endif
-#ifdef SYS_GPIO_SEL_FUNC
-	     gpio_sel_func_mode();
 #endif
 #ifdef ADKEY_SELECT_MODE
 	    ad_mod_sel_hdlr();
@@ -449,6 +451,9 @@ void sys_init(void)
     uartInit();
     printf("power up \r\n");
  #endif
+ 
+ if(work_mode == SYS_MP3DECODE_USB)
+	Disp_Con(DISP_USB);
 
 #if RTC_ENABLE
     if (init_rtc())
@@ -497,6 +502,9 @@ void sys_init(void)
 /*----------------------------------------------------------------------------*/
 void sys_info_init(void)
 {
+ if(work_mode == SYS_MP3DECODE_USB)
+	Disp_Con(DISP_USB);
+ 
     delay_10ms(80);            	      //保证U盘/SD卡能有足够时间通过在线检测,稳定接入
     dac_init(); 
 #if DEVICE_ENCRYPTION
@@ -731,8 +739,8 @@ void main(void)
 #ifdef ALARM_USE_MULTI_SOURCE_FUNC
 	alarm_power_on_protect=0;
 #endif
-#ifdef ADKEY_SELECT_MODE
-   	mode_switch_protect_bit=1;
+#if 1//def ADKEY_SELECT_MODE
+   	mode_switch_protect_bit=0;
 #endif
 	sys_clock_pll();//(MAIN_CLK_PLL);
 #ifdef USE_POWER_KEY
@@ -759,8 +767,13 @@ void main(void)
 
 #ifdef SYS_GPIO_SEL_FUNC
 	//gpio_sel_func_mode();
-#endif
+	delay_10ms(2);
+	if(sel_work_mode!=0){
 
+		work_mode =sel_work_mode;
+	}
+#endif
+	
 #ifdef UART_ENABLE
     	printf("------->- SYS INIT   work_mode:%d   \r\n",(u16)work_mode);
 #endif

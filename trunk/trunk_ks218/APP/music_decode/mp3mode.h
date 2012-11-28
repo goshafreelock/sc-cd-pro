@@ -30,54 +30,27 @@
 
 #define FAST_FARWORD_STEP	5
 
-#ifdef USE_CD_MCU_MASTER_FUNC
-#ifdef JK_CD_ZG_KS218_V001
 typedef enum
 {
     REPEAT_ONE=0,
+    REPEAT_FOLDER,    		
     REPEAT_ALL,
     REPEAT_RANDOM,    
     REPEAT_OFF,    
-    REPEAT_FOLDER,    
     REPEAT_INTRO,       
 
     REPEAT_HEAD=REPEAT_ONE,
     REPEAT_END=REPEAT_OFF,    
 }PLAY_MODE;
-#else
-typedef enum
-{
-    REPEAT_ALL = 0,
-    REPEAT_ONE,
-    REPEAT_OFF,    
-    REPEAT_RANDOM,
-    REPEAT_FOLDER,    
-    REPEAT_INTRO,  
 
-    REPEAT_HEAD=REPEAT_ALL,
-    REPEAT_END=REPEAT_RANDOM,
-
-	
-}PLAY_MODE;
-#endif
-
-#else
-typedef enum
-{
-    REPEAT_ALL = 0,
-    REPEAT_ONE,
-    REPEAT_FOLDER,    
-    REPEAT_RANDOM,
-
-}PLAY_MODE;
-#endif
 
 enum 							//config command
 {
-    MUSIC_PAUSE = 0,				//播放暂停
+    MUSIC_PAUSE = 1,				//播放暂停
 	MUSIC_PLAY,					//正在播放中
 	MUSIC_FF_FR,					//快进快退
 	MUSIC_STOP,					   //解码停止
+	MUSIC_TOC,					   //解码停止
 };
 
 void decode_play(void);
