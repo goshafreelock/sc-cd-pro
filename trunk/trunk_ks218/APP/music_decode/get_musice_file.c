@@ -74,7 +74,7 @@ void get_music_file1(u8 dir)
         }
     }
 
-#ifdef UART_ENABLE
+#ifdef GETFILE_UART_ENABLE
     printf(" ---> get_music_file1	%x \r\n",(u16)dir);
 #endif
 	
@@ -84,7 +84,7 @@ void get_music_file1(u8 dir)
 
 	 if(repeat_off_flag){
 
-#ifdef UART_ENABLE
+#ifdef GETFILE_UART_ENABLE
 		sys_printf(" REPEAT_OFF");
 #endif
 		folder_mode_select=0;
@@ -135,7 +135,7 @@ void get_music_file1(u8 dir)
 		fs_getfile_bynumber(given_file_number);
 	    	Disp_Con(DISP_FILENUM);	
 		
-#ifdef UART_ENABLE
+#ifdef GETFILE_UART_ENABLE
     printf(" ---> given_file_number	%x \r\n",(u16)given_file_number);
 #endif
 
@@ -209,7 +209,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 
    // given_file_number = fs_msg.fileNumber;
 
-#ifdef UART_ENABLE
+#ifdef GETFILE_UART_ENABLE
     printf(" ---> PLAY_MODE	%x \r\n",(u16)playmode);
     printf(" ---> fs_msg.fileNumber	%4u \r\n",(u16)fs_msg.fileNumber);
     printf(" ---> given_file_number	%4u \r\n",(u16)given_file_number);
@@ -250,7 +250,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 
     case REPEAT_ALL:
 
-#ifdef UART_ENABLE
+#ifdef GETFILE_UART_ENABLE
 	       printf(" ----->REPEAT_ALL  -- \r\n");
 #endif
 		
@@ -302,7 +302,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 
     case REPEAT_OFF:
 
-#ifdef UART_ENABLE
+#ifdef GETFILE_UART_ENABLE
 	       printf(" ----->REPEAT_OFF  -- \r\n");
 #endif
 		
@@ -360,7 +360,7 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
         }
         break;	
     case REPEAT_FOLDER:
-#ifdef UART_ENABLE
+#ifdef GETFILE_UART_ENABLE
 	       printf(" ----->REPEAT_FOLDER  -- \r\n");
 #endif
 		
@@ -403,7 +403,7 @@ void select_folder_file(u8 cmd)
     }
     given_file_number= get_dir_file(cmd);                //查找错误，文件序号已经超出当前设备的范围(也有可能是当前设备已经不存在)
 
-#ifdef UART_ENABLE
+#ifdef GETFILE_UART_ENABLE
     printf(" ---> select_folder_file	given_file_number  :%4u \r\n",(u16)given_file_number);
     printf(" ---> fs_msg.dirTotal		%4u \r\n",(u16)fs_msg.dirTotal);
 #endif
