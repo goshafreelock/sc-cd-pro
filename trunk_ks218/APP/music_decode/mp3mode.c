@@ -211,11 +211,11 @@ bool get_prog_song_num(u8 get_Mode)
 
 	given_file_number =usb_prog_tab[usb_play_prog_index];
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
     printf(" ---> 1111	get_prog_song_num	IDX%x    FILE NUM %x  \r\n",(u16)usb_play_prog_index,(u16)usb_prog_total_num);
 #endif
 	
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
     printf(" ---> 2222	get_prog_song_num	%x \r\n",(u16)given_file_number);
 #endif
 
@@ -243,7 +243,7 @@ void usb_prog_mode_cls()
 {
 	if(usb_play_prog_mode||usb_prog_icon_bit){
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 	sys_printf("  STOP usb_prog_mode_cls ");
 #endif
 
@@ -270,7 +270,7 @@ void usb_prog_hdlr(u8 key)
 
 				exchange_disp=1;
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
     printf(" ---> usb_prog_hdlr	%x \r\n",(u16)usb_prog_total_num);
 #endif
 				Disp_Con(DISP_PROG_FILENUM);
@@ -385,7 +385,7 @@ void stop_decode(void)
     disable_decode_isr();
     disable_softint();
     cfilenum = 0;
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 	sys_printf("  STOP DECODE ");
 #endif
 	
@@ -475,7 +475,7 @@ bool start_decode(void)
     {
       delay_10ms(5);
     }
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
     printf(" ---> device_active	%x \r\n",(u16)device_active);
 #endif
 	
@@ -484,7 +484,7 @@ bool start_decode(void)
 }
 void device_auto_select()
 {
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
     printf(" -----> device_auto_select	%x \r\n",(u16)device_active);
 #endif
 
@@ -494,7 +494,7 @@ void device_auto_select()
 				stop_decode();
 				usb_prog_mode_cls();
 			}
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 			sys_printf(" USB_DISK  DECODE_MSG_DISK_ERR");
 #endif
 		
@@ -522,7 +522,7 @@ void device_auto_select()
 				usb_prog_mode_cls();
 			}
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 			sys_printf(" SDMMC  DECODE_MSG_DISK_ERR");
 #endif
 			
@@ -599,7 +599,7 @@ void music_play(void)
 			}
 			else{
 				key = 0xFF;				
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
     					printf(" ---> erp2_func_pwrdn DISP_POWER_OFF\r\n");
 #endif
 
@@ -614,13 +614,13 @@ void music_play(void)
 		gpio_sel_func=0;
 #endif
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
     printf(" -USB ---USB----> INFO_NEXT_SYS_MODE	%x \r\n",(u16)sel_work_mode);
 #endif
 
 		Set_Curr_Func(sel_work_mode);
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 	sys_printf("---USB---------->> DECODE INFO_NEXT_SYS_MODE");
 #endif
 
@@ -646,7 +646,7 @@ void music_play(void)
 			given_file_number =1;
 			toc_ready_stop=0;
 			play_dir_tatol = fs_msg.dirTotal;
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 			sys_printf(" INIT_PLAY: toc_ready_stop");
 #endif
 			
@@ -691,7 +691,7 @@ void music_play(void)
         
 	   	//mode_switch_protect_bit=1;
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 		sys_printf(" SEL_GIVEN_DEVICE_GIVEN_FILE");
 #endif
 		
@@ -821,7 +821,7 @@ void music_play(void)
 		break;
 
         case DECODE_MSG_DISK_ERR:
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 			sys_printf(" DECODE_MSG_DISK_ERR");
 #endif
 			
@@ -842,7 +842,7 @@ void music_play(void)
 		else
 		{	
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 			sys_printf(" DECODE_MSG_FILE_END");
 #endif
 		
@@ -853,14 +853,14 @@ void music_play(void)
         case INFO_NEXTMODE:                     ///<下一个模式
 		//work_mode = SYS_IDLE;
             //return;
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 		sys_printf(" INFO_NEXTMODE");
 #endif
 		Disp_Con(DISP_NODEVICE);
 
 		delay_10ms(100);
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
     printf(" --ddddddd---> INFO_NEXTMODE	%x \r\n",(u16)device_active);
 #endif
 
@@ -1184,7 +1184,7 @@ void music_play(void)
                 	play_mode = REPEAT_HEAD;
             	}
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
     printf(" ---> INFO_PLAY_MODE	%x \r\n",(u16)play_mode);
 #endif
 				
@@ -1290,7 +1290,7 @@ _HOT_KEY_HDLR:
 /*----------------------------------------------------------------------------*/
 void decode_play(void)
 {
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 	sys_printf(" SYS GO IN DECODE MODE");
 #endif
 	play_sel_flag=0;
@@ -1339,7 +1339,7 @@ void decode_play(void)
 
 	usb_sd_dev_toc=0;
 
-#ifdef UART_ENABLE
+#ifdef USB_UART_ENABLE
 	sys_printf(" END OF DECODE MODE");
 #endif
 

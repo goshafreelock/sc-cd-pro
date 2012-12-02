@@ -55,7 +55,7 @@ extern xd_u8 sw_ver_disp;
 extern xd_u8 sel_work_mode;
 #ifdef USE_PROG_PLAY_MODE
 bool play_prog_mode=0,prog_icon_bit=0,cd_exchange_disp=0;
-xd_u8 prog_total_num=0,prog_cur_num=0;
+xd_u8 prog_total_num=0,prog_cur_num=0,prog_first_num=0;
 
 #endif
 
@@ -73,7 +73,7 @@ void master_push_cmd(u8 cmd)
 
 		send_buf|=cmd_reg<<8;
 	}	
-#ifdef UART_ENABLE	
+#ifdef CD_UART_ENABLE	
 	printf("----------------->> master_push_cmd   %x    \r\n",send_buf);
 #endif
 }
@@ -88,7 +88,7 @@ u8 master_pop_cmd(void)
 		if(send_buf==0){
 			send_buf_cmd=0;
 		}
-#ifdef UART_ENABLE	
+#ifdef CD_UART_ENABLE	
 	   	printf("----------------->> master_pop_cmd   %x     \r\n",(u16)r_reg);	
 #endif
 	}
@@ -112,7 +112,9 @@ void mcu_master_init()
 	cfilenum =0;
 	given_file_number=1;
 	cd_exchange_disp=0;
-
+	next_prev_key=0;
+	prog_first_num =0;
+	
  	info_timer_1=0;
 	info_timer_2=0;
 	info_timer_3=0;
@@ -259,7 +261,7 @@ void mcu_master_info_hdlr()
 					//else 
 					if(cd_play_status!=MUSIC_STOP||(next_prev_key)){
 
-						if(next_prev_key)next_prev_key=0;
+						//if(next_prev_key)next_prev_key=0;
 		                    		Disp_Con(DISP_FILENUM);	
 					}
 				}
@@ -320,14 +322,16 @@ void mcu_master_info_hdlr()
 			
 		}
 //4 end  get cur play time		
+#ifdef CD_UART_ENABLE
 		
 	//for(rev_loop=0;rev_loop<9;rev_loop++)
 		//printf("----------------------------------%x  ----rev  %x \r\n",(u16)rev_loop,(u16)rev_buf[rev_loop]);
 		//printf("----------------------------------%x  ----rev  %x \r\n",(u16)rev_loop,(u16)rev_buf[0]);
-		//printf("----------------------------------9  ----rev  %u \r\n",(u16)rev_buf[8]);
-		//printf("---------------------------------A  ----rev  %u \r\n",(u16)rev_buf[9]);
+		printf("----------------------------------9  ----rev  %u \r\n",(u16)rev_buf[2]);
+		printf("---------------------------------A  ----rev  %u \r\n",(u16)rev_buf[9]);
 		//printf("---------------------------------B ----rev  %x \r\n",(u16)rev_buf[0]);
-		clr_rev_buf();
+		//clr_rev_buf();
+#endif		
 	}
 }
 void mcu_master_rev()
@@ -384,6 +388,8 @@ void prog_play_init()
 	prog_cur_num=0;	
 	play_prog_mode=1;
 	cd_exchange_disp=1;
+	prog_first_num =0;
+	
 	//my_memset(&prog_file_tab[0], 0x0, 20);
 	master_push_cmd(MEM_CMD);
 	Disp_Con(DISP_PROG_FILENUM);
@@ -413,6 +419,11 @@ void prog_hdlr(u8 key)
 
 			if((prog_cur_num!=0)&&(cd_exchange_disp==0)){
 				//prog_cur_num=0;	
+
+				if(prog_first_num==0){
+
+					prog_first_num=rev_buf[9];
+				}
 				cd_exchange_disp=1;
 				master_push_cmd(MEM_CMD);
 			}
@@ -507,7 +518,7 @@ void mcu_hdlr( void )
 			gpio_sel_func=0;
 #endif
 
-#ifdef UART_ENABLE
+#ifdef CD_UART_ENABLE
     printf(" ---CD----CD  ---> INFO_NEXT_SYS_MODE	%x \r\n",(u16)sel_work_mode);
 #endif
 
@@ -531,6 +542,8 @@ void mcu_hdlr( void )
 
 			       play_mode = REPEAT_OFF;
 				play_prog_mode=0;
+				if(prog_first_num>0)
+				prog_icon_bit=1;
 			}
 #endif			
 			if(cd_play_status== MUSIC_PLAY){
@@ -552,9 +565,17 @@ void mcu_hdlr( void )
 			       Mute_Ext_PA(UNMUTE);
 				cd_play_status=MUSIC_PLAY;
 
-				if(!next_prev_key)
+				if(next_prev_key){
+					next_prev_key=0;					
+				}
+				else if(prog_icon_bit||play_prog_mode){
+					rev_buf[2]=0;
+					given_file_number =prog_first_num;						
+				}
+				else{
+					rev_buf[2]=0;
 					given_file_number =1;	
-				
+				}
 		              Disp_Con(DISP_FILENUM);					
 				master_push_cmd(PLAY_RESUME_CMD);
 			}			
@@ -575,6 +596,7 @@ void mcu_hdlr( void )
 				prog_cur_num=0;	
 #endif
 				//given_file_number =1;	
+				next_prev_key=0;					
 
 			       play_mode = REPEAT_OFF;
 			       Mute_Ext_PA(MUTE);
@@ -615,7 +637,7 @@ void mcu_hdlr( void )
 				
 #ifdef USE_PROG_PLAY_MODE
 				
-			if((cd_play_status== MUSIC_STOP)	&&toc_flag){
+			if((cd_play_status== MUSIC_STOP)	&&toc_flag&&(!prog_icon_bit)){
 				prog_play_init();
 			}	
 #endif
@@ -667,7 +689,7 @@ void mcu_hdlr( void )
 				master_push_cmd(INTRO_ON_CMD);
 			}		
 #endif
-#ifdef UART_ENABLE
+#ifdef CD_UART_ENABLE
 	    		printf("------->> play_mode   %x---%x \r\n",(u16)send_buf,(u16)play_mode);
 #endif			
 			break;			
@@ -777,7 +799,7 @@ void mcu_hdlr( void )
 /*----------------------------------------------------------------------------*/
 void mcu_main_hdlr(void)
 {
-#ifdef UART_ENABLE
+#ifdef CD_UART_ENABLE
 	sys_printf(" SYS GO IN CD .. MODE");
 #endif
 
@@ -830,7 +852,7 @@ void mcu_main_hdlr(void)
 #endif				
 
     	play_mode=REPEAT_OFF;
-#ifdef UART_ENABLE
+#ifdef CD_UART_ENABLE
 	sys_printf(" END  OF   CD .. MODE");
 #endif
 	

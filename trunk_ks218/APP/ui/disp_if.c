@@ -964,16 +964,17 @@ void custom_buf_update(void)
 
 
 				if(prog_icon_bit){
+
 					disp_icon(ICON_PROG);
 				}
 				else{
-
 					disp_clr_icon(ICON_PROG);
 				}			
 			}
 			else
 #endif
 			{
+				disp_clr_flash_icon(ICON_PROG);
 				disp_icon(ICON_PROG);
 			}
 		}
