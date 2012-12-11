@@ -266,7 +266,12 @@ u8 ap_handle_hotkey(u8 key)
    
     case MSG_USB_DISK_OUT: 
 	 Remov_Func_From_List(USB_DEV);
-	 
+
+#ifdef SYS_GPIO_SEL_FUNC
+	 if(work_mode ==SYS_MCU_CD){	
+		break;
+	 }
+#endif	 
 	 if(device_active==BIT(USB_DISK)){
 		stop_decode();
 		usb_prog_mode_cls();
@@ -293,6 +298,12 @@ u8 ap_handle_hotkey(u8 key)
         break;
     case MSG_SDMMC_OUT:
 	 Remov_Func_From_List(SD_DEV);
+
+#ifdef SYS_GPIO_SEL_FUNC
+	 if(work_mode ==SYS_MCU_CD){	
+		break;
+	 }
+#endif	 
 
 	 if(device_active==BIT(SDMMC)){
 
