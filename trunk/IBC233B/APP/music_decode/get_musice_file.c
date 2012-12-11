@@ -31,6 +31,7 @@ extern bool usb_prog_icon_bit;
 extern xd_u8 usb_prog_tab[20];
 extern bool get_prog_song_num(u8 get_Mode);
 #endif
+#ifdef USE_USB_SD_DECODE_FUNC	       
 
 /*----------------------------------------------------------------------------*/
 /**@brief   获取一个随机数
@@ -348,6 +349,7 @@ void select_folder_file(u8 cmd)
     given_file_number= get_dir_file(cmd);                //查找错误，文件序号已经超出当前设备的范围(也有可能是当前设备已经不存在)
     put_msg_lifo(INIT_PLAY);
 }
+#endif
 #endif
 
 

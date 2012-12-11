@@ -37,6 +37,14 @@ void init_fm_rev(void);
 bool set_fre(u16 fre, u8 mode);
 void fm_rev_powerdown(void);
 void save_fre(u16 fre);
+
+u16 radio_chip_get_id();
+void radio_chip_init();
+void radio_chip_standby();
+void radio_set_band_info();
+void radio_switch_band_mode(u8 b_mode);
+void radio_chip_set_freq(u8 mode,bool disp_pro);
+bool radio_chip_valid_stop(u16 freq_reg);
 #endif
 
 #endif

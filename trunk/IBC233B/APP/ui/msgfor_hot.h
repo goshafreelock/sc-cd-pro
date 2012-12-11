@@ -47,6 +47,10 @@ typedef enum{
 
 	AUX_DEV,
 
+#ifdef USE_BLUE_TOOTH_FUNC			
+	BT_DEV,
+#endif
+
 #if defined(IPONE_INDEPENDENT_MODE)	
 	IPH_DEV,
 #endif	

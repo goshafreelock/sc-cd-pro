@@ -961,6 +961,11 @@
               <FileType>1</FileType>
               <FilePath>.\fm_receive\KT_AMFMdrv.c</FilePath>
             </File>
+            <File>
+              <FileName>RDA_FM_drv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\fm_receive\RDA_FM_drv.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

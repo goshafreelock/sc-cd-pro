@@ -45,10 +45,10 @@ extern bool prog_icon_bit,play_prog_mode,prog_disp_srn;
 
 
 #ifdef USE_USB_PROG_PLAY_MODE
-extern bool usb_play_prog_mode,usb_prog_icon_bit,toc_flag;
+extern bool usb_play_prog_mode,usb_prog_icon_bit;
 extern xd_u8 usb_prog_total_num,usb_prog_cur_num;
 #endif
-
+extern bool toc_flag;
 
 #ifdef RADIO_ST_INDICATOR
 extern bool radio_st_ind;
@@ -252,10 +252,11 @@ void Disp_Playmode_icon()
 	if(prog_icon_bit||play_prog_mode){
 		return;
 	}
+#ifdef USE_USB_SD_DECODE_FUNC	       
 	if(usb_play_prog_mode||usb_prog_icon_bit){
 		return;
 	}
-
+#endif
 	if(play_mode==REPEAT_ALL){
 	    disp_icon(ICON_REP_ALL);
 	}

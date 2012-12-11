@@ -3,6 +3,8 @@
 #ifndef _KT_AMFMDRV_H_
 #define _KT_AMFMDRV_H_
 
+#ifdef USE_KT_FM_CHIP
+
 #include "iic.h"
 //#include "typedef.h"
 
@@ -187,6 +189,8 @@ typedef struct
 #define SEPARATION_POINT -91
 #define BLEND_POINT -97
 
+
+u16 KT_AMFM_Read_ID(void);
 xd_u8 KT_AMFMPreInit(void);
 xd_u8 KT_AMFMInit(void);
 void KT_AMFMStandby(void);
@@ -242,6 +246,9 @@ void KT_AM_AFC_VolumeSet(xd_u8 afc);			//Input: 0~128
 
 void KT_Bus_Write(xd_u8 Register_Address, xd_u16 Word_Data);
 xd_u16 KT_Bus_Read(xd_u8 Register_Address);
+
+#endif
+
 
 #endif
 

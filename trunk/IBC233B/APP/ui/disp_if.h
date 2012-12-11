@@ -50,6 +50,7 @@ typedef enum
     DISP_USBOUT,
     DISP_SDOUT,
     DISP_AUX,
+    DISP_BT,
     DISP_RTC,
     DISP_ALARM,
     DISP_RTC_PWD,

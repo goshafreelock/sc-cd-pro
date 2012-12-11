@@ -182,10 +182,10 @@ void iic_sendbyte_io(u8 byte) large
    @note    void iic_sendbyte(u8 byte)
 */
 /*----------------------------------------------------------------------------*/
-void iic_sendbyte(u8 byte)
+bool iic_sendbyte(u8 byte)
 {
     iic_sendbyte_io(byte);
-    r_ack();
+    return (r_ack());
 }
 
 

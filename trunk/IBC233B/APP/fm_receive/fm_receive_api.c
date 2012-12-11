@@ -10,6 +10,8 @@
 
 
 #include "fm_api.h"
+#include "KT_AMFMdrv.h"
+#include "RDA_FM_drv.h"
 
 
 extern _xdata u8 fre_preset[];
@@ -20,179 +22,198 @@ extern xd_u16 frequency;                              ///< 当前频率
 extern xd_u8 fre_channl;                              ///< FM收音当前所在的台号
 extern xd_u8 given_device;
 extern _xdata SYS_WORK_MODE  work_mode;
+extern xd_u8 cur_sw_fm_band;
+extern xd_u16 REG_MAX_FREQ,REG_MIN_FREQ;
+extern Str_Band  Current_Band;
 
 extern void KT_AMFMStandby(void);
 extern xd_u8 KT_AMFMWakeUp(void);
 extern void KT_AMFMSetMode(xd_u8 AMFM_MODE);
 extern xd_u8 KT_AMTune(xd_u16 Frequency);
 extern xd_u8 KT_FMTune(xd_u16 Frequency);
-#if 0
-/*----------------------------------------------------------------------------*/
-/**@brief   FM模块初始化接口函数
-   @param
-   @return
-   @note    void init_fm_rev(void)
-*/
-/*----------------------------------------------------------------------------*/
-void init_fm_rev(void)
+extern xd_u8 KT_FMValidStation(xd_u16 Frequency);
+extern xd_u8 KT_AMValidStation(xd_u16 Frequency);
+extern xd_u8 KT_SMValidStation(xd_u16 Frequency);
+extern void KT_Mute_Ctrl(bool m_f);
+
+void save_radio_freq(u16 radio_freq,u8 ch)
 {
+	xd_u8 freq_reg=0;
+
+	freq_reg =(u8)radio_freq&(0x00FF);
+	write_info(ch, freq_reg);
+
+	freq_reg =(u8)(radio_freq>>8);
+	write_info(ch+1, freq_reg);
+}
+u16 read_radio_freq(u8 ch)
+{
+	xd_u16 freq_reg=0;
+
+	freq_reg = read_info(ch+1);
+	freq_reg=freq_reg<<8;
+	freq_reg |= read_info(ch);
+
+	return freq_reg;	
+}
+
+
+
+xd_u16 radio_chip_id=0x0000;
+u16 radio_chip_get_id()
+{
+#ifdef USE_KT_FM_CHIP
+	radio_chip_id = KT_AMFM_Read_ID();
+	if(radio_chip_id== "KT"){
+		return radio_chip_id;
+	}
+#endif
+
+#ifdef USE_RDAs_FM
+	radio_chip_id= RDA5807P_Get_ID();
+	if((radio_chip_id  == RDAFM_ID1)||(radio_chip_id  == RDAFM_ID2)||(radio_chip_id  == RDAFM_ID3)||(radio_chip_id  == RDAFM_ID4)||(radio_chip_id  == RDAFM_ID5)){
+		radio_chip_id  = RDAFM_ID;
+		return radio_chip_id;
+	}
+#endif
+
+}
+void radio_chip_init()
+{
+	if(radio_chip_id== "KT"){
+
+		KT_AMFMWakeUp();
+	}
+
+	if(radio_chip_id== RDAFM_ID){
+
+    		RDA5807P_Intialization();
+
+	}		
+}
+void radio_chip_standby()
+{
+
+	if(radio_chip_id== "KT"){
+
+		KT_AMFMStandby();
+	}
+
+	if(radio_chip_id== RDAFM_ID){
+
+		RDA5807P_PowerOffProc();
+
+	}	
+}
+void radio_set_band_info()
+{
+	if(radio_chip_id== "KT"){
+
+		load_band_info();
+	}
+
+	if(radio_chip_id== RDAFM_ID){
+
+		cur_sw_fm_band=0;
+
+	}
+}
+void radio_switch_band_mode(u8 b_mode)
+{
+	if(radio_chip_id== "KT"){
+
+		KT_AMFMSetMode(b_mode);	
+	}
+
+	if(radio_chip_id== RDAFM_ID){
+
+		cur_sw_fm_band=0;
+	}
+
+}
+static void set_freq(u16 freq_reg)
+{
+	if(radio_chip_id== "KT"){
+
+	    if(cur_sw_fm_band==0){
+
+			KT_FMTune(frequency);
+	    }
+	    else{
+
+			KT_AMTune(frequency);
+	    }	
+	}
+
+	if(radio_chip_id== RDAFM_ID){
+
+		RDA5807P_ValidStop(freq_reg);
+	}
+}
+void radio_chip_set_freq(u8 mode,bool disp_pro)
+{
+    xd_u8 freq_step =0;
+
+    set_brightness_all_on();
+
+    freq_step = Current_Band.Tune_Step;
 	
-    //init_rda5807();
-}
-/*----------------------------------------------------------------------------*/
-/**@brief   关闭FM模块电源
-   @param
-   @return
-   @note    void fm_rev_powerdown(void
-*/
-/*----------------------------------------------------------------------------*/
-void fm_rev_powerdown(void)
-{
-    //rda5807_poweroff();
-}
-/*----------------------------------------------------------------------------*/
-/**@brief   设置一个FM频点的接口函数
-   @param   fre：频点
-   @return  1：有台；0：无台
-   @note    bool set_fre(u16 fre, u8 mode)
-*/
-/*----------------------------------------------------------------------------*/
-bool set_fre(u16 fre, u8 mode)
-{
-#if SDMMC_CMD_MODE   
-	bit flag;
-	sd_chk_ctl(DIS_SD_CMD_CHK);
-	//flag = set_fre_rda5807(fre, mode);
-	sd_chk_ctl(EN_SD_CMD_CHK);
-	return flag;
-#else
-	//return set_fre_rda5807(fre, mode);
+    if (mode == FM_FRE_INC)
+    {
+        frequency=frequency+freq_step;
+		
+	 if (frequency > REG_MAX_FREQ)
+	     frequency = REG_MIN_FREQ;		
+    }
+    else if (mode == FM_FRE_DEC)
+    {
+        frequency=frequency-freq_step;
+		
+	 if (frequency < REG_MIN_FREQ)
+	      frequency =REG_MAX_FREQ;		
+    }
+    else{
+		
+	    if (frequency > REG_MAX_FREQ)
+	        frequency = REG_MAX_FREQ;
+		
+	    if (frequency < REG_MIN_FREQ)
+	        frequency =REG_MIN_FREQ;
+    }
+	
+    set_freq(frequency);
+	
+    if(disp_pro)	
+	Disp_Con(DISP_FREQ);			
+
+#if 1//def SAVE_BAND_FREQ_INFO
+#ifdef FM_UART_ENABLE
+    printf("------->- set_radio_freq    fre:%4u   \r\n",frequency);
+#endif
+    save_radio_freq(frequency,cur_sw_fm_band*2+MEM_FREQ_BASE);
 #endif
 
 }
-
-/*----------------------------------------------------------------------------*/
-/**@brief    获取一个已经存下的台号
-   @param    flag ：台号
-   @return	 无
-   @note     void get_channl(u8 flag)
-*/
-/*----------------------------------------------------------------------------*/
-void get_channl(u8 flag)
+bool radio_chip_valid_stop(u16 freq_reg)
 {
-    frequency = fre_point[flag-1] + MIN_FRE;
-    if ( frequency > MAX_FRE)
-    {
-        frequency = MIN_FRE;
-    }
-    else if (frequency < MIN_FRE)
-    {
-        frequency = MAX_FRE;
-    }
-   // set_fre_rda5807(frequency,1);
-    write_info(MEM_FRE_CHANNL,fre_channl);
-    write_info(MEM_FRE,frequency - MIN_FRE);
-}
-/*----------------------------------------------------------------------------*/
-/**@brief    全频段搜索
-   @param	 无
-   @return	 返回级数
-   @note     bool scan_fre(void)
-*/
-/*----------------------------------------------------------------------------*/
-bool scan_fre(void)
-{
-    u8 i;
-	u8 key;
-	u8 flag = 0;
-    key_voice_disable = 1;
-    delay_10ms(10);
-    all_channl = 0;
-    frequency = MIN_FRE;
-    my_memset((u8 _xdata*)fre_point,0,30);
-   // rda5807_mute(1);
-	for (i = 0;i <= (1080-MIN_FRE);i++)
-    {
-        //printf("----------- fre %4u -----------------\n",(u16)(fre));
-		do
-		{
-			key = get_msg();
-			switch (key)
-	        {
-		        case INFO_PLAY | KEY_SHORT_UP :
-		            flag = 1;
-					break;
-				case MSG_SDMMC_IN :
-				    given_device = BIT(SDMMC);
-				    put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
-		            work_mode = SYS_MP3DECODE;
-		            flag = 2;
-					break;
-				 case MSG_USB_DISK_IN  :
-			        given_device = BIT(USB_DISK);
-			        put_msg_lifo(SEL_GIVEN_DEVICE_GIVEN_FILE);
-			        work_mode = SYS_MP3DECODE;
-			        flag = 2;
-					break;
-				 case MSG_AUX_IN :
-				    work_mode = SYS_AUX;
-				    flag = 2;
-					break;
-			}
-		}
-		while(0xff != key);
-		if(flag) 	   //跳出搜台循环
-			break;
-        if (set_fre(frequency, 0))
-        {
-       //     rda5807_mute(0);
-			fre_point[all_channl] = i;
-            all_channl++;
-			Disp_Con(DISP_FREQ);
-			delay_10ms(100);
-			//rda5807_mute(1);
-        }
-        Disp_Con(DISP_FREQ);
-        if (all_channl >= MAX_CHANNL)
-        {
-            //deg_str("channl is full\n");
-            break;
-        }
-        frequency++;
-    }
-	//rda5807_mute(0);
-    key_voice_disable = 0;
-    for (i = 0; i < all_channl; i++)
-    {
-        write_info(MEM_CHANNL + i , fre_point[i]);
-    }
-    write_info(MEM_ALL_CHANNL , all_channl);
+	if(radio_chip_id== "KT"){
 
-	if(flag == 2)
-		return 1;			   //跳出FM模式
-	return 0;				   //继续FM模式
-}
-
-/*----------------------------------------------------------------------------*/
-/**@brief   存一个频点为台
-   @param	 需要存储的频点
-   @return	 无
-   @note     void save_fre(u16 fre)
-*/
-/*----------------------------------------------------------------------------*/
-void save_fre(u16 fre)
-{
-    if (all_channl < MAX_CHANNL)
-    {
-        fre_point[all_channl] = fre - MIN_FRE;
-        write_info(MEM_CHANNL + all_channl , fre - MIN_FRE);
-        all_channl++;
-    }
-    write_info(MEM_ALL_CHANNL , all_channl);
-    //delay_10ms(3);
-
-    //delay_10ms(3);
-    fre_channl = all_channl;
-    get_channl(fre_channl);
-}
+	    if(cur_sw_fm_band==0){
+		return KT_FMValidStation(freq_reg);
+	    }
+	    else if(cur_sw_fm_band==1){
+		return KT_AMValidStation(freq_reg);
+	    }
+#ifdef MULTI_BAND_KT_0915_IN_USE	
+	    else{
+		return KT_SMValidStation(freq_reg);
+	    }
 #endif
+		return 0;
+	}
+
+	if(radio_chip_id== RDAFM_ID){
+
+		RDA5807P_ValidStop(freq_reg);
+	}
+}

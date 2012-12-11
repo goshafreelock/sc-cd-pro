@@ -72,7 +72,7 @@ void s_ack(u8 flag);
 u8 iic_revbyte_io( void ) large;
 u8 iic_revbyte( u8 para ) large;
 void iic_sendbyte_io(u8 byteI2C) large;
-void iic_sendbyte(u8 byte);
+bool iic_sendbyte(u8 byte);
 
 void  iic_write(u8 chip_id,u8 iic_addr,u8 *iic_dat,u8 n) large;
 void iic_readn(u8 chip_id,u8 iic_addr,u8 *iic_dat,u8 n) large;
@@ -80,7 +80,19 @@ void iic_readn(u8 chip_id,u8 iic_addr,u8 *iic_dat,u8 n) large;
 
 u8 read_eerom(u8 iic_addr);
 void write_eerom(u8 addr,u8 dat);
+
+u16 OperationRDAFM_2w(u8 operation,u8 *R_T_data,u8 numBytes);
+u8 RDAFM_write_data(u8 regaddr, u16 *Tdata, u8 datalen);
+u8 RDAFM_read_data(u8 regaddr, u16 *Rdata, u8 datalen);
 #endif
+
+#define READ			1
+#define WRITE		0
+#define ADRW 		0x20
+#define ADRR 		0x21
+#define FM_SINGLE_REG_ADRW	0x22
+#define FM_SINGLE_REG_ADRR 	0x23
+
 
 #define IIC_DELAY_DEFAULT 30
 
