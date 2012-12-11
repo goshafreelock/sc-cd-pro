@@ -100,7 +100,20 @@ void clr_rev_buf()
 }
 static u8 info_timer_1=0,info_timer_2=0,info_timer_3=0;
 static u8 info_timer_play=0,info_timer_stop=0,info_timer_4=0;
+void clr_flick_timer()
+{
 
+ 	info_timer_1=0;
+	//info_timer_2=0;
+	info_timer_3=0;
+
+	info_timer_play=0;
+	info_timer_stop=0;
+	info_timer_4=0;
+
+	cfilenum=0;	
+	rev_buf[5]=0;
+}
 void mcu_master_init()
 {
 	cd_play_status=0;
@@ -218,7 +231,7 @@ void mcu_master_info_hdlr()
 				toc_flag=0;
 				prog_icon_bit=0;
 				play_prog_mode=0;
-				
+				clr_flick_timer();
 			    	play_mode=REPEAT_OFF;
 			    	master_push_cmd(REP_OFF_CMD);					
 			}

@@ -856,8 +856,13 @@ void music_play(void)
 #ifdef USB_UART_ENABLE
 		sys_printf(" INFO_NEXTMODE");
 #endif
+#ifdef SYS_GPIO_SEL_FUNC
+	     	 if( gpio_sel_func){				
+      			put_msg_lifo(INFO_NEXT_SYS_MODE);
+			break;
+		 }
+#endif
 		Disp_Con(DISP_NODEVICE);
-
 		delay_10ms(100);
 
 #ifdef USB_UART_ENABLE
@@ -874,6 +879,13 @@ void music_play(void)
 		if(device_active==0){
 
 			if((get_device_online_status()&0x01)>0){
+
+#ifdef SYS_GPIO_SEL_FUNC
+	  		     	 if( gpio_sel_func){				
+	  	      			put_msg_lifo(INFO_NEXT_SYS_MODE);
+	  				break;
+	  			 }
+#endif
 
 		     		Set_Curr_Func(SYS_MP3DECODE_SD);
 	        		Disp_Con(DISP_SD);
