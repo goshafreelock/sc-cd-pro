@@ -770,7 +770,14 @@ void main(void)
 	        	case SYS_AUX:
 	            		aux_function();
 	            	break;
-#endif			
+#endif	
+
+#ifdef USE_BLUE_TOOTH_FUNC			
+    	        	case SYS_BLUE_TOOTH:
+	            		Blue_tooth_main();
+	            	break;
+#endif
+
 #ifdef USE_RTC_FUNC
 	        	case SYS_RTC:
 	            		rtc_function();

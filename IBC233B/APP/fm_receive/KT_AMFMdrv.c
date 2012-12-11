@@ -51,6 +51,8 @@
 /************************************************************************************/
 #include "Custom_config.h"
 
+#ifdef USE_KT_FM_CHIP
+
 //-----------------------------------------------------------------------------
 // Includes
 //-----------------------------------------------------------------------------
@@ -265,6 +267,16 @@ xd_u8 KT_AMFMPreInit(void)
 	return(1);
 }
 #endif
+u16 KT_AMFM_Read_ID(void)
+{
+	xd_u16 regx=0;
+
+	regx=KT_Bus_Read(0x01);           			//Read Manufactory ID 
+
+	//printf("-->KT_AMFM_Read_ID  %x \r\n ",(u16)regx);
+
+	return regx;
+}
 /************************************************************************************/
 /*函 数 名：KT_AMFMInit													 	 */
 /*功能描述：芯片初始化程序													 */
@@ -2438,6 +2450,8 @@ void KT_AM_AFC_VolumeSet(xd_u8 afc)			//Input: 0~128
 	}
 }
 //-----------AM SOFTMUTE AFC MODE B END-----------// 
+#endif
+
 #endif
 
 #endif

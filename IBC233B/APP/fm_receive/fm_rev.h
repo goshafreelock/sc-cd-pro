@@ -10,6 +10,23 @@
 #ifndef _FM_REV_
 #define _FM_REV_
 
+
+#define RDAFM_ID	0x5888
+#define RDAFM_ID1	0x5801
+#define RDAFM_ID2	0x5802
+#define RDAFM_ID3	0x5803
+#define RDAFM_ID4	0x5804
+#define RDAFM_ID5	0x5808
+
+#define CL6017G_ID	0x0A
+#define BK1080_ID	0x1080
+#define BK1088_ID	0x1080
+#define SP3777_ID	0xA7
+#define QN8035_ID	0x84
+#define KT0830EQ_ID	0xb002
+#define AR1000_ID	0x1010
+
+
 #define MAX_FRE    1080
 #define MIN_FRE	   870
 #define MAX_CHANNL 30

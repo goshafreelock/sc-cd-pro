@@ -200,4 +200,144 @@ void write_info(u8 addr,u8 dat)
 #endif
 }
 
+#if 1
+void  SerialCommStart()
+{
+    iic_start();                    //I2CÆô¶¯
+}
+void  SerialCommStop()
+{
+    iic_stop();                     //I2CÍ£Ö¹
+}
+u8 SerialCommTxByte(u8 Tdata)
+{
+	return iic_sendbyte(Tdata);
+	
+}
+void SerialCommRxByte(u8 *Rdata,u8 ack)
+{
+    u8  byte;
+    byte = iic_revbyte_io();
+    s_ack(ack);
+   *Rdata = byte;
+
+}
+u16 OperationRDAFM_2w(u8 operation, u8 *R_T_data, u8 numBytes)
+{
+	u8 j;
+	u16 acknowledge=0;
+
+/***************************************************
+
+START: make sure here SDIO_DIR =OUT, SCLK = 1,	SDIO = 1
+
+****************************************************/
+  SerialCommStart();
+
+/***************************************************
+
+WRITE CONTROL DATA: make sure here: SLCK = 0; SDIO = 0
+
+****************************************************/
+
+/***************************
+
+CHECK ACK for control word
+
+***************************/
+
+	if(operation == READ)
+		 acknowledge = SerialCommTxByte(ADRR);
+	else 
+		 acknowledge = SerialCommTxByte(ADRW);
+	
+   //printf("---------111>>>operation %x \r\n",acknowledge);
+
+
+/***************************************
+
+WRITE or READ data
+
+****************************************/	
+
+/******************************
+
+CHECK ACK or SEND ACK=0
+
+*******************************/
+
+for(j = 0; j < numBytes; j++, R_T_data++)
+{
+	if(operation == READ)
+	{
+	if(j == (numBytes -1))
+		SerialCommRxByte(R_T_data,1); 
+	else
+		SerialCommRxByte(R_T_data, 0); 
+	}	 
+	else 
+		acknowledge = SerialCommTxByte(*R_T_data);   
+
+   //printf("---------222>>>operation %x \r\n",acknowledge);
+
+}
+/****************************
+
+STOP: make sure here: SCLK = 0
+
+*****************************/
+   SerialCommStop();
+      return acknowledge;
+
+}
+u8 RDAFM_write_data(u8 regaddr, u16 *Tdata, u8 datalen)
+{
+	u8 i=0;
+	u8 acknowledge;
+	
+	SerialCommStart();///start
+	acknowledge=SerialCommTxByte(FM_SINGLE_REG_ADRW);//chip adress
+	acknowledge=SerialCommTxByte(regaddr);
+
+	for(i=0;i<datalen;i++,Tdata++)//data
+	{
+		acknowledge=SerialCommTxByte(*Tdata>>8);
+		acknowledge=SerialCommTxByte(*Tdata);
+	}
+	SerialCommStop();
+	return acknowledge;
+}
+
+//only 5803/5820
+u8 RDAFM_read_data(u8 regaddr, u16 *Rdata, u8 datalen)
+{
+	u8 tempdata;
+	u8 i=0;
+	u8 acknowledge;
+	
+	SerialCommStart();///start
+	acknowledge=SerialCommTxByte(FM_SINGLE_REG_ADRW);//chip adress
+	acknowledge=SerialCommTxByte(regaddr);
+	
+	SerialCommStart();//start
+	SerialCommTxByte(FM_SINGLE_REG_ADRR);//chip adress
+	
+	for( i=0;i<datalen-1;i++,Rdata++)//data
+	{
+		SerialCommRxByte(&tempdata, 0);
+		*Rdata = (tempdata<<8);	
+		SerialCommRxByte(&tempdata, 0);			
+		*Rdata |= tempdata;		
+	}
+	
+	SerialCommRxByte(&tempdata, 0);
+	*Rdata = (tempdata<<8);	
+	SerialCommRxByte(&tempdata, 1);			
+	*Rdata |= tempdata;	
+
+	SerialCommStop();
+	return acknowledge;
+}
+
+#endif
 
