@@ -643,7 +643,7 @@ void music_play(void)
 	
 #ifdef USB_STOP_MODE_AFTER_TOC
 		if(toc_ready_stop){
-			given_file_number =1;
+			given_file_number =0;
 			toc_ready_stop=0;
 			play_dir_tatol = fs_msg.dirTotal;
 #ifdef USB_UART_ENABLE
@@ -736,7 +736,7 @@ void music_play(void)
 		disp_timer=0;
 #endif
 
-		given_file_number=1;
+		given_file_number=0;
 	       play_mode = REPEAT_OFF;
 
 		flush_all_msg();
@@ -966,6 +966,8 @@ void music_play(void)
 
 			}
 #endif
+			if(given_file_number==0)
+				given_file_number=1;				
 			play_status = MUSIC_PLAY;
 
 			Disp_Con(DISP_PLAY);
