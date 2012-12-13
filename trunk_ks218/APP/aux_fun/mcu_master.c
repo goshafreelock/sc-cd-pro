@@ -836,6 +836,8 @@ void mcu_main_hdlr(void)
 
 #ifdef SYS_GPIO_SEL_FUNC
 	if( gpio_sel_func){
+
+	    	CD_PWR_GPIO_OFF();	
 		gpio_sel_func=0;		
 		return;
 	}

@@ -305,9 +305,9 @@
 
 #endif
 
-#define CD_PWR_GPIO_CTRL_INIT()	P0DIR &= ~(BIT(4));P0PU |=BIT(4);
-#define CD_PWR_GPIO_ON()			P04=1
-#define CD_PWR_GPIO_OFF()			P04=0
+#define CD_PWR_GPIO_CTRL_INIT()	//P0DIR &= ~(BIT(4));P0PU |=BIT(4);
+#define CD_PWR_GPIO_ON()			//P04=1
+#define CD_PWR_GPIO_OFF()			//P04=0
 
 #ifdef SYS_GPIO_SEL_FUNC
 #define GPIO_SEL_FUNC_GPIO_INIT()			P0DIR |=(BIT(4));P0PU |=BIT(4);P04 =1
