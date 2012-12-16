@@ -115,7 +115,11 @@ void radio_set_band_info()
 	if(radio_chip_id== RDAFM_ID){
 
 		cur_sw_fm_band=0;
-
+		Current_Band.Band=0;
+		Current_Band.MAX_CH=FM_MAX_CH-1;
+		Current_Band.Tune_Step=10;
+		Current_Band.Seek_Step = 10;	
+		Current_Band.ValidStation_Step =10 ;		
 	}
 }
 void radio_switch_band_mode(u8 b_mode)
@@ -148,6 +152,7 @@ static void set_freq(u16 freq_reg)
 	if(radio_chip_id== RDAFM_ID){
 
 		RDA5807P_ValidStop(freq_reg);
+		RDA5807P_SetMute(FALSE);		
 	}
 }
 void radio_chip_set_freq(u8 mode,bool disp_pro)
@@ -196,6 +201,7 @@ void radio_chip_set_freq(u8 mode,bool disp_pro)
 }
 bool radio_chip_valid_stop(u16 freq_reg)
 {
+	bool ret_var=0;
 	if(radio_chip_id== "KT"){
 
 	    if(cur_sw_fm_band==0){
@@ -214,6 +220,8 @@ bool radio_chip_valid_stop(u16 freq_reg)
 
 	if(radio_chip_id== RDAFM_ID){
 
-		RDA5807P_ValidStop(freq_reg);
+		ret_var = RDA5807P_ValidStop(freq_reg);
+		RDA5807P_SetMute(FALSE);		
+		return ret_var;
 	}
 }

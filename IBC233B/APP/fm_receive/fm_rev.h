@@ -10,6 +10,7 @@
 #ifndef _FM_REV_
 #define _FM_REV_
 
+//#define FM_UART_ENABLE
 
 #define RDAFM_ID	0x5888
 #define RDAFM_ID1	0x5801

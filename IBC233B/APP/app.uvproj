@@ -1036,6 +1036,11 @@
               <FileType>1</FileType>
               <FilePath>.\aux_fun\iic_drv.c</FilePath>
             </File>
+            <File>
+              <FileName>blue_tooth.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\aux_fun\blue_tooth.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

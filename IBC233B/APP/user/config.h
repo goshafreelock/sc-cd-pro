@@ -35,22 +35,28 @@ typedef enum
 #if 1
 typedef enum
 {
+
     SYS_FMREV,
+		
+#ifdef USE_CD_MCU_MASTER_FUNC
+    SYS_MCU_CD,
+#endif
+
+#ifdef USE_BLUE_TOOTH_FUNC			
+    SYS_BLUE_TOOTH,
+#endif
+    
+    SYS_AUX,
+
 #ifdef AM_RADIO_FUNC
     SYS_AMREV,
 #endif
 
-#ifdef USE_CD_MCU_MASTER_FUNC
-    SYS_MCU_CD,
-#endif
+#if 1//def USE_USB_SD_DECODE_FUNC	       
     SYS_MP3DECODE_USB,
     SYS_MP3DECODE_SD,
-
-    SYS_AUX,
-    
-#ifdef USE_BLUE_TOOTH_FUNC			
-    SYS_BLUE_TOOTH,
 #endif
+    
 
 #if defined(IPONE_INDEPENDENT_MODE)	
     SYS_IPH,
@@ -113,7 +119,7 @@ typedef enum
 #define  LCD_DISP  0
 
 /*延时显示时间*/
-#define RETURN_TIME      6
+#define RETURN_TIME      12
 
 /*sd检测模式**/
 #define SDMMC_CMD_MODE   0	  ///<使用SD card 命令查询模式

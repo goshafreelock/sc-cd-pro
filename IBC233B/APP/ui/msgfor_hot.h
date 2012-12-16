@@ -34,22 +34,25 @@ typedef enum {
 typedef enum{
 
 	FM_DEV,
-#ifdef AM_RADIO_FUNC
-    	AM_DEV,
-#endif    	
-	
+
 #ifdef USE_CD_MCU_MASTER_FUNC
 	CD_DEV,
 #endif
-	USB_DEV,
-	SD_DEV,
-
-
-	AUX_DEV,
 
 #ifdef USE_BLUE_TOOTH_FUNC			
 	BT_DEV,
 #endif
+
+	AUX_DEV,
+
+#ifdef AM_RADIO_FUNC
+    	AM_DEV,
+#endif    	
+
+#if 1//def USE_USB_SD_DECODE_FUNC	       	
+	USB_DEV,
+	SD_DEV,
+#endif    	
 
 #if defined(IPONE_INDEPENDENT_MODE)	
 	IPH_DEV,

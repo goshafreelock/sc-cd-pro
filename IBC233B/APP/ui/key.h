@@ -58,7 +58,7 @@ void bmt_hdlr(void);
 #define  INFO_8             0x08
 #define  INFO_9             0x09
 #define  INFO_PLAY          0x0a
-#define  INFO_CH_UP         0x0b
+#define  INFO_PROG         0x0b
 #define  INFO_CH_DOWN       0x0c
 #define  INFO_VOL_PLUS      0x0d
 #define  INFO_VOL_MINUS     0x0e
@@ -206,6 +206,19 @@ void bmt_hdlr(void);
 #define RES_6				24000
 #define RES_7				33000
 #define RES_8				510000
+#elif defined(JK_HEYUAN_RES_VALUE_11_KEYS)
+#define RES_PULL_UP			22000		/// 3.3K
+#define RES_1				0
+#define RES_2				3000
+#define RES_3				6200	
+#define RES_4				9100
+#define RES_5				15000
+#define RES_6				24000
+#define RES_7				33000
+#define RES_8				51000
+#define RES_9				100000
+#define RES_10				220000
+#define RES_11				250000
 #elif defined(CUSTOME_GW_RES_VALUE)
 #define RES_PULL_UP			3300		/// 3.3K
 #define RES_1				0
@@ -245,7 +258,10 @@ void bmt_hdlr(void);
 #define RES_VOLT_5			(((255*RES_6)/(RES_6+RES_PULL_UP)+(255*RES_5)/(RES_5+RES_PULL_UP))/2)
 #define RES_VOLT_6			(((255*RES_7)/(RES_7+RES_PULL_UP)+(255*RES_6)/(RES_6+RES_PULL_UP))/2)
 #define RES_VOLT_7			(((255*RES_8)/(RES_8+RES_PULL_UP)+(255*RES_7)/(RES_7+RES_PULL_UP))/2)
-#define RES_VOLT_NO_KEY	0xF0
+#define RES_VOLT_8			(((255*RES_9)/(RES_9+RES_PULL_UP)+(255*RES_8)/(RES_8+RES_PULL_UP))/2)
+#define RES_VOLT_9			(((255*RES_10)/(RES_10+RES_PULL_UP)+(255*RES_9)/(RES_9+RES_PULL_UP))/2)
+#define RES_VOLT_10			(((255*RES_11)/(RES_11+RES_PULL_UP)+(255*RES_10)/(RES_10+RES_PULL_UP))/2)
+#define RES_VOLT_NO_KEY	0xF8
 #endif
 
 #if defined( CUSTOMER_DEFINED_ADKEY_RESISTOR)
@@ -268,6 +284,9 @@ void bmt_hdlr(void);
 #define ADKEY_RES_5		RES_VOLT_5
 #define ADKEY_RES_6		RES_VOLT_6
 #define ADKEY_RES_7		RES_VOLT_7	
+#define ADKEY_RES_8		RES_VOLT_8	
+#define ADKEY_RES_9		RES_VOLT_9	
+#define ADKEY_RES_10		RES_VOLT_10	
 #define ADKEY_RES_NOKEY		RES_VOLT_NO_KEY	/*NO KEY*/
 #endif
 /*Default adkey value */
@@ -287,10 +306,13 @@ void bmt_hdlr(void);
 #define ADKEY_2		INFO_STOP
 #define ADKEY_3		INFO_NEXT_FIL
 #define ADKEY_4		INFO_PREV_FIL
-#define ADKEY_5		INFO_MODE
+#define ADKEY_5		INFO_PROG
 #define ADKEY_6		INFO_VOL_PLUS
 #define ADKEY_7		INFO_VOL_MINUS
 #define ADKEY_8		INFO_PLAY
+#define ADKEY_9		INFO_PLAY_MODE
+#define ADKEY_10	INFO_MODE
+#define ADKEY_11	INFO_PLAY
 #define ADKEY_NOKEY	NO_KEY
 #endif
 

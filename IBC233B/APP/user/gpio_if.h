@@ -82,7 +82,10 @@
 #define AMP_MUTE_DISABLE() 	 	 P03 = UNMUTE_LEVEL
 #define AMP_MUTE_ENABLE() 	 	 P03 = MUTE_LEVEL
 #elif defined(MUTE_PORT_USE_WKUP)
-//dummy
+extern void wkup_pin_ctrl(bool dir);
+#define AMP_MUTE_PORT_INIT() 	
+#define AMP_MUTE_DISABLE() 	 	wkup_pin_ctrl(UNMUTE_LEVEL)	
+#define AMP_MUTE_ENABLE() 		wkup_pin_ctrl(MUTE_LEVEL)	
 #elif defined(MUTE_PORT_USE_P25)
 #define AMP_MUTE_PORT_INIT() 	 DACCON0|=0x80;P2DIR &= ~(BIT(5));P2PU |= (BIT(5));P2PD &= ~(BIT(5))
 #define AMP_MUTE_DISABLE() 	 	 P25 = UNMUTE_LEVEL
@@ -234,6 +237,7 @@
 #define ADC_KEY_IO6     0x4E
 #define ADC_KEY_IO7     0x4F
 #define ADC_KEY_IO5     0x4D
+#define ADC_KEY_IO4     0x4C
 #define ADC_KEY_IO3    0xFB
 #define ADC_KEY_IO2     0x4A
 #define ADC_VDD_12     0x48
@@ -298,16 +302,29 @@
 #define GPIO_POWER_CTRL 	P20
 #define power_ctl(n)  			P2DIR &= ~(BIT(0));P2PU |= (BIT(0));GPIO_POWER_CTRL = n
 
-#define GPIO_POWER_KEY   	P06
-#define Pwr_Key_Init()		P0DIR |= (BIT(6));//P2PU |= (BIT(4));
+#define GPIO_POWER_KEY   	P04
+#define Pwr_Key_Init()		P0DIR |= (BIT(4));//P2PU |= (BIT(4));
 #define Pwr_Key_output()		//P0DIR &= ~(BIT(6));GPIO_POWER_KEY =1;//P2PU |= (BIT(4));GPIO_POWER_KEY =1;
 #define Pwr_Key_input()		//P0DIR |= (BIT(6));P0PU |= (BIT(6));
 
 #endif
 
-#define CD_PWR_GPIO_CTRL_INIT()	P0DIR &= ~(BIT(4));P0PU |=BIT(4);
-#define CD_PWR_GPIO_ON()			P04=1
-#define CD_PWR_GPIO_OFF()			P04=0
+#define CD_PWR_GPIO_CTRL_INIT()	disable_usb();P3DIR &= ~(BIT(7));P3PU |=BIT(7);
+#define CD_PWR_GPIO_ON()			P37=1
+#define CD_PWR_GPIO_OFF()			P37=0
+
+#define TUNER_PWR_GPIO_CTRL_INIT()	disable_usb();P3DIR &= ~(BIT(6));P3PU |=BIT(6);
+#define TUNER_PWR_GPIO_ON()			P36=1
+#define TUNER_PWR_GPIO_OFF()			P36=0
+
+#define BT_GPIO_CTRL_INIT()			P0DIR &= ~(BIT(3));P0PU |=BIT(3);
+#define BT_PWR_GPIO_ON()			P03=1
+#define BT_PWR_GPIO_OFF()			P03=0
+
+#define AUX_GPIO_CTRL_INIT()		P0DIR &= ~(BIT(2));P0PU |=BIT(2);
+#define AUX_PWR_GPIO_ON()			P02=1;P03=1
+#define AUX_PWR_GPIO_OFF()			P02=0;P03=0
+
 
 #ifdef SYS_GPIO_SEL_FUNC
 #define GPIO_SEL_FUNC_GPIO_INIT()			P0DIR |=(BIT(4));P0PU |=BIT(4);P04 =1

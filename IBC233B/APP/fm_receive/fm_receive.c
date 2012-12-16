@@ -49,6 +49,7 @@ bool radio_st_ind=0;
 #endif
 
 bool radio_prog_spark=0;
+bool radio_MEM_disp=0;
 #ifdef USE_RADIO_FUNC
 
 #if defined(PWR_CTRL_WKUP)
@@ -148,6 +149,8 @@ void load_preset_table(u8 pre_cmd)
 void radio_preset_init()
 {
 	u8 preset_reg=0;
+
+	radio_MEM_disp=0;			
 
 	preset_reg =read_info(MEM_PRESET_REG);
 
@@ -345,8 +348,9 @@ void full_band_scan_hdlr()
 
 		delay_10ms(120);
 		station_save_pos++;   
+#ifdef RADIO_ST_INDICATOR		
 	     	radio_st_ind=0;
-
+#endif
 		if(station_save_pos>Current_Band.MAX_CH){
 			
 			break;
@@ -382,6 +386,10 @@ void semi_auto_scan(u8 scan_dir)
     xd_u16 fre_old=frequency;
     u8 key=0;
 
+#if 1//def FM_UART_ENABLE
+	sys_printf(" FM SEMI SCAN MODE");
+#endif
+
     flush_low_msg();
 #ifdef RADIO_ST_INDICATOR
     radio_st_ind=0;
@@ -394,10 +402,9 @@ void semi_auto_scan(u8 scan_dir)
     {
 	 key = get_msg();	
 	 
-        if ((key==(INFO_NEXT_FIL|KEY_SHORT_UP))||
-		( key==(INFO_PREV_FIL | KEY_SHORT_UP))||
-		( key==(INFO_PLAY |KEY_SHORT_UP))
-	    )
+        if((key==(INFO_NEXT_FIL|KEY_SHORT_UP))||
+		( key==(INFO_PREV_FIL | KEY_SHORT_UP))
+	   )
         {
             break;
         }
@@ -447,16 +454,21 @@ void semi_auto_scan(u8 scan_dir)
 
    dac_mute_control(0,1);		
 
+#if 1//def FM_UART_ENABLE
+	sys_printf(" FM SEMI ---> EXIT <--- SCAN MODE");
+#endif
+
 }
 #endif
 #ifdef FM_SAVE_STATION_MANUAL
 
-#define MANUAL_STATION_SAVE_KEY	(INFO_MODE|KEY_LONG)
+#define MANUAL_STATION_SAVE_KEY	(INFO_PROG|KEY_SHORT_UP)
 
 void radio_save_station_hdlr()
 {
-    	u8 key,timerout_cnt=0;	
+    	u8 key,timerout_cnt=10;	
 
+	radio_MEM_disp=0;			
 	radio_prog_spark=1;
 	station_save_pos=0;
 	Disp_Con(DISP_SAVE_POS);
@@ -467,28 +479,38 @@ void radio_save_station_hdlr()
 		switch(key)
 		{
 		     	case INFO_MODE| KEY_HOLD:
-				timerout_cnt=0;	
+				//timerout_cnt=0;	
 				break;
         		case INFO_NEXT_FIL | KEY_SHORT_UP:
 
+				if(radio_prog_spark==0){
+		                    Disp_Con(DISP_FREQ);
+					return;
+				}
+				
 				station_save_pos++;
 				if(station_save_pos> Current_Band.MAX_CH)
 					station_save_pos=0;
 				
 	                     Disp_Con(DISP_SAVE_POS);
-				timerout_cnt=0;	
+				timerout_cnt=10;	
 				break;
         		case INFO_PREV_FIL | KEY_SHORT_UP:
+
+				if(radio_prog_spark==0){
+		                    Disp_Con(DISP_FREQ);
+					return;
+				}
 				station_save_pos--;
 				if(station_save_pos>Current_Band.MAX_CH)
 					station_save_pos=Current_Band.MAX_CH;
 				
 	                     Disp_Con(DISP_SAVE_POS);
-				timerout_cnt=0;				
+				timerout_cnt=10;				
 				break;
 
         		//case INFO_STOP| KEY_SHORT_UP:
-        		case INFO_MODE| KEY_SHORT_UP:
+        		case INFO_PROG| KEY_SHORT_UP:
 
 				if(cur_sw_fm_band==0){
 					save_radio_freq(frequency,station_save_pos*2+FM_CH_OFFSET);
@@ -496,27 +518,45 @@ void radio_save_station_hdlr()
 				else if(cur_sw_fm_band==1){
 					save_radio_freq(frequency,station_save_pos*2+AM_CH_OFFSET);
 				}
-	                    Disp_Con(DISP_FREQ);
+
+				radio_prog_spark=0;
+				
+				timerout_cnt=6;				
+				Disp_Con(DISP_SAVE_POS);
+
+	                    //Disp_Con(DISP_FREQ);
 			      return;
 	
 		       case INFO_HALF_SECOND:
-
-				timerout_cnt++;
-				if(timerout_cnt==4){
+				timerout_cnt--;
+				if(timerout_cnt==0){
 		                    Disp_Con(DISP_FREQ);
+				      radio_prog_spark=0;		
 				      return;
 				}
 				break;	
 		}
 	}
 }
-#define MANUAL_SEL_STATION_KEY    	(INFO_STOP| KEY_SHORT_UP)
-void restore_station_from_ch()
+#define MANUAL_SEL_STATION_KEY_UP    		(INFO_STOP| KEY_SHORT_UP)
+#define MANUAL_SEL_STATION_KEY_DOWN   	(INFO_PLAY_MODE| KEY_SHORT_UP)
+void restore_station_from_ch(u8 sel_dir)
 {
-	station_sel_pos++;
-	if(station_sel_pos> Current_Band.MAX_CH)
-		station_sel_pos=0;
 
+	if(sel_dir==INFO_NEXT_FIL){
+		station_sel_pos++;
+		if(station_sel_pos> Current_Band.MAX_CH)
+			station_sel_pos=0;
+	}
+	else{
+
+		if(station_sel_pos>0){
+			station_sel_pos--;
+		}
+		
+		if(station_sel_pos==0)
+			station_sel_pos=Current_Band.MAX_CH;		
+	}
 	if(cur_sw_fm_band==0){
 		frequency = read_radio_freq(station_sel_pos*2+FM_CH_OFFSET);
 	}
@@ -526,6 +566,8 @@ void restore_station_from_ch()
 #ifdef FM_UART_ENABLE
 	printf("------->-station form  TABLE  fre:%4u   \r\n",frequency);
 #endif
+
+	radio_MEM_disp=1;
 
 	radio_chip_set_freq(FM_CUR_FRE,NO_SHOW_FREQ);
        Disp_Con(DISP_SEL_POS);
@@ -581,9 +623,12 @@ void fm_hdlr( void )
 		radio_band_hdlr();			
 		break;
 #ifdef FM_SAVE_STATION_MANUAL
-     	case MANUAL_SEL_STATION_KEY:
-		restore_station_from_ch();
+     	case MANUAL_SEL_STATION_KEY_UP:
+		restore_station_from_ch(INFO_NEXT_FIL);
 		break;
+     	case MANUAL_SEL_STATION_KEY_DOWN:
+		restore_station_from_ch(INFO_PREV_FIL);
+		break;	
      	case MANUAL_STATION_SAVE_KEY:
 		radio_save_station_hdlr();
 		radio_prog_spark=0;		
@@ -602,11 +647,13 @@ void fm_hdlr( void )
 		break;	
 #endif
         case INFO_FRE_UP | KEY_SHORT_UP:
-        case INFO_NEXT_FIL | KEY_SHORT_UP:			
+        case INFO_NEXT_FIL | KEY_SHORT_UP:	
+		radio_MEM_disp=0;			
              	radio_chip_set_freq(FM_FRE_INC,SHOW_FREQ);
 		break;
         case INFO_FRE_DOWN | KEY_SHORT_UP:
-        case INFO_PREV_FIL | KEY_SHORT_UP:		
+        case INFO_PREV_FIL | KEY_SHORT_UP:	
+		radio_MEM_disp=0;						
              	radio_chip_set_freq(FM_FRE_DEC,SHOW_FREQ);
             break;
         case INFO_HALF_SECOND :
@@ -717,6 +764,8 @@ void fm_radio(void)
 #ifdef FM_UART_ENABLE
 	sys_printf(" SYS GO IN FM MODE");
 #endif
+    	TUNER_PWR_GPIO_ON();
+	delay_10ms(20);
 
 #ifndef DISABLE_P05_OSC_OUTPUT
    	fm_osc_output_select(TRUE);
@@ -784,6 +833,8 @@ void fm_radio(void)
 #endif
 
 	}
+
+    	TUNER_PWR_GPIO_OFF();
 	
 }
 #endif
