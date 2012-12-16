@@ -88,6 +88,9 @@ void disp_icon(u8 id)
 	case ICON_AUX:
 		F_AUX_DEV |=AUX_DEV_MASK;
 		break;
+	case ICON_FM:
+		F_FM_DEV |= FM_DEV_MASK;
+		break;		
 	case ICON_FM_MHZ:
 		F_FM_DEV |= FM_DEV_MASK;
 		F_MHZ_DEV |=FM_MHZ_MASK;
@@ -107,6 +110,7 @@ void disp_icon(u8 id)
 		break;	
 	case ICON_REP_1:
 		F_REP_ONE|=REP_ONE_MASK;
+		F_REP_ALL |=REP_ALL_MASK;		
 		break;
 	case ICON_REP_ALL:
 		F_REP_ALL |=REP_ALL_MASK;
@@ -128,7 +132,9 @@ void disp_icon(u8 id)
 		F_RTC_ALM |=RTC_ALM_MASK;
 		break;
 #endif		
-
+	case ICON_MEM:
+		F_MEM_ICON_BUF |=MEM_ICON_MASK;
+		break;	
 	case ICON_PROG:
 		F_PROG_ICON_BUF |=PROG_ICON_MASK;
 		break;	
@@ -175,6 +181,9 @@ void disp_clr_icon(u8 id)
 	case ICON_AUX:
 		F_AUX_DEV &=~AUX_DEV_MASK;
 		break;
+	case ICON_FM:
+		F_FM_DEV &=~FM_DEV_MASK;
+		break;		
 	case ICON_FM_MHZ:
 		F_MHZ_DEV &=~FM_MHZ_MASK;
 		break;
@@ -192,6 +201,7 @@ void disp_clr_icon(u8 id)
 		break;	
 	case ICON_REP_1:
 		F_REP_ONE&=~REP_ONE_MASK;
+		F_REP_ALL &=~REP_ALL_MASK;		
 		break;
 	case ICON_REP_ALL:
 		F_REP_ALL &=~REP_ALL_MASK;
@@ -213,6 +223,9 @@ void disp_clr_icon(u8 id)
 		F_RTC_ALM &=~RTC_ALM_MASK;
 		break;
 #endif
+	case ICON_MEM:
+		F_MEM_ICON_BUF &=~MEM_ICON_MASK;
+		break;	
 	case ICON_PROG:
 		F_PROG_ICON_BUF &=~PROG_ICON_MASK;
 		break;
@@ -429,6 +442,13 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
        lcd_buff[2] |= (((letter_data & DIG_C)>>1)|((letter_data & DIG_G)>>6))<<digit_idx;
        lcd_buff[1] |= (((letter_data & DIG_D)>>2)|((letter_data & DIG_E)>>4))<<digit_idx;   	 
 }
+
+#elif defined(JK_CD_IBC233B_LCD_MODULE)
+void align_lcd_disp_buff(u8 offset,u8 letter_data)
+{	
+	lcd_buff[offset] &= ~(0x00EF);
+       lcd_buff[offset] = ((letter_data));
+}
 #else
 u8 _code lcd_disbuf_offset[4] ={7,5,3,1};
 void align_lcd_disp_buff(u8 offset,u8 letter_data)
@@ -631,6 +651,56 @@ void disp_scan(void)
 
    cnt++;
    if(cnt>7)cnt = 0;
+}
+#elif defined(SEG_LCD_5COM_8SEG_DRV)
+void disp_scan(void)
+{
+    static xd_u8 cnt = 0;
+    xd_u8 temp;
+    static bool flash;
+
+    custom_buf_update();
+
+#if 0
+	init_disp_buf();
+	disp_putchar('0',0);
+	disp_putchar('1',1);
+	//disp_putchar('5',2);
+	//disp_putchar('5',3);
+	//disp_icon(ICON_FM_MHZ);
+#endif	
+
+    TRADEMARK_ICON |=TRADEMARK_MASK;
+	
+    lcd_flash_timer++;
+    if (lcd_flash_timer == 220)
+    {
+        lcd_flash_timer = 0;
+        flash = !flash;
+    }
+    if (flash)
+    {
+        disp_clr_icon(lcd_flash_icon);   
+    }
+    else
+    {
+        disp_icon(lcd_flash_icon); 
+    }
+
+    temp = cnt>>1;
+    close_com(temp);
+    if(cnt & 0x01){
+	  seg07_port(lcd_buff[temp]);
+	  clr_com(temp);
+    }
+    else
+   {                            
+	  seg07_port(~lcd_buff[temp]);
+	  set_com(temp);
+   }
+
+   cnt++;
+   if(cnt>9)cnt = 0;
 }
 #else
 void disp_scan(void)

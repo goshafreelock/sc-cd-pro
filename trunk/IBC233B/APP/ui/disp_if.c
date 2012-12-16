@@ -27,7 +27,7 @@ extern xd_u16 frequency;
 extern xd_u8 fre_channl,play_status;
 extern _xdata u8 fre_preset[];
 extern MAD_DECODE_INFO _pdata mad_decode_dsc;
-extern bool radio_prog_spark;
+extern bool radio_prog_spark,radio_MEM_disp;
 xd_u8 return_cnt;
 xd_u8 curr_menu;
 extern u16 filenameCnt;
@@ -118,7 +118,8 @@ void Disp_Num(void)
 {
 #ifdef USE_CD_MCU_MASTER_FUNC			
 	if(work_mode == SYS_MCU_CD){
-		printf_num(cfilenum,2,2);
+		if(cfilenum>0)
+		printf_num(cfilenum,1,2);
 	}
 	else
 #endif
@@ -131,8 +132,8 @@ void Disp_prog_num(void)
 	if(work_mode == SYS_MCU_CD){
 #if 1
 		if(prog_disp_srn){
-			printf_char('P',1);
-			printf_num(prog_total_num,2,2);
+			printf_char('P',0);
+			printf_num(prog_total_num,1,2);
 		}
 		else{
 
@@ -140,7 +141,7 @@ void Disp_prog_num(void)
 		    		printf_str("FUL",1);
 			}
 			else{
-				printf_num(prog_cur_num,2,2);
+				printf_num(prog_cur_num,1,2);
 			}
 		}
 #else
@@ -195,7 +196,7 @@ void Disp_Filenum(void)
 	else if(given_file_number>99)
     	printf_num(given_file_number,1,3);
 	else 
-    	printf_num(given_file_number,2,2);
+    	printf_num(given_file_number,1,2);
 	
     	disp_active();	
 }
@@ -225,7 +226,7 @@ void Disp_Nodevice(void)
     	else if(work_mode == SYS_MP3DECODE_SD){
         	disp_icon(ICON_CD);
 	}
-#ifdef MCU_CD_728_LCD_MODULE
+#if 1//def MCU_CD_728_LCD_MODULE
     	printf_str("No",1);
 #elif defined(LCD_DISP_THREE_DIGIT)
     	printf_str("NOd",1);
@@ -235,8 +236,8 @@ void Disp_Nodevice(void)
 }
 void Disp_Vol(void)
 {
-	printf_char('V',1);
-	printf_num(music_vol,2,2);
+	//printf_char('V',1);
+	printf_num(music_vol,1,2);
 }
 void Diap_Playmode(void)
 {
@@ -347,7 +348,7 @@ void Disp_Stop(void)
 		printf_char('d',1);
 #endif
 		if((cfilenum>0)&&toc_flag)
-		printf_num(cfilenum,2,2);
+		printf_num(cfilenum,1,2);
 	}	
 	else
 #endif
@@ -397,8 +398,8 @@ void Disp_scan_disk(void)
 }
 void Disp_scan_toc(void)
 {
-#ifdef LCD_DISP_THREE_DIGIT
-    	printf_str("---",0);
+#if 1//def LCD_DISP_THREE_DIGIT
+    	printf_str("--",1);
 #else
     	printf_str("----",0);
 #endif
@@ -409,8 +410,8 @@ void disp_error(void)
 }
 void disp_open(void)
 {
-#ifdef LCD_MODULE_WITHOUT_F_DIGIT
-	printf_str("OPN",1);
+#if 1//def LCD_MODULE_WITHOUT_F_DIGIT
+	printf_str("OP",1);
 #elif defined(LCD_DISP_THREE_DIGIT)
 	printf_str("OPN",1);
 #else
@@ -422,7 +423,7 @@ void Disp_dir_num(void)
 	//dispNum((u8)((fs_msg.dirTotal/1000)%10),3);
 	disp_active();
 	printf_char('F',1);
-	printf_num(fs_msg.dirTotal,2,2);
+	printf_num(fs_msg.dirTotal,1,2);
 }
 void Disp_Power_up(void)
 {
@@ -480,7 +481,14 @@ void Disp_freq(void )
 }
 void Disp_Aux(void )
 {
-    printf_str("AUX",1);
+
+    printf_num(music_vol,1,2);
+    //printf_str("AUX",1);
+    disp_icon(ICON_AUX);		
+}
+void Disp_Bluetooth(void )
+{
+    printf_str("bT",1);
 }
 void Disp_cur_band(void)
 {
@@ -501,7 +509,7 @@ void Disp_station_ch(void)
 {
     	printf_str("P",1);
     	printf_num((station_save_pos+1),2,2);
-	disp_icon(ICON_PROG);		
+	disp_icon(ICON_MEM);		
 }
 void Disp_sel_station_ch(void)
 {
@@ -672,15 +680,25 @@ void custom_buf_update(void)
 	}
 #endif
 
-#ifdef RADIO_ST_INDICATOR
 	if(work_mode ==SYS_FMREV){
 
 		if(radio_prog_spark){			
-			disp_icon(ICON_PROG);			
+			disp_icon(ICON_MEM);
+	    		disp_flash_icon(ICON_MEM);			
 		}
 		else{
-			disp_clr_icon(ICON_PROG);		
+			disp_clr_icon(ICON_MEM);		
+	    		disp_clr_flash_icon(ICON_MEM);			
 		}
+
+		if(radio_MEM_disp){			
+			disp_icon(ICON_MEM);
+		}
+		else{
+			disp_clr_icon(ICON_MEM);		
+		}		
+
+#ifdef RADIO_ST_INDICATOR
 		
 		if(radio_st_ind){
 			
@@ -690,8 +708,9 @@ void custom_buf_update(void)
 
 			disp_clr_icon(ICON_RADIO_ST);	
 		}
-	}
 #endif
+		
+	}
 
 #ifdef FLASH_PLAY_ICON_WHEN_PAUSE
 	if(((toc_flag)&&(cd_play_status == MUSIC_PAUSE)&&(work_mode == SYS_MCU_CD))||((play_status == MUSIC_PAUSE)&&(work_mode == SYS_MP3DECODE_USB))){
@@ -699,6 +718,7 @@ void custom_buf_update(void)
 	}
 	else{
 	    		disp_clr_flash_icon(ICON_PLAY);
+			disp_clr_icon(ICON_MEM);						
 	}
 #endif
 
@@ -719,7 +739,7 @@ void Disp_Con(u8 LCDinterf)
     curr_menu = LCDinterf;
 	
 #ifdef UART_ENABLE
-	    	printf("------->-Disp_Con   %d    \r\n",(u16)LCDinterf);
+	  	printf("------->-Disp_Con   %d    \r\n",(u16)LCDinterf);
 #endif
 
     disp_clr_buf();
@@ -805,6 +825,9 @@ void Disp_Con(u8 LCDinterf)
     case DISP_AUX:
         Disp_Aux();
         break;	
+    case DISP_BT:
+        Disp_Bluetooth();
+        break;			
 #if RTC_ENABLE		
     case DISP_RTC:
         Disp_curr_time();

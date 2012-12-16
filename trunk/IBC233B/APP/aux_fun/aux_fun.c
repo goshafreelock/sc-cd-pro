@@ -7,6 +7,7 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
+#include "Custom_config.h"
 #include "aux_fun.h"
 #include "fat_memory.h"
 #include "voice_time.h"
@@ -49,6 +50,9 @@ void deal_aux( void )
 
 	switch (key)
         {
+        case INFO_NEXT_SYS_MODE:
+		return;
+		
         case INFO_HALF_SECOND :
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
             updata_fat_memory();
@@ -114,12 +118,18 @@ void aux_function(void)
 	        return;
 	    }
 #endif	
+	AUX_PWR_GPIO_ON();		
+	delay_10ms(10);
+	
 	sysclock_div2(1);
     	flush_low_msg();
     	Disp_Con(DISP_AUX);
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	deal_aux();
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
+
+	AUX_PWR_GPIO_OFF();				
+	
 }
 #endif
 

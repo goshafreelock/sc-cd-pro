@@ -34,8 +34,9 @@ extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
 
+bool next_prev_key=0,play_key=0;
 TOC_TIME cur_time;
-bool toc_flag=0,send_buf_cmd=0;
+bool toc_flag=0,send_buf_cmd=0,fisrt_time_op=0;
 xd_u8 fast_fr_release_cnt=0;
 xd_u16 send_buf=0;
 xd_u8 rev_buf[10]={0};
@@ -43,7 +44,7 @@ xd_u8 rev_buf[10]={0};
 
 #ifdef USE_PROG_PLAY_MODE
 bool play_prog_mode=0,prog_icon_bit=0,prog_disp_srn=0;
-xd_u8 prog_total_num=0,prog_cur_num=0;
+xd_u8 prog_total_num=0,prog_cur_num=0,prog_first_num=0;
 
 #endif
 
@@ -61,7 +62,7 @@ void master_push_cmd(u8 cmd)
 
 		send_buf|=cmd_reg<<8;
 	}	
-#ifdef UART_ENABLE	
+#ifdef CD_UART_ENABLE	
 	printf("----------------->> master_push_cmd   %x    \r\n",send_buf);
 #endif
 }
@@ -76,7 +77,7 @@ u8 master_pop_cmd(void)
 		if(send_buf==0){
 			send_buf_cmd=0;
 		}
-#ifdef UART_ENABLE	
+#ifdef CD_UART_ENABLE	
 	   	printf("----------------->> master_pop_cmd   %x     \r\n",(u16)r_reg);	
 #endif
 	}
@@ -85,6 +86,22 @@ u8 master_pop_cmd(void)
 void clr_rev_buf()
 {
     my_memset(&rev_buf[0], 0x0, 10);
+}
+static u8 info_timer_1=0,info_timer_2=0,info_timer_3=0;
+static u8 info_timer_play=0,info_timer_stop=0,info_timer_4=0;
+void clr_flick_timer()
+{
+
+ 	info_timer_1=0;
+	//info_timer_2=0;
+	info_timer_3=0;
+
+	info_timer_play=0;
+	info_timer_stop=0;
+	info_timer_4=0;
+
+	cfilenum=0;	
+	rev_buf[5]=0;
 }
 void mcu_master_init()
 {
@@ -96,16 +113,25 @@ void mcu_master_init()
 	cur_time.SEC=0;
 	cfilenum =0;
 	given_file_number=1;
-	clr_rev_buf();
+
+	next_prev_key=0;
+	prog_first_num =0;
+	
+ 	info_timer_1=0;
+	info_timer_2=0;
+	info_timer_3=0;
+
+	info_timer_play=0;
+	info_timer_stop=0;
+	info_timer_4=0;
 	
     	play_mode=REPEAT_OFF;
     	master_push_cmd(REP_OFF_CMD);	
+	clr_rev_buf();		
 }
 void mcu_master_info_hdlr()
 {
 	static u8 info_dispatch_div=0;
-	static u8 info_timer_1=0,info_timer_2=0,info_timer_3=0;
-	static u8 info_timer_toc=0,info_timer_4=0,info_timer_5=0;
 	u8 rev_loop=0;
 	if(fast_fr_release_cnt>0){
 
@@ -119,41 +145,9 @@ void mcu_master_info_hdlr()
 	if(info_dispatch_div==5){
 		info_dispatch_div=0;
 
-//4 get cur play status 	
-		if((rev_buf[0]&0x03)==0x02){
-
- 				//info_timer_3=0;
-				if(cd_play_status!=MUSIC_PLAY)
-				cd_play_status=MUSIC_PLAY;
-		}
-		else if((rev_buf[0]&0x03)==0x00){
-
-			if(cd_play_status!=MUSIC_STOP){
-				cd_play_status=MUSIC_STOP;
-			}
-			
-			//info_timer_3++;
-			//if((curr_menu != DISP_STOP)&&(info_timer_3>12))
-			//	Disp_Con(DISP_STOP);			
-		}
-#ifdef USE_PROG_PLAY_MODE
-		if((rev_buf[0]&(BIT(5)))>0){
-
-			if(info_timer_3++>2){
-			 	prog_icon_bit=1;
-			}
-		}
-		else{
-
-			info_timer_3=0;
-			 prog_icon_bit=0;
-
-		}
-#endif
 //4 TOC 
 		if((rev_buf[1]&(BIT(2)))==0){
-
-			info_timer_toc=0;
+			
 #ifdef DISP_TOC_BAR
 			if(curr_menu != DISP_SCAN_TOC){
 				Disp_Con(DISP_SCAN_TOC);
@@ -168,19 +162,66 @@ void mcu_master_info_hdlr()
 #endif			
 		}
 		else{
+			
+			toc_flag=1;
+		}
+		
+//4 get cur play status 	
+		if(toc_flag){
+			
+			if((rev_buf[0]&0x03)==0x02){
 
-			if(info_timer_toc++>2){
-				toc_flag=1;
+					info_timer_play++;
+					
+					if(info_timer_play>2){
+						if(cd_play_status!=MUSIC_PLAY)
+							cd_play_status=MUSIC_PLAY;
+					}
+			}
+			else if((rev_buf[0]&0x03)==0x00){
+
+				info_timer_stop++;
+				
+				if(info_timer_stop>2){
+					if(cd_play_status!=MUSIC_STOP){
+						cd_play_status=MUSIC_STOP;
+					}
+				}
+				
+				//info_timer_3++;
+				//if((curr_menu != DISP_STOP)&&(info_timer_3>12))
+				//	Disp_Con(DISP_STOP);			
 			}
 		}
+#ifdef USE_PROG_PLAY_MODE
+		if((rev_buf[0]&(BIT(5)))>0){
+
+			info_timer_3++;
+			if(info_timer_3>2){
+				prog_icon_bit=1;
+			}
+		}
+		else{
+
+ 			 info_timer_3=0;
+			 prog_icon_bit=0;
+
+		}
+#endif
+
 
 //4 DOOR STATUS
 		if((rev_buf[1]&(BIT(1)))){
 
 			info_timer_2++;
-			if((curr_menu != DISP_OPEN)&&(info_timer_2>2)){
+			if((curr_menu != DISP_OPEN)&&(info_timer_2>1)){
 				Disp_Con(DISP_OPEN);
 				toc_flag=0;
+				prog_icon_bit=0;
+				play_prog_mode=0;
+				clr_flick_timer();
+			    	play_mode=REPEAT_OFF;
+			    	master_push_cmd(REP_OFF_CMD);					
 			}
 		}
 		else{
@@ -215,8 +256,15 @@ void mcu_master_info_hdlr()
 				else
 #endif			
 				{
-					
-		                    	Disp_Con(DISP_FILENUM);	
+					//if(play_key){
+					//	play_key=0;
+					//}
+					//else 
+					if(cd_play_status!=MUSIC_STOP||(next_prev_key)){
+
+						//if(next_prev_key)next_prev_key=0;
+		                    		Disp_Con(DISP_FILENUM);	
+					}
 				}
 			}
 		}
@@ -228,6 +276,7 @@ void mcu_master_info_hdlr()
 
 				if(cfilenum!=rev_buf[5]){
 					cfilenum=rev_buf[5];
+					if(cfilenum>0)
 	                    		Disp_Con(DISP_DWORD_NUMBER);
 
 				}
@@ -247,6 +296,7 @@ void mcu_master_info_hdlr()
 				if(rev_buf[9]!=prog_cur_num){
 					prog_disp_srn=0;					
 					prog_cur_num = rev_buf[9];
+					if(prog_cur_num>0)
 					Disp_Con(DISP_PROG_FILENUM);				
 				}
 			}
@@ -336,6 +386,7 @@ void prog_play_init()
 	prog_cur_num=0;	
 	play_prog_mode=1;
 	prog_disp_srn=0;
+	prog_first_num =0;
 	//my_memset(&prog_file_tab[0], 0x0, 20);
 	master_push_cmd(MEM_CMD);
 	Disp_Con(DISP_PROG_FILENUM);
@@ -356,9 +407,14 @@ void prog_hdlr(u8 key)
 			//master_push_cmd(MEM_CMD);
 			//master_push_cmd(STOP_CMD);
 		//	break;
-	        case INFO_MODE | KEY_SHORT_UP :
+	        case INFO_PROG| KEY_SHORT_UP :
+			if(prog_total_num>=20)break;
 			if((prog_cur_num!=0)&&(prog_disp_srn==0)){
-				prog_cur_num=0;
+				//prog_cur_num=0;	
+				if(prog_first_num==0){
+
+					prog_first_num=rev_buf[9];
+				}
 				prog_disp_srn=1;
 				master_push_cmd(MEM_CMD);
 			}
@@ -439,7 +495,7 @@ void mcu_hdlr( void )
 	if(play_prog_mode){
 		
 		prog_hdlr(key);
-		if((key==INFO_HALF_SECOND)||(key==(INFO_MODE | KEY_SHORT_UP))||(key==(INFO_NEXT_FIL | KEY_SHORT_UP))||(key==(INFO_PREV_FIL | KEY_SHORT_UP))){
+		if((key==INFO_HALF_SECOND)||(key==(INFO_PROG | KEY_SHORT_UP))||(key==(INFO_NEXT_FIL | KEY_SHORT_UP))||(key==(INFO_PREV_FIL | KEY_SHORT_UP))){
 			key = 0xFF;
 		}		
 	}
@@ -462,7 +518,13 @@ void mcu_hdlr( void )
 			if(!toc_flag)break;		//2 TOC  NOT READY
 
 #ifdef USE_PROG_PLAY_MODE
-			play_prog_mode=0;
+			if(play_prog_mode){
+
+			       play_mode = REPEAT_OFF;
+				play_prog_mode=0;
+				if(prog_first_num>0)
+				prog_icon_bit=1;
+			}
 #endif			
 			if(cd_play_status== MUSIC_PLAY){
 
@@ -474,22 +536,39 @@ void mcu_hdlr( void )
 
 			      Mute_Ext_PA(UNMUTE);
 				cd_play_status=MUSIC_PLAY;
+		              Disp_Con(DISP_FILENUM);	
 				master_push_cmd(PLAY_RESUME_CMD);
 			}
 			else if(cd_play_status== MUSIC_STOP){
 
 			       Mute_Ext_PA(UNMUTE);
 				cd_play_status=MUSIC_PLAY;
+
+				if(next_prev_key){
+					next_prev_key=0;					
+				}
+				else if(prog_icon_bit||play_prog_mode){
+					rev_buf[2]=0;
+					given_file_number =prog_first_num;						
+				}
+				else{
+					rev_buf[2]=0;
+					given_file_number =1;	
+				}
+		              Disp_Con(DISP_FILENUM);					
 				master_push_cmd(PLAY_RESUME_CMD);
 			}			
 			break;
 			
 	        case INFO_STOP| KEY_SHORT_UP :
-			//if(cd_play_status!= MUSIC_STOP)
+			if(toc_flag)
 			{
 #ifdef USE_PROG_PLAY_MODE
 				play_prog_mode=0;	
+				prog_cur_num=0;	
 #endif
+				next_prev_key=0;					
+			       play_mode = REPEAT_OFF;
 			      Mute_Ext_PA(MUTE);
 				cd_play_status=MUSIC_STOP;			
 				master_push_cmd(STOP_CMD);
@@ -497,9 +576,11 @@ void mcu_hdlr( void )
 			}
 			break;
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
+			next_prev_key=1;				
 			master_push_cmd(NEXT_FILE_CMD);
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
+			next_prev_key=1;								
 			master_push_cmd(PREV_FILE_CMD);
 			break;			
 	        case INFO_NEXT_FIL | KEY_HOLD:
@@ -511,15 +592,16 @@ void mcu_hdlr( void )
 			master_push_cmd(FAST_R_CMD);
 			break;
 #ifdef USE_PROG_PLAY_MODE
-	    	case INFO_MODE | KEY_LONG:
+	    	case INFO_PROG| KEY_SHORT_UP:
 			if((cd_play_status== MUSIC_STOP)	&&toc_flag){
 				prog_play_init();
 			}
 			break;
 #endif			
 #ifdef MASTER_SEL_CD_PLAY_MODE
-	    	case INFO_MODE | KEY_SHORT_UP:
+	    	//case INFO_MODE | KEY_SHORT_UP:
         	case INFO_PLAY_MODE :
+			if(toc_flag==0)break;
 
 			if(prog_icon_bit||play_prog_mode){
 				break;
@@ -565,13 +647,18 @@ void mcu_hdlr( void )
 				master_push_cmd(INTRO_ON_CMD);
 			}		
 #endif
-#ifdef UART_ENABLE
+#ifdef CD_UART_ENABLE
 	    		printf("------->> play_mode   %x---%x \r\n",(u16)send_buf,(u16)play_mode);
 #endif			
 			break;			
 #endif				
 		 case INFO_HALF_SECOND :
 
+			 if(fisrt_time_op&&toc_flag){
+
+					master_push_cmd(STOP_CMD);
+					fisrt_time_op=0;
+			 }
 
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
 	            updata_fat_memory();
@@ -658,6 +745,14 @@ void mcu_main_hdlr(void)
     prog_play_clear();	
     main_vol_set(0, CHANGE_VOL_NO_MEM);
     CD_PWR_GPIO_OFF();	
+#ifdef USE_PROG_PLAY_MODE
+	prog_total_num=1;
+	prog_cur_num=0;	
+	play_prog_mode=0;
+	prog_icon_bit=0;
+	
+#endif	
+    	play_mode=REPEAT_OFF;
 }
 #endif
 

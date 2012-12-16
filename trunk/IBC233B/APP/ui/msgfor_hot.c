@@ -202,6 +202,10 @@ void Init_Func_List()
 #endif
 #endif
 
+#ifdef USE_BLUE_TOOTH_FUNC
+		Add_Func_To_List(BT_DEV);
+#endif
+
 #if defined(IPONE_INDEPENDENT_MODE)
 		Add_Func_To_List(IPH_DEV);
 #endif

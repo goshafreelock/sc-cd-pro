@@ -239,18 +239,24 @@ void keyInit(void)
 {
     ADCCON = 0xf8;
     adc_clock();
-    P0PD &= ~(BIT(7));
-    //P0IE = ~(BIT(7));
-    P0DIR |= BIT(7);
-	
+
+#if defined(ADKEY_PORT_P06)
     P0PD &= ~(BIT(6));
     //P0IE = ~(BIT(6));
     P0DIR |= BIT(6);
-	
+#elif defined(ADKEY_PORT_P05)
     P0PD &= ~(BIT(5));
     //P0IE = ~(BIT(5));
     P0DIR |= BIT(5);	
-	
+#elif defined(ADKEY_PORT_P04)
+    P0PD &= ~(BIT(4));
+    //P0IE = ~(BIT(5));
+    P0DIR |= BIT(4);	
+#else
+    P0PD &= ~(BIT(7));
+    //P0IE = ~(BIT(7));
+    P0DIR |= BIT(7);
+#endif	
     key_value = 0xff;
     //P3PU  &= ~(1<<4);
     //P3DIR |= (1<<4);
@@ -295,6 +301,11 @@ void adc_scan(void)
     	 P0DIR |= BIT(2);
         ADCCON = ADC_KEY_IO2; //
         P0IE = ~(BIT(2));
+#elif defined(ADKEY_PORT_P04)
+    	 P0PD &= ~(BIT(4));
+    	 P0DIR |= BIT(4);
+        ADCCON = ADC_KEY_IO4; //
+        P0IE = ~(BIT(4));		
 #else
 	 P0DIR |= BIT(7);
     	 P0PD &= ~(BIT(7));

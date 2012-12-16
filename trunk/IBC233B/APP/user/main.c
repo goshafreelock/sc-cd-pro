@@ -23,6 +23,7 @@
 #include "uart.h"
 #include "voice_time.h"
 #include "mcu_master.h"
+#include "blue_tooth.h"
 
 extern u8 _idata music_vol;
 extern xd_u8 curr_menu;
@@ -350,9 +351,11 @@ void pll_init(void)
 {
     P0PU = 0;
     PCON = 0;
+#ifdef USE_USB_SD_DECODE_FUNC	    
     USBCON0 |= BIT(0);							//usb io is port
     P3PD |= 0xc0;
     P3PU &= ~0xC0;
+#endif	
     CLKGAT = 0;
     CLKCON = 0x01;
     DACCON1 |= BIT(6);                  //DAC¸ß×è
@@ -538,6 +541,18 @@ void sys_info_init(void)
 #else
 	work_mode = SYS_MCU_CD;
 #endif
+
+	CD_PWR_GPIO_CTRL_INIT();
+    	CD_PWR_GPIO_OFF();
+
+	TUNER_PWR_GPIO_CTRL_INIT();		
+    	TUNER_PWR_GPIO_OFF();
+
+	AUX_GPIO_CTRL_INIT();
+	AUX_PWR_GPIO_OFF();		
+
+	BT_GPIO_CTRL_INIT();
+	BT_PWR_GPIO_OFF();
 }
 #ifdef USE_SYS_IDEL_FUNC
 extern xd_u8 alm_flag;

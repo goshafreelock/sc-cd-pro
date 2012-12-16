@@ -35,8 +35,8 @@ typedef enum
 {
     REPEAT_ONE,
     REPEAT_ALL,
-    REPEAT_RANDOM,
     REPEAT_OFF,    
+    REPEAT_RANDOM,
     REPEAT_FOLDER,    
     REPEAT_INTRO,  
 
