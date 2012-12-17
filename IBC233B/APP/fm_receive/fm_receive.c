@@ -59,7 +59,7 @@ extern void wkup_pin_ctrl(bool dir);
 #if defined(USE_TIMER_POWER_OFF_FUNC)
 extern bool timer_setting_enable;
 #endif
-void load_band_info(void);
+extern void load_band_info(void);
 
 extern Str_Band  Current_Band;
 extern bool IR_key_det,adkey_detect;
@@ -819,7 +819,7 @@ void fm_radio(void)
 #endif			
 		main_vol_set(0, CHANGE_VOL_NO_MEM);
 
-	    	KT_AMFMStandby();
+	    	radio_chip_standby();
 #if SDMMC_CMD_MODE
 		sd_chk_ctl(SET_SD_H_CHK);
 #endif

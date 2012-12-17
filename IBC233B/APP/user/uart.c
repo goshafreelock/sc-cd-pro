@@ -47,7 +47,7 @@ void blue_tooth_uart_init()
 char uart_rev=0;
 void uart_isr()  interrupt  7
 {
-    static u8  Uart_data_temp=0 ;
+    //static u8  Uart_data_temp=0 ;
 
     _push_(DPCON);
     _push_(DP1L);
