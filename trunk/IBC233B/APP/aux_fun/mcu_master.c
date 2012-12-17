@@ -473,7 +473,7 @@ void mcu_hdlr( void )
     while (1)
     {
 		//suspend_sdmmc();
-  	dac_out_select(DAC_AMUX0);
+  	dac_out_select(DAC_AMUX1);
 		
 	key = get_msg();
 #if 0	
