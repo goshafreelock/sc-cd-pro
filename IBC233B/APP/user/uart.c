@@ -56,8 +56,8 @@ void uart_isr()  interrupt  7
 
     uart_rev = UTBUF;
 
-   //UTBUF=	uart_rev;
-    //while (!(UTSTA & 0x80));
+   UTBUF=	uart_rev;
+   while (!(UTSTA & 0x80));
 
 #if 0
        g_ucUartCheckTick = 5;
