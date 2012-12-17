@@ -312,12 +312,13 @@ void disp_file_time(void)
 		
 	    printf_num(sec,2,2);
 	    printf_num(min,0,2);
+    	    disp_icon(ICON_PLAY);
+
     }
 #if defined(MCU_CD_728_LCD_MODULE)
     disp_clr_flash_icon(ICON_PLAY);
 #endif
 
-    disp_icon(ICON_PLAY);
     disp_icon(ICON_COL);
     disp_active();
     Disp_Playmode_icon();
@@ -482,7 +483,7 @@ void Disp_freq(void )
 void Disp_Aux(void )
 {
 
-    printf_num(music_vol,1,2);
+    //printf_num(music_vol,1,2);
     //printf_str("AUX",1);
     disp_icon(ICON_AUX);		
 }

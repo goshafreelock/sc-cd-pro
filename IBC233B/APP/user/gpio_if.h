@@ -314,8 +314,8 @@ extern void wkup_pin_ctrl(bool dir);
 #define CD_PWR_GPIO_OFF()			P37=0
 
 #define TUNER_PWR_GPIO_CTRL_INIT()	disable_usb();P3DIR &= ~(BIT(6));P3PU |=BIT(6);
-#define TUNER_PWR_GPIO_ON()			P36=1
-#define TUNER_PWR_GPIO_OFF()			P36=0
+#define TUNER_PWR_GPIO_ON()			P36=0
+#define TUNER_PWR_GPIO_OFF()			P36=1
 
 #define BT_GPIO_CTRL_INIT()			P0DIR &= ~(BIT(3));P0PU |=BIT(3);
 #define BT_PWR_GPIO_ON()			P03=1

@@ -151,7 +151,7 @@ static void set_freq(u16 freq_reg)
 
 	if(radio_chip_id== RDAFM_ID){
 
-		RDA5807P_ValidStop(freq_reg);
+		RDA5807P_SetFreq(freq_reg/10);
 		RDA5807P_SetMute(FALSE);		
 	}
 }
@@ -220,7 +220,7 @@ bool radio_chip_valid_stop(u16 freq_reg)
 
 	if(radio_chip_id== RDAFM_ID){
 
-		ret_var = RDA5807P_ValidStop(freq_reg);
+		ret_var = RDA5807P_ValidStop(freq_reg/10);
 		RDA5807P_SetMute(FALSE);		
 		return ret_var;
 	}

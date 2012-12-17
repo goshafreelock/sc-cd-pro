@@ -39,7 +39,7 @@ void Blue_tooth_hdlr( void )
 
     while (1)
     {
-        	dac_out_select(DAC_AMUX1);
+        	dac_out_select(DAC_AMUX0);
 		//suspend_sdmmc();
 
 		key = get_msg();
