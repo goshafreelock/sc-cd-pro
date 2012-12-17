@@ -132,6 +132,8 @@
 
 #ifdef JK_CD_IBC233B_V001
 
+#define BLUE_TOOTH_UART_FUNC
+
 #define WKUP_PIN_USE_ENABLE
 #define BACK_LIGHT_GPIO_PORT_P05
 //#define MUTE_PORT_USE_P03
@@ -166,7 +168,7 @@
 
 #define NO_DEV_SHOW_NO_DEV
 
-#define VOLUME_DEFAULT			20
+//#define VOLUME_DEFAULT			20
 
 #define NO_SD_DECODE_FUNC
 #define NO_PLAY_MODE_STR_DISP

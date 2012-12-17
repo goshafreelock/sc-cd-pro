@@ -89,7 +89,7 @@ void set_brightness_fade_out(void)
         backlight_timer--;
 	 return;
     }
-    LCD_BACKLIGHT_OFF();
+    //LCD_BACKLIGHT_OFF();
 }
 
 void set_brightness_all_on(void)
