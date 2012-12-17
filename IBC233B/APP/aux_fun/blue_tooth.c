@@ -14,6 +14,7 @@
 #include "blue_tooth.h"
 #include "fat_memory.h"
 #include "voice_time.h"
+#include "uart.h"
 
 extern xd_u16 cfilenum;
 extern xd_u8 curr_menu;
@@ -36,6 +37,10 @@ extern bool alarm_on;
 void Blue_tooth_hdlr( void )
 {
     u8 key;
+#if defined(BLUE_TOOTH_UART_FUNC)
+    blue_tooth_uart_init();
+#endif
+    Mute_Ext_PA(UNMUTE);
 
     while (1)
     {
@@ -119,13 +124,18 @@ void Blue_tooth_main(void)
 	        return;
 	    }
 #endif	
+       Mute_Ext_PA(MUTE);
+
 	BT_PWR_GPIO_ON();
-	delay_10ms(10);
 	sysclock_div2(1);
     	flush_low_msg();
     	Disp_Con(DISP_BT);
+	delay_10ms(180);		
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	Blue_tooth_hdlr();
+
+       Mute_Ext_PA(MUTE);
+		
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
 	BT_PWR_GPIO_OFF();
 	

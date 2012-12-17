@@ -7,6 +7,8 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
+#include "Custom_config.h"
+
 #ifndef _UART_
 #define _UART_
 
@@ -22,6 +24,9 @@
 #include "entry.h"
 
 void uartInit(void);
+#if defined(BLUE_TOOTH_UART_FUNC)
+void blue_tooth_uart_init();
+#endif
 char putchar (char c);
 void sys_printf(char *str);
 void printf_u8(u8 dat);

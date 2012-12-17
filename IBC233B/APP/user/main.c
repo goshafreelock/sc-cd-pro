@@ -504,7 +504,7 @@ void sys_info_init(void)
 	music_vol = read_info(MEM_VOL);
     	if ((music_vol > MAX_MAIN_VOL) || (music_vol == 0))              //每次开机时，不要超过最大音量的一半，以免开机音量过大
     	{
-        	music_vol = 10;
+        	music_vol = 20;
     	}
 #endif
 
