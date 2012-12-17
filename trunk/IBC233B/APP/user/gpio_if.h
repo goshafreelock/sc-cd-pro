@@ -322,8 +322,8 @@ extern void wkup_pin_ctrl(bool dir);
 #define BT_PWR_GPIO_OFF()			P03=0
 
 #define AUX_GPIO_CTRL_INIT()		P0DIR &= ~(BIT(2));P0PU |=BIT(2);
-#define AUX_PWR_GPIO_ON()			P02=1;P03=1
-#define AUX_PWR_GPIO_OFF()			P02=0;P03=0
+#define AUX_PWR_GPIO_ON()			P02=0;P03=1
+#define AUX_PWR_GPIO_OFF()			P02=1;P03=0
 
 
 #ifdef SYS_GPIO_SEL_FUNC
