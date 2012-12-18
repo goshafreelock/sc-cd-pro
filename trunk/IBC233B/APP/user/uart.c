@@ -45,7 +45,7 @@ void blue_tooth_uart_init()
 }
 
 bool bt_frame_rev_finished=0;
-char uart_rev=0;
+u8  uart_rev=0;
 xd_u8 rev_phase=0,rev_length=0;
 extern xd_u8 rev_cmd[7];
 

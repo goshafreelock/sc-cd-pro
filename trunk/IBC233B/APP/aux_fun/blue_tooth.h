@@ -35,6 +35,8 @@ typedef enum {
 	BT_PLAY,
 	BT_NEXT,
 	BT_PREV,
+	BT_FAST_FARWORD,
+	BT_REWIND,
 }AT_PROMPT_CMD;
 
 void Blue_tooth_hdlr( void );

@@ -33,7 +33,7 @@ xd_u8 rev_bluetooth_status=0;
 xd_u8 rev_cmd[7]={0};
 
 #define REV_CMD_LEN		4
-#define AT_CMD_LEN		3
+#define AT_CMD_LEN		5
 
 u8 _code BT_REV_CMD[REV_CMD_LEN][7] =
 {
@@ -48,7 +48,10 @@ u8 _code BT_AT_CMD[AT_CMD_LEN][7] =
 	0xAA ,0x00 ,0x03 ,0x02 ,0x00 ,0x32 ,0xC9,				//PLAY
   	0xAA ,0x00 ,0x03 ,0x02 ,0x00 ,0x34 ,0xC7,				// NEXT
   	0xAA ,0x00 ,0x03 ,0x02 ,0x00 ,0x35 ,0xC6,				//PREV	
+	0xAA ,0x00 ,0x03 ,0x02 ,0x00 ,0x36 ,0xC5,
+	0xAA ,0x00 ,0x03 ,0x02 ,0x00 ,0x37 ,0xC4,
 };
+
 
 void promt_bt_cmd(AT_PROMPT_CMD cmd)
 {
@@ -145,7 +148,12 @@ void Blue_tooth_hdlr( void )
         case INFO_PREV_FIL| KEY_SHORT_UP:
 		promt_bt_cmd(BT_PREV);									
 		break;	
-		
+        case INFO_NEXT_FIL| KEY_HOLD:
+		//promt_bt_cmd(BT_FAST_FARWORD);									
+		break;	
+        case INFO_PREV_FIL| KEY_HOLD:
+		//promt_bt_cmd(BT_REWIND);									
+		break;			
         case INFO_250_MS :
 			
 		spark_timer++;		
