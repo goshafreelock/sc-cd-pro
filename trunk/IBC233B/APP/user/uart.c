@@ -22,10 +22,10 @@
 void uartInit(void)
 {
 #if defined (_USE_UART_P0_)||defined(BLUE_TOOTH_UART_FUNC)
-    UTBAUD = 0x37;
+    UTBAUD = 0x9c;
     P0DIR &= ~(1<<6);
     P0DIR |= (1<<7);
-    UTCON = 0x19;							/* enable uart */
+    UTCON = 0x09;							/* enable uart */
 #elif defined(_USE_UART_P2_)
     UTBAUD = (48000000/(8 * 115200)) - 1;	//25;//0x37;					/* 25: cpu 24M, 115200bps*/	/*77 for 384*/ /*0x137 for 9600*/
     P2DIR &= 0xef;							/* P06 for transmit */
@@ -36,15 +36,19 @@ void uartInit(void)
 #endif
 }
 #if defined(BLUE_TOOTH_UART_FUNC)
+
 void blue_tooth_uart_init()
 {
 	sysclock_div2(1);
 	uartInit();
 	delay_10ms(10);
 }
-#endif
 
+bool bt_frame_rev_finished=0;
 char uart_rev=0;
+xd_u8 rev_phase=0,rev_length=0;
+extern xd_u8 rev_cmd[7];
+
 void uart_isr()  interrupt  7
 {
     //static u8  Uart_data_temp=0 ;
@@ -54,40 +58,44 @@ void uart_isr()  interrupt  7
     _push_(DP1H);
     DPCON = 0x0;
 
-    uart_rev = UTBUF;
+    //uart_rev = UTBUF;
 
-   UTBUF=	uart_rev;
-   while (!(UTSTA & 0x80));
+   //UTBUF=	uart_rev;
+   //while (!(UTSTA & 0x80));
 
-#if 0
-       g_ucUartCheckTick = 5;
-	 if( g_UartCommand.Index >= _UART_CMD_BUFFER_LENGTH_ ) // Protect buffer overflow
-        {
-            u8 ucTmp = UTBUF;
-        }
-        else
-		Uart_data_temp= UTBUF; 
-		
-            if(CMD_start_flag)
-            	{
-                if (Uart_data_temp == '\n') // read command ok
-                                  {
-                                       CMD_start_flag=FALSE;
-                                      g_bUartDetected = TRUE; // command  buffer recieve ok
-                                      g_UartCommand.Index = 0; // reset index of command buffer
-                                      g_ucUartCheckTick = 0;
-                                  }
-		 else
-			{
-            	          g_UartCommand.Buffer[g_UartCommand.Index] = Uart_data_temp; // recieve byte
-                        g_UartCommand.Index++; // next index of command buffer      
-			}
-				 
-            	}
-            else if(Uart_data_temp=='\n') // still read command
-            	CMD_start_flag=TRUE;
-			
-			
+#if 1
+    	uart_rev = UTBUF;
+
+	if((uart_rev==0xAA)&&(rev_phase==0)){
+
+		rev_cmd[0]=0xAA;
+		rev_phase=1;
+	}
+	else if((uart_rev==0x00)&&(rev_phase==1)){
+
+		rev_cmd[1]=0x00;
+		rev_phase=2;
+	}
+	else if((rev_phase==2)){
+
+		rev_cmd[2]=uart_rev;
+		rev_length=0;
+		rev_phase=3;
+	}	
+	else if((rev_phase==3)){
+
+		if(rev_length<(rev_cmd[2]+1)){
+			rev_cmd[2+rev_length++]=uart_rev;
+		}
+		else{
+			rev_phase=0;
+			bt_frame_rev_finished=1;
+		}
+	}
+	else{
+		rev_length=0;
+		rev_phase=0;
+	}
 #endif
 
     UTSTA &= ~BIT(6);
@@ -95,6 +103,7 @@ void uart_isr()  interrupt  7
     _pop_(DP1L);
     _pop_(DPCON);
 }
+#endif
 /*----------------------------------------------------------------------------*/
 /**@brief  串口打印函数，不处理换行
    @param  c：一个8位的数值

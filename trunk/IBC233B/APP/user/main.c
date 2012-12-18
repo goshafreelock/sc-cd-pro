@@ -316,7 +316,11 @@ void timer1isr(void)
 		 mcu_master_tranceive_tick=1;
 	 }	 
 #endif
+	 if(ms_cnt%25==0){
+	 	
+            put_msg_fifo(INFO_250_MS);
 
+	 }
         if (ms_cnt ==  50)
         {
             ms_cnt = 0;

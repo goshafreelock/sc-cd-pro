@@ -7,6 +7,8 @@
    @note
 */
 /*----------------------------------------------------------------------------*/
+#include "Custom_config.h"
+
 #ifndef _BLUE_TOOTH_H_
 #define _BLUE_TOOTH_H_
 
@@ -20,10 +22,24 @@
 #include "msgfor_hot.h"
 #include "rtc_mode.h"
 
+typedef enum {
+	
+	BT_POWER_ON,
+	BT_CONECTING,
+	BT_CONECTED,
+	BT_ACK,
+}AT_REV_CMD;
+
+typedef enum {
+	
+	BT_PLAY,
+	BT_NEXT,
+	BT_PREV,
+}AT_PROMPT_CMD;
+
 void Blue_tooth_hdlr( void );
 void Blue_tooth_main(void);
 #endif
-
 
 
 

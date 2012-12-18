@@ -81,6 +81,7 @@ void bmt_hdlr(void);
 #define  INFO_250MS	         	0x1d
 #define  INFO_SECOND	     	0x1e
 #define  INFO_HALF_SECOND	 0x1f
+#define  INFO_250_MS		 0x1C
 #define  INFO_100         		0x1d
 #define  INFO_STOP         		0x1d
 
