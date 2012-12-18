@@ -27,6 +27,7 @@ void uartInit(void);
 #if defined(BLUE_TOOTH_UART_FUNC)
 void blue_tooth_uart_init();
 #endif
+void putbyte(u8 c);
 char putchar (char c);
 void sys_printf(char *str);
 void printf_u8(u8 dat);

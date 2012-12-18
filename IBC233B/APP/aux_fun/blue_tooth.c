@@ -26,8 +26,16 @@ extern bool key_voice_disable;
 extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
+extern bool bt_frame_rev_finished;
 
-u8 _code BT_REV_CMD[5][7] =
+xd_u8 spark_timer=0;
+xd_u8 rev_bluetooth_status=0;
+xd_u8 rev_cmd[7]={0};
+
+#define REV_CMD_LEN		4
+#define AT_CMD_LEN		3
+
+u8 _code BT_REV_CMD[REV_CMD_LEN][7] =
 {
 	0xAA ,0x00 ,0x03 ,0x01 ,0x02 ,0x00 ,0xFA,				//Power on
   	0xAA ,0x00 ,0x03 ,0x01 ,0x06 ,0x10 ,0xE6,				//|| A connect A2DP
@@ -35,12 +43,57 @@ u8 _code BT_REV_CMD[5][7] =
   	0xAA ,0x00 ,0x02 ,0x00 ,0x02 ,0xFC,0x00,				//|| ACK
 };
 
-u8 _code BT_AT_CMD[5][7] =
+u8 _code BT_AT_CMD[AT_CMD_LEN][7] =
 {
 	0xAA ,0x00 ,0x03 ,0x02 ,0x00 ,0x32 ,0xC9,				//PLAY
   	0xAA ,0x00 ,0x03 ,0x02 ,0x00 ,0x34 ,0xC7,				// NEXT
   	0xAA ,0x00 ,0x03 ,0x02 ,0x00 ,0x35 ,0xC6,				//PREV	
 };
+
+void promt_bt_cmd(AT_PROMPT_CMD cmd)
+{
+	u8 i=0;
+	if(cmd<AT_CMD_LEN){
+
+		//UTCON = 0x01;
+
+		for(i=0;i<7;i++){
+			putbyte(BT_AT_CMD[cmd][i]);
+		}
+
+		//UTCON = 0x09;		
+	}
+}
+xd_u8 parse_i=0;
+u8 bluetooth_cmd_parse(void)
+{
+	u8 i=0xFF,j=0;
+		
+	UTCON = 0x01;
+	parse_i=rev_cmd[2]+1;
+	for(i=0;i<REV_CMD_LEN;i++){
+
+		for(j=0;j<parse_i;){
+
+			if(rev_cmd[2+j]!=BT_REV_CMD[i][2+j]){
+				j=0;
+				break;
+			}
+			j++;
+		}
+		if(j==parse_i){
+			break;
+		}
+	}
+
+	if(j==0){
+		i= 0xFF;
+	}
+		
+	UTCON = 0x09;
+
+	return i;
+}
 /*----------------------------------------------------------------------------*/
 /**@brief  AUX消息处理
    @param  无
@@ -52,6 +105,7 @@ void Blue_tooth_hdlr( void )
 {
     u8 key;
 #if defined(BLUE_TOOTH_UART_FUNC)
+    u8 cmd_key=0;
     blue_tooth_uart_init();
 #endif
     Mute_Ext_PA(UNMUTE);
@@ -62,6 +116,15 @@ void Blue_tooth_hdlr( void )
 		//suspend_sdmmc();
 
 		key = get_msg();
+
+		if(bt_frame_rev_finished){
+
+			cmd_key = bluetooth_cmd_parse();
+			
+			if(cmd_key<4){
+				rev_bluetooth_status = cmd_key;
+			}
+		}
 		
 		if(dac_cnt > 20)
 		{
@@ -72,7 +135,45 @@ void Blue_tooth_hdlr( void )
         {
         case INFO_NEXT_SYS_MODE:
 		return;
+
+        case INFO_PLAY| KEY_SHORT_UP:
+		promt_bt_cmd(BT_PLAY);			
+		break;
+        case INFO_NEXT_FIL| KEY_SHORT_UP:
+		promt_bt_cmd(BT_NEXT);						
+		break;	
+        case INFO_PREV_FIL| KEY_SHORT_UP:
+		promt_bt_cmd(BT_PREV);									
+		break;	
 		
+        case INFO_250_MS :
+			
+		spark_timer++;		
+		if(rev_bluetooth_status==BT_POWER_ON){
+
+			if(spark_timer%4==0){
+	             		Disp_Con(DISP_BT);
+			}
+			else{
+	            		Disp_Con(DISP_NULL);
+			}
+		}
+		else if(rev_bluetooth_status==BT_CONECTING){
+
+			if(spark_timer%2==0){
+	                   	Disp_Con(DISP_BT);
+			}
+			else{
+	                    	Disp_Con(DISP_NULL);
+			}
+		}
+		else if(rev_bluetooth_status==BT_CONECTED){
+
+			spark_timer=0;
+	              if(DISP_BT != curr_menu)
+	                    	Disp_Con(DISP_BT);
+		}	
+		break;			
         case INFO_HALF_SECOND :
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
             updata_fat_memory();
