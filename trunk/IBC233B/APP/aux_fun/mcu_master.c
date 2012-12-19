@@ -215,6 +215,7 @@ void mcu_master_info_hdlr()
 
 			info_timer_2++;
 			if((curr_menu != DISP_OPEN)&&(info_timer_2>1)){
+			   	Mute_Ext_PA(MUTE);
 				Disp_Con(DISP_OPEN);
 				toc_flag=0;
 				prog_icon_bit=0;
@@ -468,7 +469,7 @@ void mcu_hdlr( void )
 {
     u8 key;
 
-    Mute_Ext_PA(UNMUTE);
+    Mute_Ext_PA(MUTE);
 	
     while (1)
     {
