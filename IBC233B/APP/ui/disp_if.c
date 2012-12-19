@@ -489,7 +489,7 @@ void Disp_Aux(void )
 }
 void Disp_Bluetooth(void )
 {
-    printf_str("bT",1);
+    printf_str("bt",1);
 }
 void Disp_cur_band(void)
 {
