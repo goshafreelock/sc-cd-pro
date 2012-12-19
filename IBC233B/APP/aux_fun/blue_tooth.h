@@ -27,6 +27,7 @@ typedef enum {
 	BT_POWER_ON,
 	BT_CONECTING,
 	BT_CONECTED,
+	BT_DISCONECT,	
 	BT_ACK,
 }AT_REV_CMD;
 

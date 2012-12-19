@@ -41,64 +41,46 @@ void blue_tooth_uart_init()
 {
 	sysclock_div2(1);
 	uartInit();
+	PUART=1;
 	delay_10ms(10);
 }
 
 bool bt_frame_rev_finished=0;
-u8  uart_rev=0;
+xd_u8  uart_rev=0;
 xd_u8 rev_phase=0,rev_length=0;
 extern xd_u8 rev_cmd[7];
 
 void uart_isr()  interrupt  7
 {
-    //static u8  Uart_data_temp=0 ;
-
     _push_(DPCON);
     _push_(DP1L);
     _push_(DP1H);
     DPCON = 0x0;
 
-    //uart_rev = UTBUF;
+    uart_rev = UTBUF;
 
-   //UTBUF=	uart_rev;
-   //while (!(UTSTA & 0x80));
+    	if((uart_rev==0xAA)&&(rev_phase==0)){
 
-#if 1
-    	uart_rev = UTBUF;
-
-	if((uart_rev==0xAA)&&(rev_phase==0)){
-
-		rev_cmd[0]=0xAA;
 		rev_phase=1;
-	}
-	else if((uart_rev==0x00)&&(rev_phase==1)){
+    	}
+	
+	if(rev_phase>0){
+		
+	   rev_cmd[rev_phase-1]=uart_rev;
+	   
+	   rev_phase++;
 
-		rev_cmd[1]=0x00;
-		rev_phase=2;
-	}
-	else if((rev_phase==2)){
-
-		rev_cmd[2]=uart_rev;
-		rev_length=0;
-		rev_phase=3;
-	}	
-	else if((rev_phase==3)){
-
-		if(rev_length<(rev_cmd[2]+1)){
-			rev_cmd[2+rev_length++]=uart_rev;
-		}
-		else{
-			rev_phase=0;
-			bt_frame_rev_finished=1;
-		}
-	}
+	   if(rev_phase>7){	   	
+	   	rev_phase=0;
+		bt_frame_rev_finished=1;
+	   }
+   	}
 	else{
-		rev_length=0;
-		rev_phase=0;
+	   	rev_phase=0;
 	}
-#endif
 
     UTSTA &= ~BIT(6);
+
     _pop_(DP1H);
     _pop_(DP1L);
     _pop_(DPCON);

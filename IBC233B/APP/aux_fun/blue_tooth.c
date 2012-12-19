@@ -32,15 +32,17 @@ xd_u8 spark_timer=0;
 xd_u8 rev_bluetooth_status=0;
 xd_u8 rev_cmd[7]={0};
 
-#define REV_CMD_LEN		4
+#define REV_CMD_LEN		5
 #define AT_CMD_LEN		5
 
 u8 _code BT_REV_CMD[REV_CMD_LEN][7] =
 {
 	0xAA ,0x00 ,0x03 ,0x01 ,0x02 ,0x00 ,0xFA,				//Power on
   	0xAA ,0x00 ,0x03 ,0x01 ,0x06 ,0x10 ,0xE6,				//|| A connect A2DP
-  	0xAA ,0x00 ,0x03 ,0x01 ,0x0B ,0x00 ,0xF1,				//|| A connect AVRCP		
-  	0xAA ,0x00 ,0x02 ,0x00 ,0x02 ,0xFC,0x00,				//|| ACK
+  	0xAA ,0x00 ,0x03 ,0x01 ,0x0B ,0x00 ,0xF1,				//|| A connect AVRCP
+  	//0xAA ,0x00 ,0x03 ,0x01 ,0x08 ,0x00 ,0xF4, 
+  	0xAA ,0x00 ,0x03 ,0x01 ,0x0C ,0x00 ,0xF0, 
+  	0xAA ,0x00 ,0x02 ,0x00 ,0x02 ,0xFC ,0xAA,				//|| ACK
 };
 
 u8 _code BT_AT_CMD[AT_CMD_LEN][7] =
@@ -71,12 +73,19 @@ xd_u8 parse_i=0;
 u8 bluetooth_cmd_parse(void)
 {
 	u8 i=0xFF,j=0;
-		
+
+	
 	UTCON = 0x01;
+#if 0
+	sys_printf("   ");
+	for(j=0;j<7;j++)
+		printf("bluetooth_cmd_parse    cmd_key %x \r\n",(u16)rev_cmd[j]);
+#endif
 	parse_i=rev_cmd[2]+1;
 	for(i=0;i<REV_CMD_LEN;i++){
 
 		for(j=0;j<parse_i;){
+
 
 			if(rev_cmd[2+j]!=BT_REV_CMD[i][2+j]){
 				j=0;
@@ -122,10 +131,17 @@ void Blue_tooth_hdlr( void )
 
 		if(bt_frame_rev_finished){
 
+			bt_frame_rev_finished=0;
 			cmd_key = bluetooth_cmd_parse();
-			
-			if(cmd_key<4){
+
+			//printf("bluetooth_cmd_parse    cmd_key %x \r\n",(u16)cmd_key);
+
+			if(cmd_key<BT_ACK){
 				rev_bluetooth_status = cmd_key;
+			}
+			else if(cmd_key==BT_ACK){
+
+
 			}
 		}
 		
@@ -166,7 +182,7 @@ void Blue_tooth_hdlr( void )
 	            		Disp_Con(DISP_NULL);
 			}
 		}
-		else if(rev_bluetooth_status==BT_CONECTING){
+		else if((rev_bluetooth_status==BT_CONECTING)||(rev_bluetooth_status==BT_DISCONECT)){
 
 			if(spark_timer%2==0){
 	                   	Disp_Con(DISP_BT);
@@ -178,7 +194,7 @@ void Blue_tooth_hdlr( void )
 		else if(rev_bluetooth_status==BT_CONECTED){
 
 			spark_timer=0;
-	              if(DISP_BT != curr_menu)
+	              if(DISP_NULL == curr_menu)
 	                    	Disp_Con(DISP_BT);
 		}	
 		break;			
@@ -253,7 +269,7 @@ void Blue_tooth_main(void)
 	sysclock_div2(1);
     	flush_low_msg();
     	Disp_Con(DISP_BT);
-	delay_10ms(180);		
+	delay_10ms(100);		
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	Blue_tooth_hdlr();
 
