@@ -44,7 +44,11 @@ void blue_tooth_uart_init()
 	PUART=1;
 	delay_10ms(10);
 }
-
+void blue_tooth_uart_release()
+{
+	UTCON = 0x00;
+	PUART=0;
+}
 bool bt_frame_rev_finished=0;
 xd_u8  uart_rev=0;
 xd_u8 rev_phase=0,rev_length=0;

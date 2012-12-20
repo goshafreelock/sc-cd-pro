@@ -273,6 +273,10 @@ void Blue_tooth_main(void)
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	Blue_tooth_hdlr();
 
+#if defined(BLUE_TOOTH_UART_FUNC)
+	blue_tooth_uart_release();
+#endif
+
        Mute_Ext_PA(MUTE);
 		
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
