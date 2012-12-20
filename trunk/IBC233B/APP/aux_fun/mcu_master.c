@@ -33,6 +33,7 @@ extern bool key_voice_disable;
 extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
+extern xd_u8 play_disp_scr;
 
 bool next_prev_key=0,play_key=0;
 TOC_TIME cur_time;
@@ -545,6 +546,8 @@ void mcu_hdlr( void )
 			       Mute_Ext_PA(UNMUTE);
 				cd_play_status=MUSIC_PLAY;
 
+				play_disp_scr=0;
+
 				if(next_prev_key){
 					next_prev_key=0;					
 				}
@@ -568,6 +571,7 @@ void mcu_hdlr( void )
 				play_prog_mode=0;	
 				prog_cur_num=0;	
 #endif
+				play_disp_scr=0;
 				next_prev_key=0;					
 			       play_mode = REPEAT_OFF;
 			      Mute_Ext_PA(MUTE);
@@ -697,6 +701,11 @@ void mcu_hdlr( void )
 	                	if (DISP_PLAY != curr_menu)
 	                    		Disp_Con(DISP_PLAY);
 			  }
+			  else if(cd_play_status== MUSIC_PAUSE){
+					
+	                	if (DISP_PLAY != curr_menu)
+	                		disp_file_time();
+			  }			  
 			  else if(cd_play_status== MUSIC_STOP){
 	                	if ((DISP_DWORD_NUMBER != curr_menu)&&(toc_flag))
 	                    		Disp_Con(DISP_DWORD_NUMBER);

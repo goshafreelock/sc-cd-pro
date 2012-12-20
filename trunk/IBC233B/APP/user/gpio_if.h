@@ -81,6 +81,10 @@
 #define AMP_MUTE_PORT_INIT() 	 P0DIR &= ~(BIT(3));P0PU |=(BIT(3))//;P0PD &= ~(BIT(3))
 #define AMP_MUTE_DISABLE() 	 	 P03 = UNMUTE_LEVEL
 #define AMP_MUTE_ENABLE() 	 	 P03 = MUTE_LEVEL
+#elif defined( MUTE_PORT_USE_P05)
+#define AMP_MUTE_PORT_INIT() 	 P0DIR &= ~(BIT(5));P0PU |=(BIT(5))//;P0PD &= ~(BIT(3))
+#define AMP_MUTE_DISABLE() 	 	 P05 = UNMUTE_LEVEL
+#define AMP_MUTE_ENABLE() 	 	 P05 = MUTE_LEVEL
 #elif defined(MUTE_PORT_USE_WKUP)
 extern void wkup_pin_ctrl(bool dir);
 #define AMP_MUTE_PORT_INIT() 	
@@ -321,11 +325,15 @@ extern void wkup_pin_ctrl(bool dir);
 #define TUNER_PWR_GPIO_CTRL_INIT()	disable_usb();P3DIR &= ~(BIT(6));P3PU |=BIT(6);
 #define TUNER_PWR_GPIO_ON()			P36=0
 #define TUNER_PWR_GPIO_OFF()			P36=1
-#endif
 extern void wkup_pin_ctrl(bool dir);
 #define TUNER_PWR_GPIO_CTRL_INIT()
 #define TUNER_PWR_GPIO_ON() 	 	wkup_pin_ctrl(0)	
 #define TUNER_PWR_GPIO_OFF() 		wkup_pin_ctrl(1)	
+#else
+#define TUNER_PWR_GPIO_CTRL_INIT()	P0DIR &= ~(BIT(5));P0PU |=BIT(5);P05=1
+#define TUNER_PWR_GPIO_ON()			P05=0
+#define TUNER_PWR_GPIO_OFF()			P05=1
+#endif
 
 #define BT_GPIO_CTRL_INIT()			P0DIR &= ~(BIT(3));P0PU |=BIT(3);
 #define BT_PWR_GPIO_ON()			P03=1

@@ -463,6 +463,8 @@ void semi_auto_scan(u8 scan_dir)
 #ifdef FM_SAVE_STATION_MANUAL
 
 #define MANUAL_STATION_SAVE_KEY	(INFO_PROG|KEY_SHORT_UP)
+#define MANUAL_SEL_STATION_KEY_UP    		(INFO_STOP| KEY_SHORT_UP)
+#define MANUAL_SEL_STATION_KEY_DOWN   	(INFO_PLAY_MODE| KEY_SHORT_UP)
 
 void radio_save_station_hdlr()
 {
@@ -481,7 +483,8 @@ void radio_save_station_hdlr()
 		     	case INFO_MODE| KEY_HOLD:
 				//timerout_cnt=0;	
 				break;
-        		case INFO_NEXT_FIL | KEY_SHORT_UP:
+        		//case INFO_NEXT_FIL | KEY_SHORT_UP:
+        		case MANUAL_SEL_STATION_KEY_UP:
 
 				if(radio_prog_spark==0){
 		                    Disp_Con(DISP_FREQ);
@@ -495,7 +498,8 @@ void radio_save_station_hdlr()
 	                     Disp_Con(DISP_SAVE_POS);
 				timerout_cnt=10;	
 				break;
-        		case INFO_PREV_FIL | KEY_SHORT_UP:
+        		//case INFO_PREV_FIL | KEY_SHORT_UP:
+        		case MANUAL_SEL_STATION_KEY_DOWN:
 
 				if(radio_prog_spark==0){
 		                    Disp_Con(DISP_FREQ);
@@ -538,8 +542,7 @@ void radio_save_station_hdlr()
 		}
 	}
 }
-#define MANUAL_SEL_STATION_KEY_UP    		(INFO_STOP| KEY_SHORT_UP)
-#define MANUAL_SEL_STATION_KEY_DOWN   	(INFO_PLAY_MODE| KEY_SHORT_UP)
+
 void restore_station_from_ch(u8 sel_dir)
 {
 
@@ -599,6 +602,8 @@ void fm_hdlr( void )
 #ifdef ADKEY_SELECT_MODE
     	mode_switch_protect_bit=0;
 #endif	
+	dac_out_select(DAC_AMUX1);
+	delay_10ms(20);
 	Mute_Ext_PA(UNMUTE);
 
     while (1)
@@ -634,9 +639,11 @@ void fm_hdlr( void )
 		radio_prog_spark=0;		
 		break;
 #endif		
+#ifdef FM_SCAN_ALL
 	case BAND_FULL_SCAN_KEY:
 		full_band_scan_hdlr();
 		break;
+#endif		
 #ifdef SEMI_AUTO_SCAN_FUNC
         case SEMI_AUTO_SCAN_KEY_UP:			
 		semi_auto_scan(SEARCH_UP);

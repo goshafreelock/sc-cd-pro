@@ -1041,6 +1041,11 @@
               <FileType>1</FileType>
               <FilePath>.\aux_fun\blue_tooth.c</FilePath>
             </File>
+            <File>
+              <FileName>blue_tooth_uart_drv.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\aux_fun\blue_tooth_uart_drv.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

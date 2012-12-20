@@ -59,6 +59,9 @@ void iic_stop(void)
     iic_delay();
     iic_data_h();
     iic_delay();
+	
+    iic_data_l();
+    iic_clk_l();
 }
 
 /*----------------------------------------------------------------------------*/
