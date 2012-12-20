@@ -262,7 +262,7 @@ void bmt_hdlr(void);
 #define RES_VOLT_8			(((255*RES_9)/(RES_9+RES_PULL_UP)+(255*RES_8)/(RES_8+RES_PULL_UP))/2)
 #define RES_VOLT_9			(((255*RES_10)/(RES_10+RES_PULL_UP)+(255*RES_9)/(RES_9+RES_PULL_UP))/2)
 #define RES_VOLT_10			(((255*RES_11)/(RES_11+RES_PULL_UP)+(255*RES_10)/(RES_10+RES_PULL_UP))/2)
-#define RES_VOLT_NO_KEY	0xF8
+#define RES_VOLT_NO_KEY	0xFA
 #endif
 
 #if defined( CUSTOMER_DEFINED_ADKEY_RESISTOR)
@@ -313,7 +313,7 @@ void bmt_hdlr(void);
 #define ADKEY_8		INFO_PLAY
 #define ADKEY_9		INFO_PLAY_MODE
 #define ADKEY_10	INFO_MODE
-#define ADKEY_11	INFO_MODE
+#define ADKEY_11	NO_KEY
 #define ADKEY_NOKEY	NO_KEY
 #endif
 

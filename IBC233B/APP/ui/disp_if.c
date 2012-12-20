@@ -43,6 +43,12 @@ extern  xd_u8 prog_total_num,prog_cur_num;
 extern bool prog_icon_bit,play_prog_mode,prog_disp_srn;
 #endif
 
+#ifdef USE_CD_MCU_MASTER_FUNC			
+extern TOC_TIME cur_time;
+extern xd_u8 cd_play_status;
+xd_u8 play_disp_scr=0;
+#endif
+
 
 #ifdef USE_USB_PROG_PLAY_MODE
 extern bool usb_play_prog_mode,usb_prog_icon_bit;
@@ -197,7 +203,43 @@ void Disp_Filenum(void)
     	printf_num(given_file_number,1,3);
 	else 
     	printf_num(given_file_number,1,2);
-	
+
+
+   if(work_mode ==SYS_MCU_CD){
+
+  		play_disp_scr++;
+
+	    if(play_disp_scr<10){
+
+    		disp_clr_buf();
+    		printf_num(given_file_number,1,2);
+
+	    }
+	    else if(play_disp_scr<20){
+
+    		    disp_clr_buf();
+		    printf_num(cur_time.SEC,2,2);
+		    printf_num(cur_time.MIN,0,2);
+	    	    disp_icon(ICON_COL);
+	    }
+	    else{
+
+		play_disp_scr=0;
+	    }
+		
+	    if(cd_play_status==MUSIC_PLAY){	
+
+	    	//disp_icon(ICON_PAUSE);
+
+	    	disp_clr_icon(ICON_PAUSE);
+	    	disp_icon(ICON_PLAY);
+	    }
+	    else  if(cd_play_status==MUSIC_PAUSE){	
+
+	    	disp_clr_icon(ICON_PLAY);
+	    	disp_icon(ICON_PAUSE);
+	    }
+    }	
     	disp_active();	
 }
 void Disp_Nofile(void)
@@ -272,25 +314,37 @@ void Disp_Playmode_icon()
 	}
 }
 
-#ifdef USE_CD_MCU_MASTER_FUNC			
-extern TOC_TIME cur_time;
-extern xd_u8 cd_play_status;
-#endif
 void disp_file_time(void)
 {
     u16 sec;
     u16 min;
     u32 file_play_time;
 
-    //disp_clr_buf();
 
 #ifdef USE_CD_MCU_MASTER_FUNC
 
     if(work_mode ==SYS_MCU_CD){
-		
-	    printf_num(cur_time.SEC,2,2);
-	    printf_num(cur_time.MIN,0,2);
 
+  		play_disp_scr++;
+
+	    if(play_disp_scr<10){
+
+    		disp_clr_buf();
+    		printf_num(given_file_number,1,2);
+
+	    }
+	    else if(play_disp_scr<20){
+
+    		    disp_clr_buf();
+		    printf_num(cur_time.SEC,2,2);
+		    printf_num(cur_time.MIN,0,2);
+	    	    disp_icon(ICON_COL);
+	    }
+	    else{
+
+		play_disp_scr=0;
+	    }
+		
 	    if(cd_play_status==MUSIC_PLAY){	
 
 	    	disp_clr_icon(ICON_PAUSE);
@@ -313,13 +367,13 @@ void disp_file_time(void)
 	    printf_num(sec,2,2);
 	    printf_num(min,0,2);
     	    disp_icon(ICON_PLAY);
+    	    disp_icon(ICON_COL);
 
     }
 #if defined(MCU_CD_728_LCD_MODULE)
     disp_clr_flash_icon(ICON_PLAY);
 #endif
 
-    disp_icon(ICON_COL);
     disp_active();
     Disp_Playmode_icon();
 	
@@ -484,7 +538,7 @@ void Disp_Aux(void )
 {
 
     //printf_num(music_vol,1,2);
-    //printf_str("AUX",1);
+    printf_str("AUX",1);
     disp_icon(ICON_AUX);		
 }
 void Disp_Bluetooth(void )

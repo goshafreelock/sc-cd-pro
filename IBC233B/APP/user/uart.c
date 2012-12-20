@@ -35,61 +35,6 @@ void uartInit(void)
     UTCON = 0x00;							/* disable uart */
 #endif
 }
-#if defined(BLUE_TOOTH_UART_FUNC)
-
-void blue_tooth_uart_init()
-{
-	sysclock_div2(1);
-	uartInit();
-	PUART=1;
-	delay_10ms(10);
-}
-void blue_tooth_uart_release()
-{
-	UTCON = 0x00;
-	PUART=0;
-}
-bool bt_frame_rev_finished=0;
-xd_u8  uart_rev=0;
-xd_u8 rev_phase=0,rev_length=0;
-extern xd_u8 rev_cmd[7];
-
-void uart_isr()  interrupt  7
-{
-    _push_(DPCON);
-    _push_(DP1L);
-    _push_(DP1H);
-    DPCON = 0x0;
-
-    uart_rev = UTBUF;
-
-    	if((uart_rev==0xAA)&&(rev_phase==0)){
-
-		rev_phase=1;
-    	}
-	
-	if(rev_phase>0){
-		
-	   rev_cmd[rev_phase-1]=uart_rev;
-	   
-	   rev_phase++;
-
-	   if(rev_phase>7){	   	
-	   	rev_phase=0;
-		bt_frame_rev_finished=1;
-	   }
-   	}
-	else{
-	   	rev_phase=0;
-	}
-
-    UTSTA &= ~BIT(6);
-
-    _pop_(DP1H);
-    _pop_(DP1L);
-    _pop_(DPCON);
-}
-#endif
 /*----------------------------------------------------------------------------*/
 /**@brief  串口打印函数，不处理换行
    @param  c：一个8位的数值

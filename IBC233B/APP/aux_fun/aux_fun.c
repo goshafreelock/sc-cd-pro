@@ -25,6 +25,18 @@ extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
 
+#if defined(BLUE_TOOTH_UART_FUNC)
+#include "blue_tooth.h"
+extern xd_u8 rev_bluetooth_status;
+
+extern bool bt_frame_rev_finished;
+
+extern void blue_tooth_uart_init();
+extern void blue_tooth_uart_release();
+extern void promt_bt_cmd(AT_PROMPT_CMD cmd);
+extern u8 bluetooth_cmd_parse(void);
+#endif
+
 /*----------------------------------------------------------------------------*/
 /**@brief  AUX消息处理
    @param  无
@@ -34,8 +46,44 @@ extern bool alarm_on;
 /*----------------------------------------------------------------------------*/
 void deal_aux( void )
 {
-    u8 key;
+    u8 key=0;
+#if defined(BLUE_TOOTH_UART_FUNC)
+    u8 bt_vol_timer=6;
+    u8 cmd_key=0;
+    blue_tooth_uart_init();
+#if 0
+  delay_10ms(20);
 
+    promt_bt_cmd(BT_VOL_P);
+	
+    while(bt_vol_timer>0){
+
+		if(bt_frame_rev_finished){
+
+			bt_frame_rev_finished=0;
+			
+			//cmd_key = bluetooth_cmd_parse();
+			//if(cmd_key==BT_ACK){
+			//	promt_bt_cmd(BT_VOL_P);
+				bt_vol_timer--;
+			//}	  
+
+		}
+
+		delay_10ms(100);
+    		promt_bt_cmd(BT_VOL_P);
+		
+		if(key++>250){
+			bt_vol_timer=0;
+			break;
+		}
+    }	
+
+#endif
+#endif
+
+    dac_out_select(DAC_AMUX0);
+    delay_10ms(20);	
     Mute_Ext_PA(UNMUTE);
 
     while (1)
@@ -44,6 +92,25 @@ void deal_aux( void )
 		//suspend_sdmmc();
 
 		key = get_msg();
+
+#if defined(BLUE_TOOTH_UART_FUNC)
+
+		if(bt_frame_rev_finished){
+
+			bt_frame_rev_finished=0;
+			cmd_key = bluetooth_cmd_parse();
+
+			//printf("bluetooth_cmd_parse    cmd_key %x \r\n",(u16)cmd_key);
+			
+			if(cmd_key<BT_ACK){
+				rev_bluetooth_status = cmd_key;
+			}
+			else if(cmd_key==BT_ACK){
+				
+
+			}
+		}
+#endif		
 		
 		if(dac_cnt > 20)
 		{
@@ -55,6 +122,17 @@ void deal_aux( void )
         case INFO_NEXT_SYS_MODE:
 		return;
 		
+        case INFO_250_MS :
+		
+		if(rev_bluetooth_status==BT_DISCONECT){
+		}
+		else if((rev_bluetooth_status==BT_CONECTING)){
+			promt_bt_cmd(BT_DISPAIR);			
+		}
+		else if(rev_bluetooth_status==BT_CONECTED){
+			promt_bt_cmd(BT_DISPAIR);			
+		}	
+		break;		
         case INFO_HALF_SECOND :
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
             updata_fat_memory();
@@ -127,10 +205,14 @@ void aux_function(void)
     	flush_low_msg();
     	Disp_Con(DISP_AUX);
 
-	delay_10ms(180);
+	//delay_10ms(220);
 		
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	deal_aux();
+
+#if defined(BLUE_TOOTH_UART_FUNC)
+	blue_tooth_uart_release();
+#endif
 
     	Mute_Ext_PA(MUTE);
 		
