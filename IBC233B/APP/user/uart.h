@@ -26,6 +26,7 @@
 void uartInit(void);
 #if defined(BLUE_TOOTH_UART_FUNC)
 void blue_tooth_uart_init();
+void blue_tooth_uart_release();
 #endif
 void putbyte(u8 c);
 char putchar (char c);

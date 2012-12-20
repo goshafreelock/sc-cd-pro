@@ -313,7 +313,7 @@ void bmt_hdlr(void);
 #define ADKEY_8		INFO_PLAY
 #define ADKEY_9		INFO_PLAY_MODE
 #define ADKEY_10	INFO_MODE
-#define ADKEY_11	INFO_PLAY
+#define ADKEY_11	INFO_MODE
 #define ADKEY_NOKEY	NO_KEY
 #endif
 
