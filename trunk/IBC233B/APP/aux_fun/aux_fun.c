@@ -80,6 +80,7 @@ void deal_aux( void )
     }	
 
 #endif
+	promt_bt_cmd(BT_DISPAIR);			
 #endif
 
     dac_out_select(DAC_AMUX0);
@@ -127,7 +128,6 @@ void deal_aux( void )
 		if(rev_bluetooth_status==BT_DISCONECT){
 		}
 		else if((rev_bluetooth_status==BT_CONECTING)){
-			promt_bt_cmd(BT_DISPAIR);			
 		}
 		else if(rev_bluetooth_status==BT_CONECTED){
 			promt_bt_cmd(BT_DISPAIR);			

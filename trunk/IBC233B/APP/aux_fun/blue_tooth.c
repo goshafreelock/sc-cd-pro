@@ -178,9 +178,11 @@ void Blue_tooth_hdlr( void )
 
 			spark_timer=0;
 	              if(DISP_NULL == curr_menu){
-	   			 Mute_Ext_PA(UNMUTE);
 				 Disp_Con(DISP_BT);
 	              }
+
+  			 Mute_Ext_PA(UNMUTE);
+
 		}	
 		break;			
         case INFO_HALF_SECOND :
