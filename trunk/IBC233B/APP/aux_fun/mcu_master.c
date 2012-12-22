@@ -176,6 +176,7 @@ void mcu_master_info_hdlr()
 					
 					if(info_timer_play>2){
 						if(cd_play_status!=MUSIC_PLAY)
+						      Mute_Ext_PA(UNMUTE);							
 							cd_play_status=MUSIC_PLAY;
 					}
 			}
@@ -264,6 +265,7 @@ void mcu_master_info_hdlr()
 					//else 
 					if(cd_play_status!=MUSIC_STOP||(next_prev_key)){
 
+						play_disp_scr=0;
 						//if(next_prev_key)next_prev_key=0;
 		                    		Disp_Con(DISP_FILENUM);	
 					}
@@ -533,11 +535,16 @@ void mcu_hdlr( void )
 			      Mute_Ext_PA(MUTE);
 				cd_play_status=MUSIC_PAUSE;
 				master_push_cmd(PAUSE_CMD);
+
+		              Disp_Con(DISP_FILENUM);	
 			}
 			else if(cd_play_status == MUSIC_PAUSE){
 
 			      Mute_Ext_PA(UNMUTE);
 				cd_play_status=MUSIC_PLAY;
+
+				play_disp_scr=0;
+				
 		              Disp_Con(DISP_FILENUM);	
 				master_push_cmd(PLAY_RESUME_CMD);
 			}

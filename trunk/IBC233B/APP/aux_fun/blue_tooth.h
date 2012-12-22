@@ -22,6 +22,14 @@
 #include "msgfor_hot.h"
 #include "rtc_mode.h"
 
+enum {
+	
+	BT_STA_STOP,
+	BT_STA_PAUSE,
+	BT_STA_PLAY,	
+};
+
+
 typedef enum {
 	
 	BT_POWER_ON,
