@@ -9,6 +9,7 @@
 #include "lcdsegment.h"
 #include "my_printf.h"
 #include "mcu_master.h"
+#include "blue_tooth.h"
 
 extern xd_u8 LCDBuff[LCDPAGE][LCDCOLUMN];
 extern xd_u8 LED_BUFF[5];
@@ -37,6 +38,7 @@ extern  _xdata u8 filename_buff[100];
 extern bool alm_sw;
 extern xd_u8 station_save_pos,station_sel_pos;
 extern _xdata SYS_WORK_MODE  work_mode;
+extern xd_u8 bt_play_status;
 
 #ifdef USE_PROG_PLAY_MODE
 extern  xd_u8 prog_total_num,prog_cur_num;
@@ -431,7 +433,7 @@ void Disp_Hello(void)
 #ifdef WELCOME_DISP_BAR_BAR
     printf_str("----",0);
 #elif defined(WELCOME_DISP_ON_STR)
-    printf_str(" ON",0);
+    //printf_str(" ON",0);
 #else
     printf_str(" HI",0);
 #endif
@@ -544,6 +546,21 @@ void Disp_Aux(void )
 void Disp_Bluetooth(void )
 {
     printf_str("bt",1);
+
+    if(bt_play_status==BT_STA_PLAY){
+
+	    	disp_clr_icon(ICON_PAUSE);
+	    	disp_icon(ICON_PLAY);
+    }
+    else  if(bt_play_status==BT_STA_PAUSE){	
+
+	    	disp_clr_icon(ICON_PLAY);
+	    	disp_icon(ICON_PAUSE);
+    }
+    else{
+	    	disp_clr_icon(ICON_PAUSE);
+	    	disp_clr_icon(ICON_PLAY);
+    }
 }
 void Disp_cur_band(void)
 {
@@ -750,7 +767,8 @@ void custom_buf_update(void)
 			disp_icon(ICON_MEM);
 		}
 		else{
-			disp_clr_icon(ICON_MEM);		
+			disp_clr_icon(ICON_MEM);		
+
 		}		
 
 #ifdef RADIO_ST_INDICATOR

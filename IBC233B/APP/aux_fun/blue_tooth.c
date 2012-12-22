@@ -34,6 +34,9 @@ extern void blue_tooth_uart_release();
 extern void promt_bt_cmd(AT_PROMPT_CMD cmd);
 extern u8 bluetooth_cmd_parse(void);
 #endif
+
+xd_u8 bt_play_status=BT_STA_STOP;
+
 xd_u8 spark_timer=0;
 /*----------------------------------------------------------------------------*/
 /**@brief  AUX消息处理
@@ -118,7 +121,7 @@ void Blue_tooth_hdlr( void )
         case INFO_NEXT_SYS_MODE:
 		return;
         case INFO_STOP | KEY_SHORT_UP:
-
+		bt_play_status=BT_STA_STOP;
 		Mute_Ext_PA(MUTE);
 		promt_bt_cmd(BT_STOP);			
 		break;
@@ -126,6 +129,12 @@ void Blue_tooth_hdlr( void )
 		promt_bt_cmd(BT_DISPAIR);			
 		break;
         case INFO_PLAY| KEY_SHORT_UP:
+		if(bt_play_status==BT_STA_PLAY){
+			bt_play_status=BT_STA_PAUSE;
+		}
+		else if(bt_play_status<=BT_STA_PAUSE){
+			bt_play_status=BT_STA_PLAY;
+		}
 		promt_bt_cmd(BT_PLAY);			
 		break;
         case INFO_NEXT_FIL| KEY_SHORT_UP:
@@ -250,6 +259,8 @@ void Blue_tooth_main(void)
 	        return;
 	    }
 #endif	
+	bt_play_status=BT_STA_STOP;
+
        Mute_Ext_PA(MUTE);
 
 	BT_PWR_GPIO_ON();
