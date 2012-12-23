@@ -84,7 +84,7 @@ void deal_aux( void )
 #endif
 
     dac_out_select(DAC_AMUX0);
-    delay_10ms(20);	
+    delay_10ms(60);	
     Mute_Ext_PA(UNMUTE);
 
     while (1)
@@ -122,14 +122,21 @@ void deal_aux( void )
         {
         case INFO_NEXT_SYS_MODE:
 		return;
+
+#if 0		
+        case INFO_VOL_PLUS| KEY_SHORT_UP:
+		promt_bt_cmd(BT_VOL_P);						
+		break;	
+        case INFO_VOL_MINUS| KEY_SHORT_UP:
+		promt_bt_cmd(BT_VOL_M);									
+		break;	
+#endif		
 		
         case INFO_250_MS :
 		
 		if(rev_bluetooth_status==BT_DISCONECT){
 		}
-		else if((rev_bluetooth_status==BT_CONECTING)){
-		}
-		else if(rev_bluetooth_status==BT_CONECTED){
+		else if((rev_bluetooth_status==BT_CONECTED_A2DP)||(rev_bluetooth_status==BT_CONECTED_AVRCP)){
 			promt_bt_cmd(BT_DISPAIR);			
 		}	
 		break;		
@@ -205,7 +212,7 @@ void aux_function(void)
     	flush_low_msg();
     	Disp_Con(DISP_AUX);
 
-	//delay_10ms(220);
+	delay_10ms(160);
 		
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	deal_aux();

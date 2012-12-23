@@ -175,9 +175,17 @@ void mcu_master_info_hdlr()
 					info_timer_play++;
 					
 					if(info_timer_play>2){
+						
+						if((cd_play_status == MUSIC_PAUSE)&&(next_prev_key)){
+							
+							master_push_cmd(PAUSE_CMD);
+						}	
+						else{
+							
 						if(cd_play_status!=MUSIC_PLAY)
 						      Mute_Ext_PA(UNMUTE);							
 							cd_play_status=MUSIC_PLAY;
+						}
 					}
 			}
 			else if((rev_buf[0]&0x03)==0x00){
@@ -590,10 +598,20 @@ void mcu_hdlr( void )
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
 			next_prev_key=1;				
 			master_push_cmd(NEXT_FILE_CMD);
+
+			if(cd_play_status == MUSIC_PAUSE){
+			
+				master_push_cmd(PAUSE_CMD);
+			}
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
 			next_prev_key=1;								
 			master_push_cmd(PREV_FILE_CMD);
+
+			if(cd_play_status == MUSIC_PAUSE){
+			
+				master_push_cmd(PAUSE_CMD);	
+			}
 			break;			
 	        case INFO_NEXT_FIL | KEY_HOLD:
 			fast_fr_release_cnt=3;

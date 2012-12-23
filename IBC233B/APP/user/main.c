@@ -26,6 +26,8 @@
 #include "blue_tooth.h"
 
 extern u8 _idata music_vol;
+extern xd_u8 my_music_vol;
+
 extern xd_u8 curr_menu;
 extern bit pc_connect;
 extern bit iic_busy;
@@ -505,18 +507,19 @@ void sys_info_init(void)
 #endif
 
 #if 1
-	music_vol = read_info(MEM_VOL);
-    	if ((music_vol > MAX_MAIN_VOL) || (music_vol == 0))              //每次开机时，不要超过最大音量的一半，以免开机音量过大
+	my_music_vol = read_info(MEM_VOL);
+    	if ((my_music_vol > MAX_MAIN_VOL) || (my_music_vol == 0))              //每次开机时，不要超过最大音量的一半，以免开机音量过大
     	{
-        	music_vol = 20;
+        	my_music_vol = 20;
     	}
 #endif
 
 #if VOLUME_DEFAULT
-     	music_vol = VOLUME_DEFAULT;
+     	my_music_vol = VOLUME_DEFAULT;
 #endif
+       music_vol = my_music_vol;
    	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);
-   	main_vol_set(music_vol, CHANGE_VOL_MEM);
+   	main_vol_set(my_music_vol, CHANGE_VOL_MEM);
 	main_fade_en = 1;
 #if 0	
 #if OTP_MUSIC_ENABLE
@@ -737,7 +740,7 @@ void main(void)
 #endif
 	sys_clock_pll();//(MAIN_CLK_PLL);
 #ifdef USE_POWER_KEY
-	waiting_power_key();
+	//waiting_power_key();
 #endif	
 	Disp_Con(DISP_HELLO);
 	sys_init();
@@ -811,9 +814,9 @@ void main(void)
 		   	     sys_restore_mode();
 			     dac_mute_control(0,1);
 			     flush_all_msg();	
-			     music_vol = 26;
+			     my_music_vol = 26;
 			     set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);
-			     main_vol_set(music_vol, CHANGE_VOL_MEM);		 
+			     set_sys_vol(my_music_vol);
 		     	break;
 #endif			 
 	        	default:

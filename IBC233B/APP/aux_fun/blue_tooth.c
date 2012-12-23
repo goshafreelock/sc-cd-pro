@@ -108,6 +108,16 @@ void Blue_tooth_hdlr( void )
 			}
 			else if(cmd_key==BT_ACK){
 
+#if 1
+				if(bt_play_status==(BT_STA_PLAY|BT_STA_MASK)){
+		  			 Mute_Ext_PA(UNMUTE);
+					bt_play_status=BT_STA_PLAY;
+				}
+#endif				
+			}
+			else if(cmd_key ==BT_DEV_ISSUE_PLAY){
+					bt_play_status=BT_STA_PLAY;
+		  			 Mute_Ext_PA(UNMUTE);
 			}
 		}
 #endif		
@@ -121,21 +131,32 @@ void Blue_tooth_hdlr( void )
         case INFO_NEXT_SYS_MODE:
 		return;
         case INFO_STOP | KEY_SHORT_UP:
-		bt_play_status=BT_STA_STOP;
-		Mute_Ext_PA(MUTE);
-		promt_bt_cmd(BT_STOP);			
+		if((rev_bluetooth_status==BT_CONECTED_A2DP)||(rev_bluetooth_status==BT_CONECTED_AVRCP)){
+			bt_play_status=BT_STA_STOP;
+			Mute_Ext_PA(MUTE);
+			promt_bt_cmd(BT_STOP);			
+		}
 		break;
         case INFO_PLAY| KEY_LONG:
 		promt_bt_cmd(BT_DISPAIR);			
 		break;
         case INFO_PLAY| KEY_SHORT_UP:
-		if(bt_play_status==BT_STA_PLAY){
-			bt_play_status=BT_STA_PAUSE;
+			
+		if((rev_bluetooth_status==BT_CONECTED_A2DP)||(rev_bluetooth_status==BT_CONECTED_AVRCP)){
+
+#if 1			
+			if(bt_play_status==BT_STA_PLAY){
+
+				//Mute_Ext_PA(MUTE);
+				bt_play_status=BT_STA_PAUSE;
+			}
+			else if(bt_play_status!=BT_STA_PLAY){
+				bt_play_status=BT_STA_PLAY|BT_STA_MASK;
+			}
+#endif			
+			promt_bt_cmd(BT_PLAY);		
+
 		}
-		else if(bt_play_status<=BT_STA_PAUSE){
-			bt_play_status=BT_STA_PLAY;
-		}
-		promt_bt_cmd(BT_PLAY);			
 		break;
         case INFO_NEXT_FIL| KEY_SHORT_UP:
 		promt_bt_cmd(BT_NEXT);						
@@ -165,6 +186,8 @@ void Blue_tooth_hdlr( void )
 
 			Mute_Ext_PA(MUTE);
 
+	              if(DISP_VOL== curr_menu)break;
+
 			if(spark_timer%4==0){
 	             		Disp_Con(DISP_BT);
 			}
@@ -172,10 +195,10 @@ void Blue_tooth_hdlr( void )
 	            		Disp_Con(DISP_NULL);
 			}
 		}
-		else if((rev_bluetooth_status==BT_CONECTING)||(rev_bluetooth_status==BT_DISCONECT)||
-				(rev_bluetooth_status==BT_PAIR_MODE)||(rev_bluetooth_status==BT_PAIR_MODE)
-		){
+		else if((rev_bluetooth_status==BT_DISCONECT)||(rev_bluetooth_status==BT_PAIR_MODE)||(rev_bluetooth_status==BT_PAIR_MODE)){
 
+	              if(DISP_VOL== curr_menu)break;
+				  	
 			if(spark_timer%2==0){
 	                   	Disp_Con(DISP_BT);
 			}
@@ -183,15 +206,13 @@ void Blue_tooth_hdlr( void )
 	                    	Disp_Con(DISP_NULL);
 			}
 		}
-		else if(rev_bluetooth_status==BT_CONECTED){
+		else if((rev_bluetooth_status==BT_CONECTED_A2DP)||(rev_bluetooth_status==BT_CONECTED_AVRCP)){
 
 			spark_timer=0;
 	              if(DISP_NULL == curr_menu){
 				 Disp_Con(DISP_BT);
 	              }
-
   			 Mute_Ext_PA(UNMUTE);
-
 		}	
 		break;			
         case INFO_HALF_SECOND :
@@ -267,7 +288,7 @@ void Blue_tooth_main(void)
 	sysclock_div2(1);
     	flush_low_msg();
     	Disp_Con(DISP_BT);
-	delay_10ms(220);		
+	delay_10ms(60);		
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	Blue_tooth_hdlr();
 

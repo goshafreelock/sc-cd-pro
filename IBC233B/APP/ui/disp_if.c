@@ -16,6 +16,8 @@ extern xd_u8 LED_BUFF[5];
 extern xd_u16 lcd_buff[5];
 extern _xdata coordinate LCDsite;
 extern u8 _idata music_vol;
+extern xd_u8 my_music_vol;
+
 extern FSAPIMSG _pdata fs_msg;
 extern xd_u16 given_file_number;
 extern xd_u8 play_mode;
@@ -281,7 +283,7 @@ void Disp_Nodevice(void)
 void Disp_Vol(void)
 {
 	//printf_char('V',1);
-	printf_num(music_vol,1,2);
+	printf_num(my_music_vol,1,2);
 }
 void Diap_Playmode(void)
 {
@@ -488,6 +490,7 @@ void Disp_Power_up(void)
 }
 void Disp_Power_off(void)
 {
+       LCD_BACKLIGHT_OFF();	
 	disp_clr_buf();
 }
 #ifdef USE_TIMER_POWER_OFF_FUNC
@@ -539,7 +542,7 @@ void Disp_freq(void )
 void Disp_Aux(void )
 {
 
-    //printf_num(music_vol,1,2);
+    //printf_num(my_music_vol,1,2);
     printf_str("AUX",1);
     disp_icon(ICON_AUX);		
 }
@@ -547,6 +550,7 @@ void Disp_Bluetooth(void )
 {
     printf_str("bt",1);
 
+#if 0
     if(bt_play_status==BT_STA_PLAY){
 
 	    	disp_clr_icon(ICON_PAUSE);
@@ -561,6 +565,7 @@ void Disp_Bluetooth(void )
 	    	disp_clr_icon(ICON_PAUSE);
 	    	disp_clr_icon(ICON_PLAY);
     }
+#endif	
 }
 void Disp_cur_band(void)
 {
@@ -721,6 +726,8 @@ void custom_buf_update(void)
 		else{
 			disp_clr_icon(ICON_PROG);		
 		}
+
+		Disp_Playmode_icon();		
 	}
 #endif
 #ifdef USE_USB_PROG_PLAY_MODE
@@ -784,7 +791,26 @@ void custom_buf_update(void)
 #endif
 		
 	}
+	
+	if(work_mode ==SYS_BLUE_TOOTH){
 
+#if 0
+	    if(bt_play_status==BT_STA_PLAY){
+
+		    	disp_clr_icon(ICON_PAUSE);
+		    	disp_icon(ICON_PLAY);
+	    }
+	    else  if(bt_play_status==BT_STA_PAUSE){	
+
+		    	disp_clr_icon(ICON_PLAY);
+		    	disp_icon(ICON_PAUSE);
+	    }
+	    else{
+		    	disp_clr_icon(ICON_PAUSE);
+		    	disp_clr_icon(ICON_PLAY);
+	    }
+#endif		
+    }
 #ifdef FLASH_PLAY_ICON_WHEN_PAUSE
 	if(((toc_flag)&&(cd_play_status == MUSIC_PAUSE)&&(work_mode == SYS_MCU_CD))||((play_status == MUSIC_PAUSE)&&(work_mode == SYS_MP3DECODE_USB))){
 	    		disp_flash_icon(ICON_PLAY);

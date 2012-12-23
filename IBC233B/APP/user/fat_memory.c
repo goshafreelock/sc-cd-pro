@@ -17,7 +17,7 @@ extern u8 bdata device_online;
 
 u8 _xdata msg_buff0[FAT_MEMORY_SIZE+1] ;//_at_ 0xc00; //_at_ 0xde4;
 u8 _xdata * msg_buff;
-extern u8 music_vol;           ///< 当前主音量
+extern u8 _idata music_vol;           ///< 当前主音量
 extern bit play_status;        ///< 播放状态 1:播放;0:暂停;
 extern u8 given_device;        ///< 指定需要获取的设备 1 SD ; 2 USB; 0:不知道设备；其他：非法值
 extern u8 eq_mode;
