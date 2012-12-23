@@ -395,6 +395,7 @@ void semi_auto_scan(u8 scan_dir)
     radio_st_ind=0;
 #endif
 
+    radio_MEM_disp=0;
     adkey_detect=0;
 
    dac_mute_control(1,1);		
@@ -539,6 +540,10 @@ void radio_save_station_hdlr()
 				      return;
 				}
 				break;	
+		    case INFO_POWER | KEY_SHORT_UP:	
+			    	Disp_Con(DISP_POWER_OFF);
+				sys_power_down();
+				break;				
 		}
 	}
 }
@@ -772,7 +777,7 @@ void fm_radio(void)
 	sys_printf(" SYS GO IN FM MODE");
 #endif
     	TUNER_PWR_GPIO_ON();
-	delay_10ms(20);
+	delay_10ms(5);
 
 #ifndef DISABLE_P05_OSC_OUTPUT
    	fm_osc_output_select(TRUE);

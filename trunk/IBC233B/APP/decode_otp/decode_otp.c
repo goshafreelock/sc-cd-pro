@@ -17,7 +17,7 @@
 
 SROM_MC(CONST_MyMusic) // Create external declarations for the CODE Class
 
-extern u8 _idata music_vol;
+extern u8 _idata  music_vol;
 extern void f_open_dummy_file(u32 fsize); //打开一个虚拟的文件
 extern void stop_decode(void);
 extern u16 f_read (u8 _xdata *buffer, u16 len);

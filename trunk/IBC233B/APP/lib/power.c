@@ -234,12 +234,14 @@ void rc_pll_delay(void)
 /*----------------------------------------------------------------------------*/
 void sys_power_down(void)
 {
-    sys_printf("---sys_power_down");
+    //sys_printf("---sys_power_down");
 
     Mute_Ext_PA(MUTE);
 
     delay_10ms(2);
     EA = 0;
+    Disp_Con(DISP_POWER_OFF);
+	
     power_ctl(0);
     while (1);
 }

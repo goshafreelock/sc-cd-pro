@@ -38,6 +38,7 @@ xd_u8 rtc_setting=0;
 bool sys_mute_flag=0;
 xd_u8 key_100_flag=0;
 xd_u8 my_sys_vol=0;
+xd_u8 my_music_vol=0;
 
 extern bool sys_pwr_flag;
 extern xd_u8 cur_sw_fm_band;
@@ -99,18 +100,8 @@ void timer_pwr_off_hdlr()
 void set_sys_vol(u8 vol)
 {
 	music_vol=vol;
-	if (DAC_DECODE == dac_channel)
-	{
-		if (music_vol > max_digital_vol)
-		        music_vol = max_digital_vol;
-	}
-	else	{
-
-		if (music_vol > max_analog_vol)
-		      	music_vol = max_analog_vol;
-	}
 	write_info(MEM_VOL, music_vol);
-	main_vol_set(0, CHANGE_VOL_NO_MEM);
+	main_vol_set(0, SET_USE_CURRENT_VOL);
 }
 void rtc_setting_exit(void)
 {
@@ -467,18 +458,34 @@ u8 ap_handle_hotkey(u8 key)
 
     case INFO_VOL_PLUS:
     case INFO_VOL_PLUS | KEY_HOLD :
-        music_vol += 2;
+        my_music_vol += 2;
     case INFO_VOL_MINUS:
     case INFO_VOL_MINUS | KEY_HOLD :
         //break;
-		if (music_vol)
-            music_vol--;
+		if (my_music_vol)
+            my_music_vol--;
+#if 1
+	if (DAC_DECODE == dac_channel)
+	{
+		if (my_music_vol > max_digital_vol)
+		        my_music_vol = max_digital_vol;
+	}
+	else	{
 
-//        if (music_vol > MAX_MAIN_VOL)
-//        {
-//            music_vol = MAX_MAIN_VOL;
-//        }
-        //printf(" vol %d\n",(u16)main_vol);
+		if (my_music_vol > max_analog_vol)
+		      	my_music_vol = max_analog_vol;
+	}
+	
+	set_sys_vol(my_music_vol);
+       // printf(" -------> vol %d   \r\n",(u16)my_music_vol);
+       // printf(" -------> vol %d   \r\n",(u16)music_vol);
+
+#else
+        if (music_vol > MAX_MAIN_VOL)
+        {
+            music_vol = MAX_MAIN_VOL;
+        }
+        printf(" -------> vol %d   \r\n",(u16)music_vol);
         //write_info(MEM_VOL, music_vol);
         /**/
 	       if ((work_mode < SYS_MP3DECODE_SD)&&(play_status == MUSIC_PAUSE))		  				//暂停播放时不调整主音量
@@ -500,12 +507,13 @@ u8 ap_handle_hotkey(u8 key)
 	        }
 		dac_mute_control(0, 1);
 		write_info(MEM_VOL,main_vol_set(0, SET_USE_CURRENT_VOL));
+#endif		
 		Disp_Con(DISP_VOL);
         
         break;
 		
 #ifdef USE_POWER_KEY
-    case INFO_POWER | KEY_LONG:	
+    case INFO_POWER | KEY_SHORT_UP:	
 	    	Disp_Con(DISP_POWER_OFF);
 		sys_power_down();
 		break;
