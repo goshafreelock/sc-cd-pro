@@ -374,7 +374,7 @@ void Disp_Hello(void)
 #ifdef WELCOME_DISP_BAR_BAR
     printf_str("----",0);
 #elif defined(WELCOME_DISP_ON_STR)
-    printf_str(" ON",0);
+    //printf_str(" ON",0);
 #else
     printf_str(" HI",0);
 #endif
