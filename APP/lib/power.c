@@ -166,7 +166,7 @@ void sys_clock_pll(void)
 void waiting_power_key()
 {
     xd_u16 Pwr_key_cnt=0,Pwr_key_cnt_2=0;
-	
+#ifdef POWER_KEY_HOLD_POWER_ON	
     Pwr_Key_Init();
     while (1)
     {
@@ -186,7 +186,7 @@ void waiting_power_key()
 			}
 		}
     }
-
+#endif
 }
 #endif
 
@@ -238,7 +238,15 @@ void sys_power_down(void)
 
     Mute_Ext_PA(MUTE);
 
-    delay_10ms(2);
+    delay_10ms(20);
+    Disp_Con(DISP_POWER_OFF);
+    delay_10ms(20);
+    Disp_Con(DISP_POWER_OFF);
+    delay_10ms(20);
+    Disp_Con(DISP_POWER_OFF);
+    delay_10ms(20);
+    Disp_Con(DISP_POWER_OFF);
+	
     EA = 0;
     power_ctl(0);
     while (1);
