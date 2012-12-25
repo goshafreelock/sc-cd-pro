@@ -80,8 +80,8 @@ SEG8     P34
 #elif defined(BACK_LIGHT_GPIO_PORT_WKUP)
 extern void wkup_pin_ctrl(bool dir);
 #define  LCD_BACKLIGHT_INIT()	  	
-#define LCD_BACKLIGHT_ON()		wkup_pin_ctrl(1)	
-#define LCD_BACKLIGHT_OFF()		wkup_pin_ctrl(0)
+#define LCD_BACKLIGHT_ON()		wkup_pin_ctrl(0)	
+#define LCD_BACKLIGHT_OFF()		wkup_pin_ctrl(1)
 #else 
 #define  LCD_BACKLIGHT_INIT()	  	
 #define LCD_BACKLIGHT_ON()			

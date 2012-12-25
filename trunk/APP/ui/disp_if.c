@@ -429,6 +429,7 @@ void Disp_Power_up(void)
 }
 void Disp_Power_off(void)
 {
+    	LCD_BACKLIGHT_OFF();
 	disp_clr_buf();
 }
 #ifdef USE_TIMER_POWER_OFF_FUNC
