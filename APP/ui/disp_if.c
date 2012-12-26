@@ -15,6 +15,7 @@ extern xd_u8 LED_BUFF[5];
 extern xd_u16 lcd_buff[5];
 extern _xdata coordinate LCDsite;
 extern u8 _idata music_vol;
+extern xd_u8 my_music_vol;
 extern FSAPIMSG _pdata fs_msg;
 extern xd_u16 given_file_number;
 extern xd_u8 play_mode;
@@ -118,6 +119,7 @@ void Disp_Num(void)
 {
 #ifdef USE_CD_MCU_MASTER_FUNC			
 	if(work_mode == SYS_MCU_CD){
+		if(cfilenum>0)
 		printf_num(cfilenum,2,2);
 	}
 	else
@@ -236,7 +238,7 @@ void Disp_Nodevice(void)
 void Disp_Vol(void)
 {
 	printf_char('V',1);
-	printf_num(music_vol,2,2);
+	printf_num(my_music_vol,2,2);
 }
 void Diap_Playmode(void)
 {
