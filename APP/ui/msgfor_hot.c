@@ -51,7 +51,52 @@ extern void alm_time_plus();
 extern void alm_time_minus();
 extern void set_alm_sec(void);
 
+void aux_channel_crosstalk_improve(u8 ch_num)
+{
+	//aux_ch_reg=ch_num;
+	//printf("-------->%aux_ch_reg  %d \r\n",(u16)aux_ch_reg);
 
+#ifdef UART_ENABLE
+		if(ch_num == DAC_AMUX0){
+			sys_printf(" AUX0_SELECTED_P24_P25");
+		}
+		else{
+			sys_printf(" AUX1_SELECTED_P26_P27");
+		}
+#endif
+
+
+		if(ch_num == DAC_AMUX0){
+			DACCON0 &=~0x40;
+		     	P2DIR |=( (BIT(4))|(BIT(5)));
+		    	P2PU &=~( (BIT(4))|(BIT(5)));
+		    	//P2 &=~( (BIT(6))|(BIT(7)));
+		}
+		else if(ch_num == DAC_AMUX1){
+
+			DACCON0 &=~0x80;
+		     	P2DIR |=( (BIT(6))|(BIT(7)));
+		    	P2PU &=~( (BIT(6))|(BIT(7)));
+		    	//P2 &=~( (BIT(6))|(BIT(7)));
+		}
+    		dac_out_select(ch_num);	//4
+
+		if(ch_num == DAC_AMUX0){	//4AUX0_P24_P25
+
+			DACCON0|=0x80;
+		     	P2DIR &=~( (BIT(6))|(BIT(7)));
+		    	P2PU |=( (BIT(6))|(BIT(7)));
+		    	P2 &=~( (BIT(6))|(BIT(7)));
+		}
+		else if(ch_num == DAC_AMUX1){//4AUX0_P26_P27
+		
+			DACCON0|=0x40;
+		     	P2DIR &=~( (BIT(4))|(BIT(5)));
+		    	P2PU |=( (BIT(4))|(BIT(5)));
+		    	P2 &=~( (BIT(4))|(BIT(5)));
+		}
+
+}
 void Mute_Ext_PA(bool M_Type)
 {
 	AMP_MUTE_PORT_INIT();
@@ -100,7 +145,6 @@ void timer_pwr_off_hdlr()
 void set_sys_vol(u8 vol)
 {
 	music_vol=vol;
-	write_info(MEM_VOL, music_vol);
 	main_vol_set(0, SET_USE_CURRENT_VOL);
 }
 void rtc_setting_exit(void)
@@ -461,40 +505,40 @@ u8 ap_handle_hotkey(u8 key)
 		if (my_music_vol)
             my_music_vol--;
 #if 1
-	if (DAC_DECODE == dac_channel)
-	{
-		if (my_music_vol > max_digital_vol)
-		        my_music_vol = max_digital_vol;
-	}
-	else	{
 
-		if (my_music_vol > max_analog_vol)
-		      	my_music_vol = max_analog_vol;
-	}
-	
+	if(my_music_vol > MAX_MAIN_VOL)
+		  my_music_vol = MAX_MAIN_VOL;
+
+
+	dac_mute_control(0, 1);	
 	set_sys_vol(my_music_vol);
+
+	write_info(MEM_VOL, music_vol);
+	
        // printf(" -------> vol %d   \r\n",(u16)my_music_vol);
        // printf(" -------> vol %d   \r\n",(u16)music_vol);
 
 #else
+	music_vol=my_music_vol;
+
         if (music_vol > MAX_MAIN_VOL)
         {
             music_vol = MAX_MAIN_VOL;
         }
-        printf(" -------> vol %d   \r\n",(u16)music_vol);
+        //printf(" -------> vol %d   \r\n",(u16)music_vol);
         //write_info(MEM_VOL, music_vol);
         /**/
 	       if ((work_mode < SYS_MP3DECODE_SD)&&(play_status == MUSIC_PAUSE))		  				//暂停播放时不调整主音量
 		{
 			if (DAC_DECODE == dac_channel)
 			{
-			    	if (music_vol > max_digital_vol)
-			        	music_vol = max_digital_vol;
+			    	if (music_vol > MAX_MAIN_VOL)
+			        	music_vol = MAX_MAIN_VOL;
 			}
 			else
 			{
-				if (music_vol > max_analog_vol)
-			       	music_vol = max_analog_vol;
+				if (music_vol > MAX_MAIN_VOL)
+			       	music_vol = MAX_MAIN_VOL;
 			}
 			Disp_Con(DISP_VOL);
 			write_info(MEM_VOL, music_vol);

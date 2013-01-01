@@ -11,6 +11,7 @@
 #include "power.h"
 #include "gpio_if.h"
 #include "msgfor_hot.h"
+extern xd_u8 work_mode;
 
 bool sys_clock_flag;  ///<AD
 u8 clock_change_delay;
@@ -225,6 +226,7 @@ void rc_pll_delay(void)
     }
 }
 #ifdef USE_POWER_KEY
+extern void  KT_AMFMStandby(void);
 /*----------------------------------------------------------------------------*/
 /**@brief    系统掉电函数
    @param    无
@@ -239,6 +241,13 @@ void sys_power_down(void)
     Mute_Ext_PA(MUTE);
 
     delay_10ms(20);
+	
+    set_sys_vol(0);
+
+    KT_AMFMStandby();
+
+    work_mode = SYS_IDLE;
+	
     Disp_Con(DISP_POWER_OFF);
     delay_10ms(20);
     Disp_Con(DISP_POWER_OFF);

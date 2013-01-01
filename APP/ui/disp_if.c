@@ -431,6 +431,9 @@ void Disp_Power_up(void)
 }
 void Disp_Power_off(void)
 {
+
+    	work_mode = SYS_IDLE;
+
     	LCD_BACKLIGHT_OFF();
 	disp_clr_buf();
 }
@@ -610,6 +613,9 @@ void Disp_alarm_up(void)
 #endif
 void custom_buf_update(void)
 {
+
+	if(work_mode == SYS_IDLE)return;
+	
 #ifdef USE_RTC_ALARM_FUNCTION
 	if(alm_sw){
 	 	disp_icon(ICON_BELL);		
@@ -624,6 +630,9 @@ void custom_buf_update(void)
 	 	disp_icon(ICON_CD);	
 	 	disp_clr_icon(ICON_USB);		
 	 	disp_clr_icon(ICON_SD);		
+	}
+	else{
+	 	disp_clr_icon(ICON_CD);		
 	}
 #endif
 #ifdef USE_PROG_PLAY_MODE

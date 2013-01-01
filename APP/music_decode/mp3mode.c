@@ -972,6 +972,7 @@ void decode_play(void)
 #ifdef MP3_UART_ENABLE
 	sys_printf(" SYS GO IN DECODE MODE");
 #endif
+	Mute_Ext_PA(MUTE);
 
 	folder_select=0;
 	folder_mode_select=0;
@@ -992,6 +993,8 @@ void decode_play(void)
 	set_max_vol(MAX_ANALOG_VOL-DECODE_ANALOG_VOL_CUT, MAX_DIGITAL_VOL);			//设置Music模式的音量上限
     //suspend_sdmmc();
 	music_play();
+
+	Mute_Ext_PA(MUTE);
 
 #ifdef ADKEY_SELECT_MODE
     	mode_switch_protect_bit=1;

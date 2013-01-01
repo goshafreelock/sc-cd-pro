@@ -32,7 +32,7 @@ extern bit iic_busy;
 extern u8 bdata device_online;
 extern bool main_fade_en, digital_fade_en;     ///< 是否允许主音量和数字音量的淡入淡出，如果使能，模式切换和歌曲切换的时间会延长。默认不开启
 extern u16 _idata dac_cnt;
-xd_u8 work_mode;
+xd_u8 work_mode=0;
 u8 _xdata win_buffer[512] _at_ 0x600;
 xd_u16 cfilenum;
 bool aux_online=0;
