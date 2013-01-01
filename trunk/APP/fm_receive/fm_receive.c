@@ -644,6 +644,9 @@ void fm_hdlr( void )
 #ifdef ADKEY_SELECT_MODE
     	mode_switch_protect_bit=0;
 #endif	
+
+       aux_channel_crosstalk_improve(DAC_AMUX1);
+	delay_10ms(10);
 	Mute_Ext_PA(UNMUTE);
 
     while (1)
@@ -805,13 +808,15 @@ void fm_radio(void)
 	sys_printf(" SYS GO IN FM MODE");
 #endif
 
+	Mute_Ext_PA(MUTE);
+
 #ifndef DISABLE_P05_OSC_OUTPUT
    	fm_osc_output_select(TRUE);
 #endif
        if (KT_AMFMWakeUp()==0)
        {
     		Disp_Con(DISP_ERROR);
-		delay_10ms(50);
+		delay_10ms(10);
 	}
 	//else
 	{
@@ -849,6 +854,9 @@ void fm_radio(void)
 	    	Disp_Con(DISP_FREQ);
 		set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置FM模式的音量上限
 	    	fm_hdlr();
+
+
+		Mute_Ext_PA(MUTE);
 
 #ifdef ADKEY_SELECT_MODE
 	    	mode_switch_protect_bit=1;

@@ -35,6 +35,10 @@ void deal_aux( void )
 {
     u8 key;
 
+    aux_channel_crosstalk_improve(DAC_AMUX1);
+    delay_10ms(120);	
+    Mute_Ext_PA(UNMUTE);
+	
     while (1)
     {
         	dac_out_select(DAC_AMUX1);
@@ -114,11 +118,16 @@ void aux_function(void)
 	        return;
 	    }
 #endif	
+	Mute_Ext_PA(MUTE);
+
 	sysclock_div2(1);
     	flush_low_msg();
     	Disp_Con(DISP_AUX);
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	deal_aux();
+
+	Mute_Ext_PA(MUTE);
+		
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
 }
 #endif

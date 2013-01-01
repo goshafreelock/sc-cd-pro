@@ -122,12 +122,19 @@ void mcu_master_info_hdlr()
 //4 get cur play status 	
 		if((rev_buf[0]&0x03)==0x02){
 
- 				//info_timer_3=0;
-				if(cd_play_status!=MUSIC_PLAY)
-				cd_play_status=MUSIC_PLAY;
+ 				if(info_timer_3++>2){
+					
+					if(cd_play_status!=MUSIC_PLAY){
+
+				   		Mute_Ext_PA(UNMUTE);					
+						cd_play_status=MUSIC_PLAY;
+
+					}
+				}
 		}
 		else if((rev_buf[0]&0x03)==0x00){
 
+			info_timer_3 =0;
 			if(cd_play_status!=MUSIC_STOP){
 				cd_play_status=MUSIC_STOP;
 			}
@@ -179,8 +186,13 @@ void mcu_master_info_hdlr()
 
 			info_timer_2++;
 			if((curr_menu != DISP_OPEN)&&(info_timer_2>2)){
+			   	Mute_Ext_PA(MUTE);
 				Disp_Con(DISP_OPEN);
 				toc_flag=0;
+				prog_icon_bit=0;
+				play_prog_mode=0;
+			    	play_mode=REPEAT_OFF;
+			    	master_push_cmd(REP_OFF_CMD);					
 			}
 		}
 		else{
@@ -228,6 +240,7 @@ void mcu_master_info_hdlr()
 
 				if(cfilenum!=rev_buf[5]){
 					cfilenum=rev_buf[5];
+					if(cfilenum>0)
 	                    		Disp_Con(DISP_DWORD_NUMBER);
 
 				}
@@ -412,7 +425,8 @@ void mcu_hdlr( void )
 {
     u8 key;
 
-    Mute_Ext_PA(UNMUTE);
+    aux_channel_crosstalk_improve(DAC_AMUX0);
+    delay_10ms(80);
 	
     while (1)
     {
@@ -462,18 +476,25 @@ void mcu_hdlr( void )
 			if(!toc_flag)break;		//2 TOC  NOT READY
 
 #ifdef USE_PROG_PLAY_MODE
-			play_prog_mode=0;
+			if(play_prog_mode){
+
+			       play_mode = REPEAT_OFF;
+				play_prog_mode=0;
+				prog_icon_bit=1;
+			}
 #endif			
 			if(cd_play_status== MUSIC_PLAY){
 
 			      Mute_Ext_PA(MUTE);
 				cd_play_status=MUSIC_PAUSE;
 				master_push_cmd(PAUSE_CMD);
+		              Disp_Con(DISP_FILENUM);	
 			}
 			else if(cd_play_status == MUSIC_PAUSE){
 
 			      Mute_Ext_PA(UNMUTE);
 				cd_play_status=MUSIC_PLAY;
+		              Disp_Con(DISP_FILENUM);	
 				master_push_cmd(PLAY_RESUME_CMD);
 			}
 			else if(cd_play_status== MUSIC_STOP){
@@ -485,11 +506,13 @@ void mcu_hdlr( void )
 			break;
 			
 	        case INFO_STOP| KEY_SHORT_UP :
-			//if(cd_play_status!= MUSIC_STOP)
+			if(toc_flag)
 			{
 #ifdef USE_PROG_PLAY_MODE
 				play_prog_mode=0;	
+				prog_cur_num=0;	
 #endif
+			       play_mode = REPEAT_OFF;
 			      Mute_Ext_PA(MUTE);
 				cd_play_status=MUSIC_STOP;			
 				master_push_cmd(STOP_CMD);
@@ -497,9 +520,11 @@ void mcu_hdlr( void )
 			}
 			break;
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
+			Mute_Ext_PA(MUTE);	
 			master_push_cmd(NEXT_FILE_CMD);
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
+			Mute_Ext_PA(MUTE);					
 			master_push_cmd(PREV_FILE_CMD);
 			break;			
 	        case INFO_NEXT_FIL | KEY_HOLD:
@@ -520,6 +545,7 @@ void mcu_hdlr( void )
 #ifdef MASTER_SEL_CD_PLAY_MODE
 	    	case INFO_MODE | KEY_SHORT_UP:
         	case INFO_PLAY_MODE :
+			if(toc_flag==0)break;
 
 			if(prog_icon_bit||play_prog_mode){
 				break;
@@ -655,9 +681,18 @@ void mcu_main_hdlr(void)
     mcu_master_init();
     set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     mcu_hdlr();
+    Mute_Ext_PA(MUTE);
     prog_play_clear();	
     main_vol_set(0, CHANGE_VOL_NO_MEM);
     CD_PWR_GPIO_OFF();	
+#ifdef USE_PROG_PLAY_MODE
+	prog_total_num=1;
+	prog_cur_num=0;	
+	play_prog_mode=0;
+	prog_icon_bit=0;
+	
+#endif	
+    	play_mode=REPEAT_OFF;
 }
 #endif
 

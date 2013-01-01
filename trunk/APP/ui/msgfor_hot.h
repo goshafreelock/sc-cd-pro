@@ -94,8 +94,11 @@ typedef enum{
 void Init_Func_List();
 void Set_Curr_Func(u8 curr_mod);
 void Remov_Func_From_List(DEV_ON_LIST Dev);
+void set_sys_vol(u8 vol);
 
 void Mute_Ext_PA(bool M_Type);
+
+void aux_channel_crosstalk_improve(u8 ch_num);
 
 u8 ap_handle_hotkey(u8 msg);
 void rtc_setting_exit(void);
