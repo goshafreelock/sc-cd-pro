@@ -21,6 +21,8 @@ bool mcu_master_tranceive_tick=0;
 
 xd_u8 cd_play_status=0xFF;
 
+bool next_prev_key=0,play_key=0;
+
 extern xd_u16 given_file_number;
 extern xd_u16 cfilenum;
 extern xd_u8 curr_menu;
@@ -125,11 +127,16 @@ void mcu_master_info_hdlr()
  				if(info_timer_3++>2){
 					
 					if(cd_play_status!=MUSIC_PLAY){
-
-				   		Mute_Ext_PA(UNMUTE);					
+						Mute_Ext_PA(UNMUTE);					
 						cd_play_status=MUSIC_PLAY;
 
 					}
+
+					if(next_prev_key){
+						next_prev_key =0;
+						Mute_Ext_PA(UNMUTE);					
+					}
+
 				}
 		}
 		else if((rev_buf[0]&0x03)==0x00){
@@ -520,10 +527,12 @@ void mcu_hdlr( void )
 			}
 			break;
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
+			next_prev_key =1;
 			Mute_Ext_PA(MUTE);	
 			master_push_cmd(NEXT_FILE_CMD);
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
+			next_prev_key =1;				
 			Mute_Ext_PA(MUTE);					
 			master_push_cmd(PREV_FILE_CMD);
 			break;			
