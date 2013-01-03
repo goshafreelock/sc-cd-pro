@@ -20,8 +20,8 @@
 bool mcu_master_tranceive_tick=0;
 
 xd_u8 cd_play_status=0xFF;
-
-bool next_prev_key=0,play_key=0;
+bool fisrt_time_op=0;
+xd_u8 next_prev_key_timer=0,play_key=0;
 
 extern xd_u16 given_file_number;
 extern xd_u16 cfilenum;
@@ -130,11 +130,6 @@ void mcu_master_info_hdlr()
 						Mute_Ext_PA(UNMUTE);					
 						cd_play_status=MUSIC_PLAY;
 
-					}
-
-					if(next_prev_key){
-						next_prev_key =0;
-						Mute_Ext_PA(UNMUTE);					
 					}
 
 				}
@@ -527,12 +522,12 @@ void mcu_hdlr( void )
 			}
 			break;
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
-			next_prev_key =1;
+			next_prev_key_timer =3;
 			Mute_Ext_PA(MUTE);	
 			master_push_cmd(NEXT_FILE_CMD);
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
-			next_prev_key =1;				
+			next_prev_key_timer =3;				
 			Mute_Ext_PA(MUTE);					
 			master_push_cmd(PREV_FILE_CMD);
 			break;			
@@ -607,6 +602,22 @@ void mcu_hdlr( void )
 #endif				
 		 case INFO_HALF_SECOND :
 
+			 if(fisrt_time_op&&toc_flag){
+
+					master_push_cmd(STOP_CMD);
+					fisrt_time_op=0;
+			 }
+			 
+
+			if(next_prev_key_timer>0){
+				next_prev_key_timer--;
+			}
+				
+			if(next_prev_key_timer==0){					
+				if((cd_play_status== MUSIC_PLAY)){
+					Mute_Ext_PA(UNMUTE);					
+				}
+			}
 
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
 	            updata_fat_memory();
@@ -681,10 +692,14 @@ void mcu_hdlr( void )
 /*----------------------------------------------------------------------------*/
 void mcu_main_hdlr(void)
 {
+
+    fisrt_time_op=1;
+
     Disp_Con(DISP_SCAN_TOC);
     Mute_Ext_PA(MUTE);
     CD_PWR_GPIO_CTRL_INIT();
     CD_PWR_GPIO_ON();
+    delay_10ms(20);	
     sysclock_div2(1);
     flush_low_msg();
     mcu_master_init();
