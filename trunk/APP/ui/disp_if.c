@@ -26,7 +26,7 @@ extern u8 device_active;
 extern xd_u8 all_channl;
 extern xd_u16 frequency;
 extern xd_u8 fre_channl,play_status;
-extern _xdata u8 fre_preset[];
+//extern _xdata u8 fre_preset[];
 extern MAD_DECODE_INFO _pdata mad_decode_dsc;
 extern bool radio_prog_spark;
 xd_u8 return_cnt;
@@ -376,7 +376,7 @@ void Disp_Hello(void)
 #ifdef WELCOME_DISP_BAR_BAR
     printf_str("----",0);
 #elif defined(WELCOME_DISP_ON_STR)
-    //printf_str(" ON",0);
+    printf_str(" ON",0);
 #else
     printf_str(" HI",0);
 #endif
@@ -411,7 +411,7 @@ void disp_error(void)
 void disp_open(void)
 {
 #ifdef LCD_MODULE_WITHOUT_F_DIGIT
-	printf_str("OPN",1);
+	printf_str("OP",1);
 #elif defined(LCD_DISP_THREE_DIGIT)
 	printf_str("OPN",1);
 #else
@@ -627,6 +627,14 @@ void custom_buf_update(void)
 
 #ifdef USE_CD_MCU_MASTER_FUNC
 	if(work_mode == SYS_MCU_CD){
+		
+		if((cd_play_status == MUSIC_PLAY)||(cd_play_status==MUSIC_FF_FR)){
+	    		disp_icon(ICON_PLAY);		
+		}
+		else{
+	    		disp_clr_icon(ICON_PLAY);		
+		}		
+		
 	 	disp_icon(ICON_CD);	
 	 	disp_clr_icon(ICON_USB);		
 	 	disp_clr_icon(ICON_SD);		

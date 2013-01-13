@@ -8,6 +8,8 @@
 /*UART PORT ENABLE DEFINE*/
 //#define   UART_ENABLE
 #ifdef UART_ENABLE
+
+//#define FM_UART_ENABLE
 #define 	_USE_UART_P2_
 //#define _USE_UART_P0_
 #endif
