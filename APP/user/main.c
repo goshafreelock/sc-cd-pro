@@ -728,7 +728,7 @@ void main(void)
 	Init_Func_List();
 	flush_all_msg();
 #if FILE_ENCRYPTION
-    password_init(0xaa);  //输入加密文件的密码
+    	password_init(0xaa);  //输入加密文件的密码
 #endif  
 
 #ifdef ADKEY_DEBUG

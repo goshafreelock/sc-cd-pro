@@ -15,7 +15,7 @@
 //#define LOWFM_MODE
 #define MANUAL_SEPARATION				 
 //#define AM_SOFTMUTE
-//#define FM_SOFTMUTE
+#define FM_SOFTMUTE
 //#define AM_GAIN
 //#define AUDIO_LEVEL_BOOST
 //#define FM_HIGHLEVER_RF_SIGAL_INPUT

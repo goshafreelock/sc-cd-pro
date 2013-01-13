@@ -51,7 +51,7 @@ xd_u8 prog_total_num=0,prog_cur_num=0;
 
 void master_push_cmd(u8 cmd)
 {
-	u16 cmd_reg=0;
+	xd_u16 cmd_reg=0;
 	
 	send_buf_cmd=1;
 
@@ -63,13 +63,13 @@ void master_push_cmd(u8 cmd)
 
 		send_buf|=cmd_reg<<8;
 	}	
-#ifdef UART_ENABLE	
+#ifdef CD_UART_ENABLE	
 	printf("----------------->> master_push_cmd   %x    \r\n",send_buf);
 #endif
 }
 u8 master_pop_cmd(void)
 {
-	u8 r_reg=0;
+	xd_u8 r_reg=0;
 	
 	if(send_buf>0){
 		r_reg = (u8)(send_buf&0x00FF);
@@ -78,7 +78,7 @@ u8 master_pop_cmd(void)
 		if(send_buf==0){
 			send_buf_cmd=0;
 		}
-#ifdef UART_ENABLE	
+#ifdef CD_UART_ENABLE	
 	   	printf("----------------->> master_pop_cmd   %x     \r\n",(u16)r_reg);	
 #endif
 	}
@@ -324,7 +324,7 @@ void mcu_master_rev()
 }
 void mcu_master_send()
 {	
-	u8 send_reg=0;
+	xd_u8 send_reg=0;
 	bool ack1,ack2;
 
 	if(send_buf_cmd){
@@ -350,7 +350,7 @@ void prog_play_init()
 	prog_total_num=1;
 	prog_cur_num=0;	
 	play_prog_mode=1;
-	prog_disp_srn=0;
+	prog_disp_srn=1;
 	//my_memset(&prog_file_tab[0], 0x0, 20);
 	master_push_cmd(MEM_CMD);
 	Disp_Con(DISP_PROG_FILENUM);
@@ -361,7 +361,7 @@ void prog_play_clear()
 	prog_total_num=1;
 	prog_cur_num=0;	
 	play_prog_mode=0;
-	prog_disp_srn=0;	
+	prog_disp_srn=1;	
 }
 void prog_hdlr(u8 key)
 {
@@ -595,7 +595,7 @@ void mcu_hdlr( void )
 				master_push_cmd(INTRO_ON_CMD);
 			}		
 #endif
-#ifdef UART_ENABLE
+#ifdef CD_UART_ENABLE
 	    		printf("------->> play_mode   %x---%x \r\n",(u16)send_buf,(u16)play_mode);
 #endif			
 			break;			
@@ -699,7 +699,7 @@ void mcu_main_hdlr(void)
     Mute_Ext_PA(MUTE);
     CD_PWR_GPIO_CTRL_INIT();
     CD_PWR_GPIO_ON();
-    delay_10ms(20);	
+    delay_10ms(50);	
     sysclock_div2(1);
     flush_low_msg();
     mcu_master_init();
@@ -714,7 +714,6 @@ void mcu_main_hdlr(void)
 	prog_cur_num=0;	
 	play_prog_mode=0;
 	prog_icon_bit=0;
-	
 #endif	
     	play_mode=REPEAT_OFF;
 }

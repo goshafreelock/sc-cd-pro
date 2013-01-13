@@ -13,6 +13,7 @@
 #include "fat_memory.h"
 
 
+
 extern xd_u16 cfilenum;
 extern xd_u8 curr_menu;
 extern xd_u8  return_cnt;
@@ -44,6 +45,7 @@ xd_u8 sw_fm_mod=0,cur_sw_fm_band=0;
 xd_u16 REG_MAX_FREQ=0,REG_MIN_FREQ=0;
 xd_u8 sw_fm_pos=0;
 xd_u8 station_save_pos=0,station_sel_pos=0;
+extern xd_u8 my_music_vol;
 
 #ifdef RADIO_ST_INDICATOR
 bool radio_st_ind=0;
@@ -55,6 +57,8 @@ bool radio_prog_spark=0;
 extern void KT_AMFMSetMode(xd_u8 AMFM_MODE);
 extern xd_u8 KT_FMTune(xd_u16 Frequency);
 extern xd_u8 KT_AMTune(xd_u16 Frequency);
+extern void KT_FM_SOFTMUTE(xd_u16 Frequency);
+extern void KT_AM_SOFTMUTE(xd_u16 Frequency);
 #ifdef SEMI_AUTO_SCAN_FUNC
 extern xd_u8 KT_FMValidStation(xd_u16 Frequency);
 extern xd_u8 KT_AMValidStation(xd_u16 Frequency);
@@ -117,6 +121,10 @@ void scan_gpio_band_info_config()
 		gpio_sel_band_info_config=1;
 	}
 
+#ifdef FM_UART_ENABLE
+	    	printf("------->-scan_gpio_band_info_config    \r\n");
+#endif
+
 	P0DIR &= ~(BIT(7)); 
 	EA =1;
 }
@@ -132,21 +140,25 @@ u16 _code am_usa_freq[6]={520,600,1000,1400,1710,520};
 
 void load_preset_table(u8 pre_cmd)
 {
-	u8 i=0;
+	xd_u8 i=0;
 	u16 *p;
-	u8 epprom_offset=0;
+	xd_u8 epprom_offset=0;
 
-	u16 fre_preset[10]={0};
+	xd_u16 fre_preset[6]={0};
+
+#ifdef FM_UART_ENABLE
+	    	printf("------->-station load_preset_table    \r\n");
+#endif
 	
 	if(pre_cmd==GET_FM_PRESET_FROM_EPPROM){
 
-		for(i=0;i<10;i++){
+		for(i=0;i<sizeof(fm_p_freq);i++){
 			fre_preset[i]=read_radio_freq(2*i+FM_CH_OFFSET);
 		}
 		return;
 	}
 	else if(pre_cmd==GET_AM_PRESET_FROM_EPPROM){
-		for(i=0;i<10;i++){
+		for(i=0;i<sizeof(am_eur_freq);i++){
 			fre_preset[i]=read_radio_freq(2*i+AM_CH_OFFSET);
 		}
 		return;
@@ -163,24 +175,30 @@ void load_preset_table(u8 pre_cmd)
 		p=am_usa_freq;
 		epprom_offset=AM_CH_OFFSET;
 	}
-	
-	for(i=0;i<10;i++){
+#if 0	
+	for(i=0;i<FM_MAX_CH;i++){
 		
 		fre_preset[i]=*(p);
 		
 		if(i<5)p++;
 	}
-
-	for(i=0;i<10;i++){
-#ifdef FM_UART_ENABLE
-		printf("------->-station form  TABLE  fre:%4u  at : %d \r\n",fre_preset[i],(u16)((i*2)+epprom_offset));
 #endif
-		save_radio_freq(fre_preset[i],(i*2)+epprom_offset);
+	for(i=0;i<FM_MAX_CH;i++){
+#ifdef FM_UART_ENABLE
+		printf("------->-station form  TABLE  fre:%4u  at : %d \r\n",(*(p)),(u16)((i*2)+epprom_offset));
+#endif
+		if(i<5){
+			save_radio_freq((*(p++)),(i*2)+epprom_offset);
+		}
+		else{
+			save_radio_freq((*(p)),(i*2)+epprom_offset);
+		}
+
 	}
 }
 void radio_preset_init()
 {
-	u8 preset_reg=0;
+	xd_u8 preset_reg=0;
 
 	preset_reg =read_info(MEM_PRESET_REG);
 
@@ -274,12 +292,13 @@ void set_radio_freq(u8 mode,bool disp_pro)
 	
     if(cur_sw_fm_band==0){
 
-		KT_FMTune(frequency);
+		KT_FM_SOFTMUTE(frequency);
     }
     else{
 
 		KT_AMTune(frequency);
     }
+
 
     if(disp_pro)	
 	Disp_Con(DISP_FREQ);			
@@ -291,7 +310,8 @@ void set_radio_freq(u8 mode,bool disp_pro)
     save_radio_freq(frequency,cur_sw_fm_band*2+MEM_FREQ_BASE);
 #endif
 
-
+    dac_mute_control(0, 1);	
+    set_sys_vol(my_music_vol);
 }
 void radio_band_hdlr()
 {
@@ -611,7 +631,7 @@ void restore_station_from_ch()
 		frequency = read_radio_freq(station_sel_pos*2+AM_CH_OFFSET);
 	}
 #ifdef FM_UART_ENABLE
-	printf("------->-station form  TABLE  fre:%4u   \r\n",frequency);
+	printf("------->-station form  TABLE  band %x   ---- fre:%4u   \r\n",(u16)cur_sw_fm_band,frequency);
 #endif
 
 	set_radio_freq(FM_CUR_FRE,NO_SHOW_FREQ);
@@ -692,11 +712,13 @@ void fm_hdlr( void )
 		break;	
 #endif
         case INFO_FRE_UP | KEY_SHORT_UP:
-        case INFO_NEXT_FIL | KEY_SHORT_UP:			
+        case INFO_NEXT_FIL | KEY_SHORT_UP:	
+    		dac_mute_control(1, 1);	
              	set_radio_freq(FM_FRE_INC,SHOW_FREQ);
 		break;
         case INFO_FRE_DOWN | KEY_SHORT_UP:
-        case INFO_PREV_FIL | KEY_SHORT_UP:		
+        case INFO_PREV_FIL | KEY_SHORT_UP:
+    		dac_mute_control(1, 1);	
              	set_radio_freq(FM_FRE_DEC,SHOW_FREQ);
             break;
         case INFO_HALF_SECOND :

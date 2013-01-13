@@ -629,8 +629,8 @@ xd_u8 KT_FMTune(xd_u16 Frequency) //87.5MHz-->Frequency=8750; Mute the chip and 
 #endif
 
 	//KT_AMFMMute();
-	regx = KT_Bus_Read(0x0F);       
-	KT_Bus_Write(0x0F, regx & 0xFFE0 );		//Write volume to 0
+	//regx = KT_Bus_Read(0x0F);       
+	//KT_Bus_Write(0x0F, regx & 0xFFE0 );		//Write volume to 0
 	
 	KT_Bus_Write(0x1E, 0x0001);								//DIVIDERP<9:0>=1
 	KT_Bus_Write(0x1F, 0x029C);								//DIVIDERN<9:0>=668
@@ -685,8 +685,8 @@ xd_u8 KT_FMTune(xd_u16 Frequency) //87.5MHz-->Frequency=8750; Mute the chip and 
 
 	delay_10ms(2);
 
-	regx = KT_Bus_Read(0x0F);       
-	KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0
+	//regx = KT_Bus_Read(0x0F);       
+	//KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0
 	
 	return(1);
 }
@@ -787,8 +787,8 @@ xd_u8 KT_AMTune(xd_u16 Frequency) //1710KHz --> Frequency=1710; Mute the chip an
 {
 	xd_u16 regx;
 	//KT_AMFMMute();
-	regx = KT_Bus_Read(0x0F);       
-	KT_Bus_Write(0x0F, regx & 0xFFE0 );		//Write volume to 0
+	//regx = KT_Bus_Read(0x0F);       
+	//KT_Bus_Write(0x0F, regx & 0xFFE0 );		//Write volume to 0
 
 	if(Current_Band.Band == MW_MODE){
 		
@@ -939,8 +939,8 @@ xd_u8 KT_AMTune(xd_u16 Frequency) //1710KHz --> Frequency=1710; Mute the chip an
 	radio_st_ind=0;
 #endif
 
-	regx = KT_Bus_Read(0x0F);       
-	KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0
+	//regx = KT_Bus_Read(0x0F);       
+	//KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0
 #if 0
 #ifdef KT0915
 		if(Current_Band.Band >= SW_MODE)
@@ -1218,6 +1218,7 @@ void load_band_info(void)
 		Current_Band.AFCTH =MW_AFCTH;
 
     }
+#ifdef MULTI_BAND_KT_0915_IN_USE		
     else if(cur_sw_fm_band==2){
 		
 		Current_Band.Band=SW_MODE; 
@@ -1316,6 +1317,7 @@ void load_band_info(void)
 		Current_Band.RSSI_TH=SW_RSSI_TH-4;
 		
     }	
+#endif	
 }
 
 #if 1
@@ -1613,7 +1615,7 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 		if (!freq[i])
 		{
 		    KT_FMTune(nextfreq);
-		    delay_10ms(2);			
+		    //delay_10ms(2);			
 			afc[i]=KT_FMGetAFC(nextfreq);
 #ifdef SEEK_WITH_SNR
 			snr[i]=KT_FMGetSNR();
@@ -1635,7 +1637,7 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 
 #ifdef SEEK_WITH_SNR
 		KT_FMTune(Frequency);
-		delay_10ms(2);
+		//delay_10ms(2);
 		snr2=KT_FMGetSNR();
 		if ((snr[1]>=FM_SNR_TH) && (snr2>=FM_SNR_TH)){
 #ifdef RADIO_ST_INDICATOR
@@ -1644,7 +1646,7 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 			return(1);
 		}
 		if ((snr[1]<FM_SNR_TH) && (snr2<FM_SNR_TH)) return(0);
-		delay_10ms(1);
+		//delay_10ms(1);
 		snr3=KT_FMGetSNR();
 		if (snr3>=FM_SNR_TH){
 #ifdef RADIO_ST_INDICATOR
@@ -1793,7 +1795,7 @@ xd_u8 KT_AMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 		return(0); 
 	}
 }
-
+#ifdef MULTI_BAND_KT_0915_IN_USE	
 xd_u8 KT_SMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station //check AFC_DELTA only
 {
 	char AM_afc[3],rssi_reg[3];
@@ -1865,6 +1867,7 @@ xd_u8 KT_SMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 		return(0); 
 	}
 }
+#endif
 #if 0
 /*****************************************************************************/
 /*º¯ Êý Ãû£ºKT_AM_TUNING_LIGHT												 */
@@ -2050,19 +2053,19 @@ void KT_Radio_ST_Check()
 #ifdef AM_SOFTMUTE
 void KT_AM_SOFTMUTE(xd_u16 Frequency)
 {
-	xd_u16 reg4;
+	xd_u16 regx;
 
-	reg4 = KT_Bus_Read(0x04);
+	regx = KT_Bus_Read(0x04);
 
 	if(KT_AMValidStation(Frequency))
 	{
 //		KT_AM_SOFTMUTE_SETTING(2,3,2,5);					// SMUTEA=4,SMUTER=60ms,AM_SMTH=3,VOLUMET=5,SMMD=RSSI mode
-		KT_Bus_Write(0x04,reg4 | 0x4000);					// AM Softmute Disable
+		KT_Bus_Write(0x04,regx | 0x4000);					// AM Softmute Disable
 	}
 	else
 	{
 		KT_AM_SOFTMUTE_SETTING(0,3,7,5);					// SMUTEA=16,SMUTER=60ms,AM_SMTH=8,VOLUMET=5,SMMD=RSSI mode
-		KT_Bus_Write(0x04,reg4 & 0xBFFF);					// AM Softmute Enable
+		KT_Bus_Write(0x04,regx & 0xBFFF);					// AM Softmute Enable
 	}
 //	reg4=KT_Bus_Read(0x04);									// AM Softmute Enable
 //	KT_Bus_Write(0x04,reg4 & 0xBFFF);
@@ -2082,9 +2085,9 @@ void KT_AM_SOFTMUTE(xd_u16 Frequency)
 /************************************************************************************/
 void KT_AM_SOFTMUTE_SETTING(xd_u8 SMUTEA, xd_u8 SMUTER, xd_u8 AM_SMTH, xd_u8 VOLUMET)
 {
-	xd_u16 reg2E;
-	reg2E = KT_Bus_Read(0x2E);
-	KT_Bus_Write(0x2E,(reg2E & 0x0007) | (SMUTEA<<14) | (SMUTER<<12) | (AM_SMTH<<9) | (VOLUMET<<4) | 0x0000 );
+	xd_u16 regx;
+	regx = KT_Bus_Read(0x2E);
+	KT_Bus_Write(0x2E,(regx & 0x0007) | (SMUTEA<<14) | (SMUTER<<12) | (AM_SMTH<<9) | (VOLUMET<<4) | 0x0000 );
 //									SMUTEA=4,SMUTER=120ms,AM_SMTH=3,VOLUMET=1,SMMD=RSSI mode
 }
 #endif
@@ -2105,20 +2108,31 @@ void KT_AM_SOFTMUTE_SETTING(xd_u8 SMUTEA, xd_u8 SMUTER, xd_u8 AM_SMTH, xd_u8 VOL
 #ifdef FM_SOFTMUTE
 void KT_FM_SOFTMUTE(xd_u16 Frequency)
 {
-	xd_u16 reg4;
+	xd_u16 regx;
 
-	reg4 = KT_Bus_Read(0x04);
-
+	KT_Mute_Ctrl(1);
+	
+	regx = KT_Bus_Read(0x04);
 	if(KT_FMValidStation(Frequency))
 	{
 //		KT_FM_SOFTMUTE_SETTING(2,3,4,5);					// SMUTEA=4,SMUTER=60ms,SMMD=SNR mode,FM_SMTH=9,VOLUMET=5
-		KT_Bus_Write(0x04,reg4 | 0x8000);					// FM Softmute Disable
+		//KT_Bus_Write(0x04,regx | 0x8000);					// FM Softmute Disable
+		//KT_Mute_Ctrl(0);
+		// printf("------->-soft  un mute     \r\n");
 
+		regx = KT_Bus_Read(0x0F);       
+		KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0	
 	}
 	else
 	{
-		KT_FM_SOFTMUTE_SETTING(0,3,7,5);					// SMUTEA=16,SMUTER=60ms,SMMD=SNR mode,FM_SMTH=12,VOLUMET=5
-		KT_Bus_Write(0x04,reg4 & 0x7FFF);					// FM Softmute Enable
+		//KT_FM_SOFTMUTE_SETTING(0,3,7,15);					// SMUTEA=16,SMUTER=60ms,SMMD=SNR mode,FM_SMTH=12,VOLUMET=5
+		//KT_Bus_Write(0x04,regx & 0x7FFF);					// FM Softmute Enable
+		//delay_10ms(30);
+		//KT_Mute_Ctrl(0);
+
+		 //printf("------->-soft   mute     \r\n");
+		regx = KT_Bus_Read(0x0F);       
+		KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x10));		//Write volume to 0	
 	}
 //	reg4=KT_Bus_Read(0x04);									// FM Softmute Enable
 //	KT_Bus_Write(0x04,reg4 & 0x7FFF);

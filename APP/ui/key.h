@@ -37,7 +37,7 @@ void bmt_hdlr(void);
 #define ADC_MAX_USED   0x03
 #endif
 
-#define KEY_BASE_CNT  6
+#define KEY_BASE_CNT  8
 #define KEY_LONG_CNT  (75/2)
 #define KEY_HOLD_CNT  15//15
 
