@@ -291,6 +291,11 @@ static SYS_WORK_MODE Next_Func()
 u8 ap_handle_hotkey(u8 key)
 {
     SYS_WORK_MODE mode_reg=0;
+	
+#if 0
+	if(key!= 0xff)
+	    	printf("------->-ap_handle_hotkey   %x \r\n",(u16)key);
+#endif
 
     switch (key)
     {

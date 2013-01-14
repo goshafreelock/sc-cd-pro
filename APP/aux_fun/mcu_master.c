@@ -35,6 +35,7 @@ extern bool key_voice_disable;
 extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
+extern xd_u8 my_music_vol;
 
 TOC_TIME cur_time;
 bool toc_flag=0,send_buf_cmd=0;
@@ -84,6 +85,9 @@ u8 master_pop_cmd(void)
 	}
 	return r_reg;
 }
+static u8 info_dispatch_div=0;
+static u8 info_timer_1=0,info_timer_2=0,info_timer_3=0;
+static u8 info_timer_toc=0,info_timer_4=0,info_timer_play=0;
 void clr_rev_buf()
 {
     my_memset(&rev_buf[0], 0x0, 10);
@@ -105,9 +109,6 @@ void mcu_master_init()
 }
 void mcu_master_info_hdlr()
 {
-	static u8 info_dispatch_div=0;
-	static u8 info_timer_1=0,info_timer_2=0,info_timer_3=0;
-	static u8 info_timer_toc=0,info_timer_4=0,info_timer_5=0;
 	u8 rev_loop=0;
 	if(fast_fr_release_cnt>0){
 
@@ -124,7 +125,7 @@ void mcu_master_info_hdlr()
 //4 get cur play status 	
 		if((rev_buf[0]&0x03)==0x02){
 
- 				if(info_timer_3++>2){
+ 				if(info_timer_play++>2){
 					
 					if(cd_play_status!=MUSIC_PLAY){
 						Mute_Ext_PA(UNMUTE);					
@@ -136,7 +137,7 @@ void mcu_master_info_hdlr()
 		}
 		else if((rev_buf[0]&0x03)==0x00){
 
-			info_timer_3 =0;
+			info_timer_play =0;
 			if(cd_play_status!=MUSIC_STOP){
 				cd_play_status=MUSIC_STOP;
 			}
@@ -525,11 +526,16 @@ void mcu_hdlr( void )
 			next_prev_key_timer =3;
 			Mute_Ext_PA(MUTE);	
 			master_push_cmd(NEXT_FILE_CMD);
+
+			dac_mute_control(0, 1);	
+			set_sys_vol(my_music_vol);			
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
 			next_prev_key_timer =3;				
 			Mute_Ext_PA(MUTE);					
 			master_push_cmd(PREV_FILE_CMD);
+			dac_mute_control(0, 1);	
+			set_sys_vol(my_music_vol);					
 			break;			
 	        case INFO_NEXT_FIL | KEY_HOLD:
 			fast_fr_release_cnt=3;
