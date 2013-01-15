@@ -709,6 +709,13 @@ void custom_buf_update(void)
 
 			disp_clr_icon(ICON_RADIO_ST);	
 		}
+
+			disp_clr_icon(ICON_PLAY);		
+	}
+	else if(work_mode ==SYS_AMREV){
+
+		disp_clr_icon(ICON_PLAY);		
+		disp_clr_icon(ICON_RADIO_ST);	
 	}
 #endif
 
