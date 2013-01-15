@@ -688,7 +688,9 @@ void fm_hdlr( void )
         case INFO_NEXT_SYS_MODE:
 		return;
         case INFO_NEXT_FM_MODE:
-		radio_band_hdlr();			
+		Mute_Ext_PA(MUTE);
+		radio_band_hdlr();
+		Mute_Ext_PA(UNMUTE);		
 		break;
 #ifdef FM_SAVE_STATION_MANUAL
      	case MANUAL_SEL_STATION_KEY:

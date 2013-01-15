@@ -134,6 +134,8 @@ void mcu_master_info_hdlr()
 					}
 
 				}
+
+				info_timer_4=0;
 		}
 		else if((rev_buf[0]&0x03)==0x00){
 
@@ -145,6 +147,17 @@ void mcu_master_info_hdlr()
 			//info_timer_3++;
 			//if((curr_menu != DISP_STOP)&&(info_timer_3>12))
 			//	Disp_Con(DISP_STOP);			
+		}
+		else if((rev_buf[0]&0x01)==0x01){
+			
+ 				if(info_timer_4++>2){
+					
+					if(cd_play_status!=MUSIC_PAUSE){
+						cd_play_status=MUSIC_PAUSE;
+					}
+
+				}
+
 		}
 #ifdef USE_PROG_PLAY_MODE
 		if((rev_buf[0]&(BIT(5)))>0){

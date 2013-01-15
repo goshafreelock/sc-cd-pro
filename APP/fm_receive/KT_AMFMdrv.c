@@ -464,8 +464,13 @@ void KT_AMFMSetMode(xd_u8 AMFM_MODE)
 		KT_Bus_Write(0x0E, regx | 0x7700);	
 		
    		regx = KT_Bus_Read(0x0a);
-		KT_Bus_Write(0x0a, (regx&(~0x6000)));  		
+		KT_Bus_Write(0x0a, (regx&(~0x6000)));  
+
+		regx = KT_Bus_Read(0x0A);
+		KT_Bus_Write(0x0A, regx & 0xFFBF);
+			
 	}
+#ifdef MULTI_BAND_KT_0915_IN_USE	
 	else
 	{
 #ifdef SW_GAIN_HW_CTRL	
@@ -488,6 +493,7 @@ void KT_AMFMSetMode(xd_u8 AMFM_MODE)
    		regx = KT_Bus_Read(0x0a);
 		KT_Bus_Write(0x0a, (regx|0x6000));  		
 	}
+#endif	
 	//return(1);
 }
 
@@ -787,8 +793,8 @@ xd_u8 KT_AMTune(xd_u16 Frequency) //1710KHz --> Frequency=1710; Mute the chip an
 {
 	xd_u16 regx;
 	//KT_AMFMMute();
-	//regx = KT_Bus_Read(0x0F);       
-	//KT_Bus_Write(0x0F, regx & 0xFFE0 );		//Write volume to 0
+	regx = KT_Bus_Read(0x0F);       
+	KT_Bus_Write(0x0F, regx & 0xFFE0 );		//Write volume to 0
 
 	if(Current_Band.Band == MW_MODE){
 		
@@ -939,8 +945,8 @@ xd_u8 KT_AMTune(xd_u16 Frequency) //1710KHz --> Frequency=1710; Mute the chip an
 	radio_st_ind=0;
 #endif
 
-	//regx = KT_Bus_Read(0x0F);       
-	//KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0
+	regx = KT_Bus_Read(0x0F);       
+	KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0
 #if 0
 #ifdef KT0915
 		if(Current_Band.Band >= SW_MODE)
