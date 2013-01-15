@@ -34,6 +34,7 @@ extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
 extern xd_u8 play_disp_scr;
+extern xd_u8 my_music_vol;
 
 bool next_prev_key=0,play_key=0;
 TOC_TIME cur_time;
@@ -603,6 +604,9 @@ void mcu_hdlr( void )
 			
 				master_push_cmd(PAUSE_CMD);
 			}
+
+			set_sys_vol(my_music_vol);
+			
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
 			next_prev_key=1;								
@@ -612,6 +616,9 @@ void mcu_hdlr( void )
 			
 				master_push_cmd(PAUSE_CMD);	
 			}
+
+			set_sys_vol(my_music_vol);
+			
 			break;			
 	        case INFO_NEXT_FIL | KEY_HOLD:
 			fast_fr_release_cnt=3;

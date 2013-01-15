@@ -57,7 +57,7 @@
 *************************************************************/
 #define USE_RDAs_FM
 #define USE_BK1080_FM
-#define USE_KT_FM_CHIP
+//#define USE_KT_FM_CHIP
 //#define USE_SP3777_FM
 #define USE_QN8035_FM
 /*FM CRYSTAL DEFINE*/

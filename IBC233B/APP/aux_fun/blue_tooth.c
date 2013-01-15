@@ -25,6 +25,9 @@ extern bool key_voice_disable;
 extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
+
+extern xd_u8 my_music_vol;
+
 #if defined(BLUE_TOOTH_UART_FUNC)
 extern bool bt_frame_rev_finished;
 xd_u8 rev_bluetooth_status=0;
@@ -38,6 +41,30 @@ extern u8 bluetooth_cmd_parse(void);
 xd_u8 bt_play_status=BT_STA_STOP;
 
 xd_u8 spark_timer=0;
+static xd_u8 activate_beep=0;
+void activate_beep_ind()
+{
+	activate_beep=2;
+}
+void bluetooth_standby_beep()
+{
+  	if(activate_beep>0){
+
+		activate_beep--;
+		if(activate_beep==0){
+
+			dac_sw(1);								//闹钟时打开DAC EN0/1
+	        	//main_vol_set(30, CHANGE_VOL_NO_MEM);
+			analog_vol_set(MAX_ANALOG_VOL);
+	        	write_dsp(2, 22, 0x10);
+			Mute_Ext_PA(UNMUTE);
+			delay_10ms(30);
+	        	//write_dsp(2, 22, 0x10);
+			//delay_10ms(20);
+		
+  		}
+  	}
+}
 /*----------------------------------------------------------------------------*/
 /**@brief  AUX消息处理
    @param  无
@@ -83,9 +110,11 @@ void Blue_tooth_hdlr( void )
 
 #endif
 
-    dac_out_select(DAC_AMUX0);
-    delay_10ms(20);	
-    Mute_Ext_PA(UNMUTE);
+    //dac_out_select(DAC_AMUX0);
+    //delay_10ms(20);	
+    //Mute_Ext_PA(UNMUTE);
+    activate_beep_ind();
+    set_delay_mute();
 
     while (1)
     {
@@ -131,17 +160,22 @@ void Blue_tooth_hdlr( void )
         case INFO_NEXT_SYS_MODE:
 		return;
         case INFO_STOP | KEY_SHORT_UP:
+#if defined(BLUE_TOOTH_UART_FUNC)					
 		if((rev_bluetooth_status==BT_CONECTED_A2DP)||(rev_bluetooth_status==BT_CONECTED_AVRCP)){
 			bt_play_status=BT_STA_STOP;
 			Mute_Ext_PA(MUTE);
 			promt_bt_cmd(BT_STOP);			
 		}
+#endif		
 		break;
         case INFO_PLAY| KEY_LONG:
-		promt_bt_cmd(BT_DISPAIR);			
+#if defined(BLUE_TOOTH_UART_FUNC)			
+		promt_bt_cmd(BT_DISPAIR);		
+#endif
 		break;
         case INFO_PLAY| KEY_SHORT_UP:
-			
+
+#if defined(BLUE_TOOTH_UART_FUNC)			
 		if((rev_bluetooth_status==BT_CONECTED_A2DP)||(rev_bluetooth_status==BT_CONECTED_AVRCP)){
 
 #if 1			
@@ -157,12 +191,21 @@ void Blue_tooth_hdlr( void )
 			promt_bt_cmd(BT_PLAY);		
 
 		}
+#endif		
 		break;
         case INFO_NEXT_FIL| KEY_SHORT_UP:
-		promt_bt_cmd(BT_NEXT);						
+#if defined(BLUE_TOOTH_UART_FUNC)			
+		promt_bt_cmd(BT_NEXT);			
+#endif
+		set_sys_vol(my_music_vol);
+
 		break;	
         case INFO_PREV_FIL| KEY_SHORT_UP:
-		promt_bt_cmd(BT_PREV);									
+#if defined(BLUE_TOOTH_UART_FUNC)			
+		promt_bt_cmd(BT_PREV);			
+#endif
+		set_sys_vol(my_music_vol);
+
 		break;	
         case INFO_NEXT_FIL| KEY_HOLD:
 		//promt_bt_cmd(BT_VOL_P);									
@@ -179,7 +222,8 @@ void Blue_tooth_hdlr( void )
 		break;	
 #endif		
         case INFO_250_MS :
-			
+
+#if defined(BLUE_TOOTH_UART_FUNC)			
 		spark_timer++;		
 		if(rev_bluetooth_status==BT_POWER_ON){
 
@@ -214,8 +258,13 @@ void Blue_tooth_hdlr( void )
 	              }
   			 Mute_Ext_PA(UNMUTE);
 		}	
+#endif		
 		break;			
         case INFO_HALF_SECOND :
+
+	     ///delay_mute_handler();
+    	     bluetooth_standby_beep();
+
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
             updata_fat_memory();
 #endif

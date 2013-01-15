@@ -83,9 +83,10 @@ void deal_aux( void )
 	promt_bt_cmd(BT_DISPAIR);			
 #endif
 
-    dac_out_select(DAC_AMUX0);
-    delay_10ms(60);	
-    Mute_Ext_PA(UNMUTE);
+	set_delay_mute();
+    //dac_out_select(DAC_AMUX0);
+    //delay_10ms(60);	
+    //Mute_Ext_PA(UNMUTE);
 
     while (1)
     {
@@ -141,6 +142,9 @@ void deal_aux( void )
 		}	
 		break;		
         case INFO_HALF_SECOND :
+
+		delay_mute_handler();
+			
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
             updata_fat_memory();
 #endif
@@ -211,11 +215,10 @@ void aux_function(void)
 	sysclock_div2(1);
     	flush_low_msg();
     	Disp_Con(DISP_AUX);
-
-	delay_10ms(160);
 		
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	deal_aux();
+
 
 #if defined(BLUE_TOOTH_UART_FUNC)
 	blue_tooth_uart_release();

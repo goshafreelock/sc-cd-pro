@@ -543,7 +543,8 @@ void Disp_Aux(void )
 {
 
     //printf_num(my_music_vol,1,2);
-    printf_str("AUX",1);
+    //printf_str("AUX",1);
+    printf_str("LINE",0);
     disp_icon(ICON_AUX);		
 }
 void Disp_Bluetooth(void )

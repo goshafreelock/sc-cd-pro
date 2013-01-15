@@ -77,7 +77,7 @@ xd_u8 mem_snr[3];			  //Rememberred SNR values for previous, current and next st
 extern bool radio_st_ind;
 #endif
 
-Str_Band  Current_Band;
+extern Str_Band  Current_Band;
 
 
 xd_u8 KT_FMGetST(void);
