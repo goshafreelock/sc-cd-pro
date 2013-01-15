@@ -61,7 +61,7 @@ extern bool timer_setting_enable;
 #endif
 extern void load_band_info(void);
 
-extern Str_Band  Current_Band;
+Str_Band  Current_Band;
 extern bool IR_key_det,adkey_detect;
 
 extern void save_radio_freq(u16 radio_freq,u8 ch);
@@ -607,10 +607,10 @@ void fm_hdlr( void )
 #ifdef ADKEY_SELECT_MODE
     	mode_switch_protect_bit=0;
 #endif	
-	dac_out_select(DAC_AMUX1);
-	delay_10ms(20);
-	Mute_Ext_PA(UNMUTE);
-
+	//dac_out_select(DAC_AMUX1);
+	//delay_10ms(20);
+	//Mute_Ext_PA(UNMUTE);
+    set_delay_mute();
     while (1)
     {
 
@@ -669,6 +669,8 @@ void fm_hdlr( void )
              	radio_chip_set_freq(FM_FRE_DEC,SHOW_FREQ);
             break;
         case INFO_HALF_SECOND :
+
+		delay_mute_handler();
 
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))          
              updata_fat_memory();
@@ -777,7 +779,7 @@ void fm_radio(void)
 	sys_printf(" SYS GO IN FM MODE");
 #endif
     	TUNER_PWR_GPIO_ON();
-	delay_10ms(5);
+	delay_10ms(2);
 
 #ifndef DISABLE_P05_OSC_OUTPUT
    	fm_osc_output_select(TRUE);

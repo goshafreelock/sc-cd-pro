@@ -658,10 +658,10 @@ u16 RDA5807P_Get_ID()
     	RDA5807P_REG[1] = 0x02;
 
 	error_ind = OperationRDAFM_2w(WRITE, (u8 *)&RDA5807P_REG[0], 2);
-	delay_10ms(50);
+	delay_10ms(20);
 
 	error_ind = OperationRDAFM_2w(READ, (u8 *)&RDA5807P_REGR[0], 10);
-	delay_10ms(50);
+	//delay_10ms(5);
 
     	ChipID = RDA5807P_REGR[8];
     	ChipID = ((ChipID<<8) | RDA5807P_REGR[9]);

@@ -53,6 +53,8 @@ enum{
 	GET_FM_PRESET_FROM_EPPROM=0xFE,
 	GET_AM_PRESET_FROM_EPPROM,
 };
+
+
 #ifdef __C51__
 #include "fm_api.h"
 #include "typedef.h"
@@ -73,5 +75,42 @@ typedef enum {
 	SEARCH_UP =0,
 	SEARCH_DN,
 }AUTO_DIR;
+
+typedef struct 
+{
+	u8 			Band;						// 频段
+	u8			MAX_CH;					//
+	u8			Tune_Step;					//
+	u8			Seek_Step;					// SeekFromCurrentCh 函数用的频率步进
+	u8			ValidStation_Step;			// ValidStation 函数用的频率步进
+	u8			AFCTH_Prev;					//
+	u8			AFCTH;						//
+	u8			AFCTH_Next;					// 
+	u8			RSSI_TH;					// 
+}Str_Band;
+
+
+
+typedef enum {	
+
+	FM_MODE=0,
+	MW_MODE,
+	SW_MODE,
+	SW1_MODE,
+	SW2_MODE,
+	SW3_MODE,
+	SW4_MODE,
+	SW5_MODE,
+	SW6_MODE,
+	SW7_MODE,
+	SW8_MODE,
+	SW9_MODE,
+	SW10_MODE,
+	SW11_MODE,
+	SW12_MODE,
+	SW13_MODE,
+	SW14_MODE
+}Band_Mode;
+
 
 #endif

@@ -62,6 +62,21 @@ void Mute_Ext_PA(bool M_Type)
 		AMP_MUTE_DISABLE();
 	}
 }
+static xd_u8 mute_delay_timer=0;
+void set_delay_mute(void)
+{
+	mute_delay_timer=3;
+	Mute_Ext_PA(MUTE);
+}
+void delay_mute_handler(void)
+{
+	if(mute_delay_timer>0){
+		mute_delay_timer--;
+		if(mute_delay_timer==0){
+			Mute_Ext_PA(UNMUTE);
+		}
+	}
+}
 #if defined(USE_TIMER_POWER_OFF_FUNC)
 bool timer_setting_enable=0;
 xd_u8 timer_pwr_idx=0,timer_disp=0;
@@ -100,7 +115,6 @@ void timer_pwr_off_hdlr()
 void set_sys_vol(u8 vol)
 {
 	music_vol=vol;
-	write_info(MEM_VOL, music_vol);
 	main_vol_set(0, SET_USE_CURRENT_VOL);
 }
 void rtc_setting_exit(void)
@@ -477,6 +491,8 @@ u8 ap_handle_hotkey(u8 key)
 	}
 	
 	set_sys_vol(my_music_vol);
+	write_info(MEM_VOL, music_vol);
+	
        // printf(" -------> vol %d   \r\n",(u16)my_music_vol);
        // printf(" -------> vol %d   \r\n",(u16)music_vol);
 

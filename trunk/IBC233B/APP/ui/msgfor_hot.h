@@ -103,6 +103,7 @@ void Set_Curr_Func(u8 curr_mod);
 void Remov_Func_From_List(DEV_ON_LIST Dev);
 
 void Mute_Ext_PA(bool M_Type);
+void set_sys_vol(u8 vol);
 
 u8 ap_handle_hotkey(u8 msg);
 void rtc_setting_exit(void);
@@ -110,6 +111,9 @@ void rtc_setting_exit(void);
 void timer_pwr_off_hdlr();
 void timer_pwr_setting();
 #endif
+
+void set_delay_mute(void);
+void delay_mute_handler(void);
 
 #endif
 

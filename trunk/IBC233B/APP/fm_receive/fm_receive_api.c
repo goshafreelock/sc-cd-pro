@@ -76,14 +76,16 @@ u16 radio_chip_get_id()
 		return radio_chip_id;
 	}
 #endif
-
+	return 0x00;
 }
 void radio_chip_init()
 {
+#ifdef USE_KT_FM_CHIP
 	if(radio_chip_id== "KT"){
 
 		KT_AMFMWakeUp();
 	}
+#endif
 
 	if(radio_chip_id== RDAFM_ID){
 
@@ -93,12 +95,12 @@ void radio_chip_init()
 }
 void radio_chip_standby()
 {
-
+#ifdef USE_KT_FM_CHIP
 	if(radio_chip_id== "KT"){
 
 		KT_AMFMStandby();
 	}
-
+#endif
 	if(radio_chip_id== RDAFM_ID){
 
 		RDA5807P_PowerOffProc();
@@ -107,11 +109,13 @@ void radio_chip_standby()
 }
 void radio_set_band_info()
 {
+#ifdef USE_KT_FM_CHIP
+
 	if(radio_chip_id== "KT"){
 
 		load_band_info();
 	}
-
+#endif
 	if(radio_chip_id== RDAFM_ID){
 
 		cur_sw_fm_band=0;
@@ -124,11 +128,13 @@ void radio_set_band_info()
 }
 void radio_switch_band_mode(u8 b_mode)
 {
+#ifdef USE_KT_FM_CHIP
+
 	if(radio_chip_id== "KT"){
 
 		KT_AMFMSetMode(b_mode);	
 	}
-
+#endif
 	if(radio_chip_id== RDAFM_ID){
 
 		cur_sw_fm_band=0;
@@ -137,6 +143,8 @@ void radio_switch_band_mode(u8 b_mode)
 }
 static void set_freq(u16 freq_reg)
 {
+#ifdef USE_KT_FM_CHIP
+
 	if(radio_chip_id== "KT"){
 
 	    if(cur_sw_fm_band==0){
@@ -148,7 +156,7 @@ static void set_freq(u16 freq_reg)
 			KT_AMTune(frequency);
 	    }	
 	}
-
+#endif
 	if(radio_chip_id== RDAFM_ID){
 
 		RDA5807P_ValidStop(freq_reg/10);
@@ -202,6 +210,7 @@ void radio_chip_set_freq(u8 mode,bool disp_pro)
 bool radio_chip_valid_stop(u16 freq_reg)
 {
 	bool ret_var=0;
+#ifdef USE_KT_FM_CHIP	
 	if(radio_chip_id== "KT"){
 
 	    if(cur_sw_fm_band==0){
@@ -217,6 +226,7 @@ bool radio_chip_valid_stop(u16 freq_reg)
 #endif
 		return 0;
 	}
+#endif
 
 	if(radio_chip_id== RDAFM_ID){
 
@@ -224,4 +234,6 @@ bool radio_chip_valid_stop(u16 freq_reg)
 		RDA5807P_SetMute(FALSE);		
 		return ret_var;
 	}
+
+	return 0;
 }
