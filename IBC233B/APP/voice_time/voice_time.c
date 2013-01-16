@@ -115,35 +115,36 @@ void get_time_tobuf(void)
 u8 decode_voicetime_file()
 {
 	u8 key; 
-    u8 cnt =0;
-    u8 flag;
-    get_time_tobuf();    //获取需要报时的文件
+   	u8 cnt =0;
+    	u8 flag;
+    	get_time_tobuf();    //获取需要报时的文件
+
 _play_voicetime:
-    voicetime_on = 1;
-    dsp_hi_pro();
-    decodeint_hi_pro();
+    	voicetime_on = 1;
+    	dsp_hi_pro();
+    	decodeint_hi_pro();
 	f_init(win_buffer, (u16)code_otp_read, 1);
 	f_open((u8 *)&fat_file, 0);
-    f_open_dummy_file(0x200);    
-    mad_control(0,(u16)buffer);
-    set_eq(0);                             //必须在每首歌曲播放前初始化EQ
-    music_type = musice_format_check(buffer);
+    	f_open_dummy_file(0x200);    
+    	mad_control(0,(u16)buffer);
+    	set_eq(0);                             //必须在每首歌曲播放前初始化EQ
+    	music_type = musice_format_check(buffer);
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);
-    my_memset(win_buffer, 0, 512);              //解码前，必须清除buffer
+    	my_memset(win_buffer, 0, 512);              //解码前，必须清除buffer
 	main_vol_set(0, SET_USE_CURRENT_VOL);
-    flush_low_msg();
-    play_status = MUSIC_PLAY;
-    decode_cmd = 0;
-    decode_user_exit(0);
+    	flush_low_msg();
+    	play_status = MUSIC_PLAY;
+    	decode_cmd = 0;
+    	decode_user_exit(0);
 	enable_softint();
-    enable_decode_isr();
+    	enable_decode_isr();
 	set_device(0);
 
-    while(1)
+    	while(1)
 	{        
 	    key = get_msg();
 
-       switch (key)
+       	switch (key)
 		{    
           case DECODE_MSG_DISK_ERR:
           case DECODE_MSG_FILE_END:
@@ -164,6 +165,7 @@ _play_voicetime:
                 } 	 
 
 		   default :
+#if 0		   	
 			flag = alm_bell_key(key);
             if(flag)
             {   
@@ -173,6 +175,8 @@ _play_voicetime:
                close_alm_bell();                       
               return flag;
             }
+#endif	
+		break;
 		}
 	}
 }

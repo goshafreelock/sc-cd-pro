@@ -105,7 +105,7 @@ typedef enum
 									   
 
 #define OSC_CLOCK		32768L		///<系统晶振选择
-#define OTP_MUSIC_ENABLE 0			///<是否需要使用开机音乐
+#define OTP_MUSIC_ENABLE 		1			///<是否需要使用开机音乐
 
 /*0: DECODE EQ, 1: DSP EQ*/
 #define DECODE_EQ       0
@@ -128,8 +128,7 @@ typedef enum
 
 #define FF_FR_MUSIC                      1			//在快进快退时，是否需要听到声音
 #define RTC_ENABLE                       0		    //<是否需要使用RTC功能(与是否使用RTC内部的RAM无关)
-#define OTP_MUSIC_ENABLE                 0			//<是否需要使用开机音乐
-#define VOICE_TIME_ENABLE                0          //语音报时功能使能；     1：打开  0：关闭
+#define VOICE_TIME_ENABLE          0          //语音报时功能使能；     1：打开  0：关闭
 
 
 #define FILE_ENCRYPTION                  0          //文件加密功能使能;      1：打开  0：关闭

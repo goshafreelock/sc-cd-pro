@@ -14,6 +14,7 @@
 #include "blue_tooth.h"
 #include "fat_memory.h"
 #include "voice_time.h"
+#include "decode_otp.h"
 
 extern xd_u16 cfilenum;
 extern xd_u8 curr_menu;
@@ -41,10 +42,11 @@ extern u8 bluetooth_cmd_parse(void);
 xd_u8 bt_play_status=BT_STA_STOP;
 
 xd_u8 spark_timer=0;
-static xd_u8 activate_beep=0;
-void activate_beep_ind()
+static xd_u8 activate_beep=0,ind_src_voice=0;
+void activate_beep_ind(u8 ind_src)
 {
 	activate_beep=2;
+	ind_src_voice=ind_src;
 }
 void bluetooth_standby_beep()
 {
@@ -52,16 +54,33 @@ void bluetooth_standby_beep()
 
 		activate_beep--;
 		if(activate_beep==0){
-
-			dac_sw(1);								//闹钟时打开DAC EN0/1
-	        	//main_vol_set(30, CHANGE_VOL_NO_MEM);
-			analog_vol_set(MAX_ANALOG_VOL);
-	        	write_dsp(2, 22, 0x10);
+			
+		if(ind_src_voice==BT_POWER_ON){
+			
+#if OTP_MUSIC_ENABLE
 			Mute_Ext_PA(UNMUTE);
-			delay_10ms(30);
-	        	//write_dsp(2, 22, 0x10);
-			//delay_10ms(20);
-		
+    			decode_opt_music_file();
+			set_sys_vol(my_music_vol);
+
+#else
+			decode_voicetime_file();
+#endif
+			}
+			else if((ind_src_voice==BT_CONECTED_A2DP)||(ind_src_voice==BT_CONECTED_AVRCP)){
+				
+				dac_sw(1);								//闹钟时打开DAC EN0/1
+		        	main_vol_set(20, CHANGE_VOL_NO_MEM);
+				analog_vol_set(MAX_ANALOG_VOL);
+				set_sys_vol(20);
+
+		        	write_dsp(-2, 22, 0x10);
+				Mute_Ext_PA(UNMUTE);
+				delay_10ms(60);
+		        	//write_dsp(2, 22, 0x10);
+				//delay_10ms(20);
+				set_sys_vol(my_music_vol);
+			}
+			ind_src_voice = 0xFF;
   		}
   	}
 }
@@ -113,7 +132,7 @@ void Blue_tooth_hdlr( void )
     //dac_out_select(DAC_AMUX0);
     //delay_10ms(20);	
     //Mute_Ext_PA(UNMUTE);
-    activate_beep_ind();
+    activate_beep_ind(BT_POWER_ON);
     set_delay_mute();
 
     while (1)
@@ -134,6 +153,9 @@ void Blue_tooth_hdlr( void )
 			
 			if(cmd_key<BT_ACK){
 				rev_bluetooth_status = cmd_key;
+				if((cmd_key==BT_CONECTED_A2DP)){
+				   	 activate_beep_ind(BT_CONECTED_AVRCP);
+				}
 			}
 			else if(cmd_key==BT_ACK){
 
@@ -201,6 +223,7 @@ void Blue_tooth_hdlr( void )
 
 		break;	
         case INFO_PREV_FIL| KEY_SHORT_UP:
+
 #if defined(BLUE_TOOTH_UART_FUNC)			
 		promt_bt_cmd(BT_PREV);			
 #endif
@@ -330,7 +353,8 @@ void Blue_tooth_main(void)
 	    }
 #endif	
 	bt_play_status=BT_STA_STOP;
-
+       rev_bluetooth_status=BT_POWER_ON;
+	   	
        Mute_Ext_PA(MUTE);
 
 	BT_PWR_GPIO_ON();
