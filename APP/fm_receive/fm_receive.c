@@ -666,7 +666,9 @@ void fm_hdlr( void )
 #endif	
 
        aux_channel_crosstalk_improve(DAC_AMUX1);
+	set_sys_vol(my_music_vol);
 	delay_10ms(10);
+	
 	Mute_Ext_PA(UNMUTE);
 
     while (1)

@@ -443,6 +443,7 @@ void mcu_hdlr( void )
 
     aux_channel_crosstalk_improve(DAC_AMUX0);
     delay_10ms(80);
+    set_sys_vol(my_music_vol);
 	
     while (1)
     {
@@ -518,7 +519,9 @@ void mcu_hdlr( void )
 			       Mute_Ext_PA(UNMUTE);
 				cd_play_status=MUSIC_PLAY;
 				master_push_cmd(PLAY_RESUME_CMD);
+				
 			}			
+			set_sys_vol(my_music_vol);
 			break;
 			
 	        case INFO_STOP| KEY_SHORT_UP :
