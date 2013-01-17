@@ -25,6 +25,7 @@ extern _xdata SYS_WORK_MODE  work_mode;
 extern xd_u8 cur_sw_fm_band;
 extern xd_u16 REG_MAX_FREQ,REG_MIN_FREQ;
 extern Str_Band  Current_Band;
+extern xd_u8 my_music_vol;
 
 extern void KT_AMFMStandby(void);
 extern xd_u8 KT_AMFMWakeUp(void);
@@ -205,6 +206,7 @@ void radio_chip_set_freq(u8 mode,bool disp_pro)
 #endif
     save_radio_freq(frequency,cur_sw_fm_band*2+MEM_FREQ_BASE);
 #endif
+    set_sys_vol(my_music_vol);	
 
 }
 bool radio_chip_valid_stop(u16 freq_reg)

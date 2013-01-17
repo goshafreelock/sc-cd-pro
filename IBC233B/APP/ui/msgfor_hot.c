@@ -73,6 +73,8 @@ void delay_mute_handler(void)
 	if(mute_delay_timer>0){
 		mute_delay_timer--;
 		if(mute_delay_timer==0){
+
+			set_sys_vol(my_music_vol);
 			Mute_Ext_PA(UNMUTE);
 		}
 	}
