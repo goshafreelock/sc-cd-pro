@@ -428,7 +428,7 @@ bool start_decode(void)
     {
       delay_10ms(5);
     }
-
+	set_sys_vol(my_music_vol);
 	Mute_Ext_PA(UNMUTE);
 	
     	cfilenum = 0;
