@@ -424,10 +424,13 @@ bool start_decode(void)
     	decode_user_exit(0);				  //非正常歌曲可通过按键强行停止解码,每次播放前必须清除
     	enable_softint();					   
     	enable_decode_isr();
-    if (2 == music_type)                   //wav文件，
-    {
-      delay_10ms(5);
-    }
+
+	if (2 == music_type)                   //wav文件，
+	{
+	  	delay_10ms(5);
+    	}
+
+	set_sys_vol(my_music_vol);
 
 	Mute_Ext_PA(UNMUTE);
 	

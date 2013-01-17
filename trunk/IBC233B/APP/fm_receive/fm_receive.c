@@ -37,6 +37,7 @@ extern bool mode_switch_protect_bit;
 #ifdef FAST_STICK_TUNE_FUNC
 extern xd_u8 fast_step_cnt;
 #endif
+extern xd_u8 my_music_vol;
 
 
 xd_u8 sw_fm_mod=0,cur_sw_fm_band=0;
@@ -386,7 +387,7 @@ void semi_auto_scan(u8 scan_dir)
     xd_u16 fre_old=frequency;
     u8 key=0;
 
-#if 1//def FM_UART_ENABLE
+#ifdef FM_UART_ENABLE
 	sys_printf(" FM SEMI SCAN MODE");
 #endif
 
@@ -454,8 +455,9 @@ void semi_auto_scan(u8 scan_dir)
    radio_chip_set_freq(FM_CUR_FRE,SHOW_FREQ);
 
    dac_mute_control(0,1);		
+   set_sys_vol(my_music_vol);	
 
-#if 1//def FM_UART_ENABLE
+#ifdef FM_UART_ENABLE
 	sys_printf(" FM SEMI ---> EXIT <--- SCAN MODE");
 #endif
 
@@ -576,7 +578,7 @@ void restore_station_from_ch(u8 sel_dir)
 #endif
 
 	radio_MEM_disp=1;
-
+	set_sys_vol(my_music_vol);	
 	radio_chip_set_freq(FM_CUR_FRE,NO_SHOW_FREQ);
        Disp_Con(DISP_SEL_POS);
 }
@@ -610,7 +612,9 @@ void fm_hdlr( void )
 	//dac_out_select(DAC_AMUX1);
 	//delay_10ms(20);
 	//Mute_Ext_PA(UNMUTE);
+    set_sys_vol(my_music_vol);	
     set_delay_mute();
+	
     while (1)
     {
 

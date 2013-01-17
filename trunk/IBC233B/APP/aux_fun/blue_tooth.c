@@ -26,8 +26,10 @@ extern bool key_voice_disable;
 extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
-
 extern xd_u8 my_music_vol;
+
+static bool wait_for_dev_connect=0;
+static bool promt_dev_disconnect=0;
 
 #if defined(BLUE_TOOTH_UART_FUNC)
 extern bool bt_frame_rev_finished;
@@ -81,6 +83,7 @@ void bluetooth_standby_beep()
 				set_sys_vol(my_music_vol);
 			}
 			ind_src_voice = 0xFF;
+			set_sys_vol(my_music_vol);
   		}
   	}
 }
@@ -129,10 +132,13 @@ void Blue_tooth_hdlr( void )
 
 #endif
 
+	promt_dev_disconnect=0;
+	wait_for_dev_connect=1;
     //dac_out_select(DAC_AMUX0);
     //delay_10ms(20);	
     //Mute_Ext_PA(UNMUTE);
     activate_beep_ind(BT_POWER_ON);
+    set_sys_vol(my_music_vol);	
     set_delay_mute();
 
     while (1)
@@ -153,9 +159,6 @@ void Blue_tooth_hdlr( void )
 			
 			if(cmd_key<BT_ACK){
 				rev_bluetooth_status = cmd_key;
-				if((cmd_key==BT_CONECTED_A2DP)){
-				   	 activate_beep_ind(BT_CONECTED_AVRCP);
-				}
 			}
 			else if(cmd_key==BT_ACK){
 
@@ -202,7 +205,6 @@ void Blue_tooth_hdlr( void )
 
 #if 1			
 			if(bt_play_status==BT_STA_PLAY){
-
 				//Mute_Ext_PA(MUTE);
 				bt_play_status=BT_STA_PAUSE;
 			}
@@ -261,8 +263,10 @@ void Blue_tooth_hdlr( void )
 			else{
 	            		Disp_Con(DISP_NULL);
 			}
+
+			wait_for_dev_connect = 1;
 		}
-		else if((rev_bluetooth_status==BT_DISCONECT)||(rev_bluetooth_status==BT_PAIR_MODE)||(rev_bluetooth_status==BT_PAIR_MODE)){
+		else if((rev_bluetooth_status==BT_PAIR_MODE)||(rev_bluetooth_status==BT_PAIR_MODE)){
 
 	              if(DISP_VOL== curr_menu)break;
 				  	
@@ -272,6 +276,28 @@ void Blue_tooth_hdlr( void )
 			else{
 	                    	Disp_Con(DISP_NULL);
 			}
+			wait_for_dev_connect = 1;
+		}		
+		else if((rev_bluetooth_status==BT_DISCONECT)){
+
+	              if(DISP_VOL== curr_menu)break;
+				  	
+			if(spark_timer%2==0){
+	                   	Disp_Con(DISP_BT);
+			}
+			else{
+	                    	Disp_Con(DISP_NULL);
+			}
+
+			wait_for_dev_connect =1;
+			
+			if(promt_dev_disconnect==0){
+				
+				promt_dev_disconnect = 1;
+#if defined(BLUE_TOOTH_UART_FUNC)			
+				promt_bt_cmd(BT_ENTER_PAIRING_MODE);		
+#endif			
+			}
 		}
 		else if((rev_bluetooth_status==BT_CONECTED_A2DP)||(rev_bluetooth_status==BT_CONECTED_AVRCP)){
 
@@ -280,6 +306,12 @@ void Blue_tooth_hdlr( void )
 				 Disp_Con(DISP_BT);
 	              }
   			 Mute_Ext_PA(UNMUTE);
+
+			 if(wait_for_dev_connect){
+				wait_for_dev_connect =0;
+				promt_dev_disconnect = 0;
+				activate_beep_ind(BT_CONECTED_AVRCP);
+			 }
 		}	
 #endif		
 		break;			
