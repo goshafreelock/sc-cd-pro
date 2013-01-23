@@ -41,13 +41,15 @@ extern void promt_bt_cmd(AT_PROMPT_CMD cmd);
 extern u8 bluetooth_cmd_parse(void);
 #endif
 
-xd_u8 bt_pwr_off_timer=0,bt_pwr_on_timer=0;
+xd_u8 bt_pwr_off_timer=0,bt_pwr_on_timer=0,retry_timer=0;
 void bt_disconnect_power_hldr()
 {
+	
 	if(bt_pwr_on_timer>0){
 		bt_pwr_on_timer--;
 		if(bt_pwr_on_timer == 0){
 
+    			set_delay_mute();
 			BT_PWR_GPIO_ON();
 		}
 	}
@@ -55,9 +57,20 @@ void bt_disconnect_power_hldr()
 		
 		if((rev_bluetooth_status==BT_DISCONECT_A2DP)||(rev_bluetooth_status==BT_DISCONECT_AVRCP)){
 
+
+			if(retry_timer>0){
+				retry_timer--;
+			}
+			else{
+				return;
+			}
+			
 			bt_pwr_off_timer++;
 			
-			if(bt_pwr_off_timer>=(2*60*2)){
+			if(bt_pwr_off_timer>=(2*60)){
+
+		  		Mute_Ext_PA(MUTE);
+	
 				bt_pwr_on_timer=3;
 				BT_PWR_GPIO_OFF();
 			}
@@ -161,7 +174,8 @@ void Blue_tooth_hdlr( void )
 
 	bt_pwr_off_timer=0;
 	bt_pwr_on_timer =0;
-	
+	retry_timer=0;
+
 	promt_dev_disconnect=0;
 	wait_for_dev_connect=1;
     //dac_out_select(DAC_AMUX0);
@@ -225,7 +239,7 @@ void Blue_tooth_hdlr( void )
 		break;
         case INFO_PLAY| KEY_LONG:
 #if defined(BLUE_TOOTH_UART_FUNC)			
-		promt_bt_cmd(BT_ENTER_PAIRING_MODE);		
+		promt_bt_cmd(BT_FAST_PAIRING_MODE);		
 #endif
 		break;
         case INFO_PLAY| KEY_SHORT_UP:
@@ -299,8 +313,9 @@ void Blue_tooth_hdlr( void )
 		else if((rev_bluetooth_status==BT_PAIR_MODE)||(rev_bluetooth_status==BT_PAIR_MODE)){
 
 	              if(DISP_VOL== curr_menu)break;
-				  	
-			if(spark_timer%2==0){
+
+			if(spark_timer%4==0){				  	
+			//if(spark_timer%2==0){
 	                   	Disp_Con(DISP_BT);
 			}
 			else{
@@ -325,7 +340,7 @@ void Blue_tooth_hdlr( void )
 				
 				promt_dev_disconnect = 1;
 #if defined(BLUE_TOOTH_UART_FUNC)			
-				promt_bt_cmd(BT_ENTER_PAIRING_MODE);		
+				promt_bt_cmd(BT_FAST_PAIRING_MODE);		
 #endif			
 			}
 		}
@@ -336,7 +351,8 @@ void Blue_tooth_hdlr( void )
 				 Disp_Con(DISP_BT);
 	              }
   			 Mute_Ext_PA(UNMUTE);
-
+			 retry_timer=3;
+			 
 			 if(wait_for_dev_connect){
 				wait_for_dev_connect =0;
 				promt_dev_disconnect = 0;
