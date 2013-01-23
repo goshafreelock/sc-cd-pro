@@ -812,6 +812,7 @@ void custom_buf_update(void)
 	    }
 #endif		
 		disp_clr_icon(ICON_PROG);		
+	    	disp_clr_flash_icon(ICON_PROG);
 
     }
 #ifdef FLASH_PLAY_ICON_WHEN_PAUSE
