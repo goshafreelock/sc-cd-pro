@@ -56,25 +56,25 @@ void bt_disconnect_power_hldr()
 	else{
 		
 		if((rev_bluetooth_status==BT_DISCONECT_A2DP)||(rev_bluetooth_status==BT_DISCONECT_AVRCP)){
-
-
-			if(retry_timer>0){
-				retry_timer--;
-			}
-			else{
-				return;
-			}
-			
+		
 			bt_pwr_off_timer++;
 			
 			if(bt_pwr_off_timer>=(2*60)){
 
-		  		Mute_Ext_PA(MUTE);
-	
-				bt_pwr_on_timer=3;
-				BT_PWR_GPIO_OFF();
+				if(retry_timer>0){
+					retry_timer--;
+				
+			  		Mute_Ext_PA(MUTE);
+		
+					bt_pwr_on_timer=3;
+					BT_PWR_GPIO_OFF();
+				}
+				else{
+					
+					bt_pwr_off_timer=0;
+					bt_pwr_on_timer =0;
+				}
 			}
-
 		}
 		else{
 			bt_pwr_off_timer=0;
