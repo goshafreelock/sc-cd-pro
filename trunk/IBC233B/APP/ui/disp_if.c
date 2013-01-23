@@ -811,6 +811,8 @@ void custom_buf_update(void)
 		    	disp_clr_icon(ICON_PLAY);
 	    }
 #endif		
+		disp_clr_icon(ICON_PROG);		
+
     }
 #ifdef FLASH_PLAY_ICON_WHEN_PAUSE
 	if(((toc_flag)&&(cd_play_status == MUSIC_PAUSE)&&(work_mode == SYS_MCU_CD))||((play_status == MUSIC_PAUSE)&&(work_mode == SYS_MP3DECODE_USB))){

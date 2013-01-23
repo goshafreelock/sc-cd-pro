@@ -529,9 +529,9 @@ void radio_save_station_hdlr()
 				radio_prog_spark=0;
 				
 				timerout_cnt=6;				
-				Disp_Con(DISP_SAVE_POS);
+				//Disp_Con(DISP_SAVE_POS);
 
-	                    //Disp_Con(DISP_FREQ);
+	                    Disp_Con(DISP_FREQ);
 			      return;
 	
 		       case INFO_HALF_SECOND:

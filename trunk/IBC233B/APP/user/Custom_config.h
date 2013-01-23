@@ -144,8 +144,8 @@
 #define JK_CD_IBC233B_LCD_MODULE
 
 #define DISP_TOC_BAR
-#define USE_ERP_2_HDLR
-#define USE_USB_ERP_2_HDLR
+//#define USE_ERP_2_HDLR
+//#define USE_USB_ERP_2_HDLR
 #define WELCOME_DISP_ON_STR
 #define USE_SYS_MODE_RECOVER
 
