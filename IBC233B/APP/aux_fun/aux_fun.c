@@ -135,7 +135,7 @@ void deal_aux( void )
 		
         case INFO_250_MS :
 		
-		if(rev_bluetooth_status==BT_DISCONECT){
+		if((rev_bluetooth_status==BT_DISCONECT_A2DP)||(rev_bluetooth_status==BT_DISCONECT_AVRCP)){
 		}
 		else if((rev_bluetooth_status==BT_CONECTED_A2DP)||(rev_bluetooth_status==BT_CONECTED_AVRCP)){
 			promt_bt_cmd(BT_DISPAIR);			

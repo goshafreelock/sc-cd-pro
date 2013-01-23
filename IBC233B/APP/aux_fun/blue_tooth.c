@@ -41,8 +41,35 @@ extern void promt_bt_cmd(AT_PROMPT_CMD cmd);
 extern u8 bluetooth_cmd_parse(void);
 #endif
 
-xd_u8 bt_play_status=BT_STA_STOP;
+xd_u8 bt_pwr_off_timer=0,bt_pwr_on_timer=0;
+void bt_disconnect_power_hldr()
+{
+	if(bt_pwr_on_timer>0){
+		bt_pwr_on_timer--;
+		if(bt_pwr_on_timer == 0){
 
+			BT_PWR_GPIO_ON();
+		}
+	}
+	else{
+		
+		if((rev_bluetooth_status==BT_DISCONECT_A2DP)||(rev_bluetooth_status==BT_DISCONECT_AVRCP)){
+
+			bt_pwr_off_timer++;
+			
+			if(bt_pwr_off_timer>=(2*60*2)){
+				bt_pwr_on_timer=3;
+				BT_PWR_GPIO_OFF();
+			}
+
+		}
+		else{
+			bt_pwr_off_timer=0;
+			bt_pwr_on_timer =0;
+		}
+	}
+}
+xd_u8 bt_play_status=BT_STA_STOP;
 xd_u8 spark_timer=0;
 static xd_u8 activate_beep=0,ind_src_voice=0;
 void activate_beep_ind(u8 ind_src)
@@ -132,6 +159,9 @@ void Blue_tooth_hdlr( void )
 
 #endif
 
+	bt_pwr_off_timer=0;
+	bt_pwr_on_timer =0;
+	
 	promt_dev_disconnect=0;
 	wait_for_dev_connect=1;
     //dac_out_select(DAC_AMUX0);
@@ -195,7 +225,7 @@ void Blue_tooth_hdlr( void )
 		break;
         case INFO_PLAY| KEY_LONG:
 #if defined(BLUE_TOOTH_UART_FUNC)			
-		promt_bt_cmd(BT_DISPAIR);		
+		promt_bt_cmd(BT_ENTER_PAIRING_MODE);		
 #endif
 		break;
         case INFO_PLAY| KEY_SHORT_UP:
@@ -278,7 +308,7 @@ void Blue_tooth_hdlr( void )
 			}
 			wait_for_dev_connect = 1;
 		}		
-		else if((rev_bluetooth_status==BT_DISCONECT)){
+		else if((rev_bluetooth_status==BT_DISCONECT_A2DP)||(rev_bluetooth_status==BT_DISCONECT_AVRCP)){
 
 	              if(DISP_VOL== curr_menu)break;
 				  	
@@ -317,6 +347,7 @@ void Blue_tooth_hdlr( void )
 		break;			
         case INFO_HALF_SECOND :
 
+	     bt_disconnect_power_hldr();
 	     ///delay_mute_handler();
     	     bluetooth_standby_beep();
 
