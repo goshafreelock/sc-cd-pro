@@ -563,10 +563,12 @@ void restore_station_from_ch(u8 sel_dir)
 		if(station_sel_pos>0){
 			station_sel_pos--;
 		}
-		
-		if(station_sel_pos==0)
+		else{
+			//if(station_sel_pos==0)
 			station_sel_pos=Current_Band.MAX_CH;		
+		}
 	}
+	
 	if(cur_sw_fm_band==0){
 		frequency = read_radio_freq(station_sel_pos*2+FM_CH_OFFSET);
 	}
@@ -675,7 +677,10 @@ void fm_hdlr( void )
         case INFO_HALF_SECOND :
 
 		delay_mute_handler();
-
+	   	if(adkey_detect){
+	   	   	adkey_detect=0;
+	   		set_sys_vol(my_music_vol);
+	   	}
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))          
              updata_fat_memory();
 #endif

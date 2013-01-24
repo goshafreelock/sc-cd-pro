@@ -27,6 +27,7 @@ extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
 extern xd_u8 my_music_vol;
+extern bool IR_key_det,adkey_detect;
 
 static bool wait_for_dev_connect=0;
 static bool promt_dev_disconnect=0;
@@ -241,6 +242,7 @@ void Blue_tooth_hdlr( void )
 #if defined(BLUE_TOOTH_UART_FUNC)			
 		promt_bt_cmd(BT_FAST_PAIRING_MODE);		
 #endif
+		rev_bluetooth_status=BT_DISCONECT_A2DP;
 		break;
         case INFO_PLAY| KEY_SHORT_UP:
 
@@ -293,7 +295,9 @@ void Blue_tooth_hdlr( void )
         case INFO_250_MS :
 
 #if defined(BLUE_TOOTH_UART_FUNC)			
-		spark_timer++;		
+
+		spark_timer++;
+
 		if(rev_bluetooth_status==BT_POWER_ON){
 
 
@@ -363,6 +367,11 @@ void Blue_tooth_hdlr( void )
 		break;			
         case INFO_HALF_SECOND :
 
+	     if(adkey_detect){
+    			adkey_detect=0;
+			set_sys_vol(my_music_vol);
+	     }
+		 
 	     bt_disconnect_power_hldr();
 	     ///delay_mute_handler();
     	     bluetooth_standby_beep();

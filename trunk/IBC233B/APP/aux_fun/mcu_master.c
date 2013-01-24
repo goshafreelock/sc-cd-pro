@@ -35,6 +35,7 @@ extern u8 xdata last_work_mode;
 extern bool alarm_on;
 extern xd_u8 play_disp_scr;
 extern xd_u8 my_music_vol;
+extern bool IR_key_det,adkey_detect;
 
 bool next_prev_key=0,play_key=0;
 TOC_TIME cur_time;
@@ -697,6 +698,10 @@ void mcu_hdlr( void )
 					fisrt_time_op=0;
 			 }
 
+	   		 if(adkey_detect){
+	   	    		adkey_detect=0;
+	   			set_sys_vol(my_music_vol);
+	   		 }
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
 	            updata_fat_memory();
 #endif
