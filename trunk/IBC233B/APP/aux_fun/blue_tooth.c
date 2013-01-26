@@ -40,6 +40,9 @@ extern void blue_tooth_uart_init();
 extern void blue_tooth_uart_release();
 extern void promt_bt_cmd(AT_PROMPT_CMD cmd);
 extern u8 bluetooth_cmd_parse(void);
+#ifdef BLUETOOTH_CONFIG_DEV_NAME
+extern void config_dev_name(void);
+#endif
 #endif
 
 xd_u8 bt_pwr_off_timer=0,bt_pwr_on_timer=0,retry_timer=0;
@@ -185,6 +188,10 @@ void Blue_tooth_hdlr( void )
     activate_beep_ind(BT_POWER_ON);
     set_sys_vol(my_music_vol);	
     set_delay_mute();
+	
+#ifdef BLUETOOTH_CONFIG_DEV_NAME
+    config_dev_name();
+#endif
 
     while (1)
     {

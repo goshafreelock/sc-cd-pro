@@ -91,6 +91,25 @@ u8 _code BT_AT_CMD[AT_CMD_LEN][7] =
  	0xAA, 0x00, 0x03, 0x02, 0x00 ,0x5D ,0x9E,				// FAST PAIRING MODE
 };
 
+#ifdef BLUETOOTH_CONFIG_DEV_NAME
+/*
+AA 00 06 05 49 50 30 30 32 CA
+checksum: 0xCA =0 - (00+0x06+0x05+0x49+0x50+0x30+0x30+0x32)
+*/
+u8 const _code bt_dev_name[]=
+{
+#if 1//def JK_IBT40_1094A_V001
+	0xAA ,0x00 ,0x08 ,0x05 ,0x49 ,0x42 ,0x43 ,0x32 ,0x33,0x33,0x42,0x4B,	//IBC233B
+#endif
+};
+void config_dev_name(void)
+{
+	u8 i=0;
+	for(i=0;i<(sizeof(bt_dev_name));i++){
+		putbyte(bt_dev_name[i]);
+	}
+}
+#endif
 
 void promt_bt_cmd(AT_PROMPT_CMD cmd)
 {
