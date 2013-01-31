@@ -31,6 +31,7 @@ extern bool IR_key_det,adkey_detect;
 
 static bool wait_for_dev_connect=0;
 static bool promt_dev_disconnect=0;
+static bool force_pairing_mode_enable=0;
 
 #if defined(BLUE_TOOTH_UART_FUNC)
 extern bool bt_frame_rev_finished;
@@ -59,7 +60,7 @@ void bt_disconnect_power_hldr()
 	}
 	else{
 		
-		if((rev_bluetooth_status==BT_DISCONECT_A2DP)||(rev_bluetooth_status==BT_DISCONECT_AVRCP)){
+		if((rev_bluetooth_status==BT_DISCONECT_A2DP)||(rev_bluetooth_status==BT_DISCONECT_AVRCP)||(force_pairing_mode_enable)){
 		
 			bt_pwr_off_timer++;
 			
@@ -69,7 +70,8 @@ void bt_disconnect_power_hldr()
 					retry_timer--;
 				
 			  		Mute_Ext_PA(MUTE);
-		
+
+					bt_pwr_off_timer=0;
 					bt_pwr_on_timer=3;
 					BT_PWR_GPIO_OFF();
 				}
@@ -179,6 +181,7 @@ void Blue_tooth_hdlr( void )
 	bt_pwr_off_timer=0;
 	bt_pwr_on_timer =0;
 	retry_timer=0;
+	force_pairing_mode_enable=0;
 
 	promt_dev_disconnect=0;
 	wait_for_dev_connect=1;
@@ -249,6 +252,7 @@ void Blue_tooth_hdlr( void )
 #if defined(BLUE_TOOTH_UART_FUNC)			
 		promt_bt_cmd(BT_FAST_PAIRING_MODE);		
 #endif
+		force_pairing_mode_enable=1;
 		rev_bluetooth_status=BT_DISCONECT_A2DP;
 		break;
         case INFO_PLAY| KEY_SHORT_UP:
@@ -325,12 +329,25 @@ void Blue_tooth_hdlr( void )
 
 	              if(DISP_VOL== curr_menu)break;
 
-			if(spark_timer%4==0){				  	
-			//if(spark_timer%2==0){
-	                   	Disp_Con(DISP_BT);
+			if(force_pairing_mode_enable){
+
+				if(spark_timer%2==0){				  	
+				//if(spark_timer%2==0){
+		                   	Disp_Con(DISP_BT);
+				}
+				else{
+		                    	Disp_Con(DISP_NULL);
+				}
 			}
 			else{
-	                    	Disp_Con(DISP_NULL);
+
+				if(spark_timer%4==0){				  	
+				//if(spark_timer%2==0){
+		                   	Disp_Con(DISP_BT);
+				}
+				else{
+		                    	Disp_Con(DISP_NULL);
+				}
 			}
 			wait_for_dev_connect = 1;
 		}		
@@ -363,6 +380,8 @@ void Blue_tooth_hdlr( void )
 	              }
   			 Mute_Ext_PA(UNMUTE);
 			 retry_timer=3;
+
+			force_pairing_mode_enable=0;
 			 
 			 if(wait_for_dev_connect){
 				wait_for_dev_connect =0;
