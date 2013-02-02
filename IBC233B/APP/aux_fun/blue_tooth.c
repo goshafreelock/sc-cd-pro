@@ -104,7 +104,7 @@ void bluetooth_standby_beep()
 		if(activate_beep==0){
 			
 		if(ind_src_voice==BT_POWER_ON){
-			
+#if 0			
 #if OTP_MUSIC_ENABLE
 			Mute_Ext_PA(UNMUTE);
     			decode_opt_music_file();
@@ -112,6 +112,7 @@ void bluetooth_standby_beep()
 
 #else
 			decode_voicetime_file();
+#endif
 #endif
 			}
 			else if((ind_src_voice==BT_CONECTED_A2DP)||(ind_src_voice==BT_CONECTED_AVRCP)){
