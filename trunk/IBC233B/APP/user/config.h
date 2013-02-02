@@ -105,7 +105,7 @@ typedef enum
 									   
 
 #define OSC_CLOCK		32768L		///<系统晶振选择
-#define OTP_MUSIC_ENABLE 		1			///<是否需要使用开机音乐
+#define OTP_MUSIC_ENABLE 		0			///<是否需要使用开机音乐
 
 /*0: DECODE EQ, 1: DSP EQ*/
 #define DECODE_EQ       0
