@@ -189,5 +189,6 @@
 #define FM_SAVE_STATION_MANUAL
 //#define RADIO_ST_INDICATOR
 //#define NOT_USE_LINE_IN_FUNC
+#define BT_GPIO_POWER_CTRL_AT_VPP
 #endif
 
