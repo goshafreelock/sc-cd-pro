@@ -335,13 +335,19 @@ extern void wkup_pin_ctrl(bool dir);
 #define TUNER_PWR_GPIO_OFF()			P05=1
 #endif
 
+#ifdef BT_GPIO_POWER_CTRL_AT_VPP
+#define BT_GPIO_CTRL_INIT()			//WKUPPND  &= ~(BIT(6));
+#define BT_PWR_GPIO_ON()			WKUPPND  |= (BIT(6));
+#define BT_PWR_GPIO_OFF()			WKUPPND  &= ~(BIT(6));
+#else
 #define BT_GPIO_CTRL_INIT()			P0DIR &= ~(BIT(3));P0PU |=BIT(3);
 #define BT_PWR_GPIO_ON()			P03=1
 #define BT_PWR_GPIO_OFF()			P03=0
+#endif
 
 #define AUX_GPIO_CTRL_INIT()		P0DIR &= ~(BIT(2));P0PU |=BIT(2);
-#define AUX_PWR_GPIO_ON()			P02=0;P03=1
-#define AUX_PWR_GPIO_OFF()			P02=1;P03=0
+#define AUX_PWR_GPIO_ON()			P02=0;WKUPPND  |= (BIT(6))
+#define AUX_PWR_GPIO_OFF()			P02=1;WKUPPND  &= ~(BIT(6))
 
 
 #ifdef SYS_GPIO_SEL_FUNC
