@@ -190,5 +190,8 @@
 //#define RADIO_ST_INDICATOR
 //#define NOT_USE_LINE_IN_FUNC
 #define BT_GPIO_POWER_CTRL_AT_VPP
+
+#define TWO_ADKEY_ENABLE
+#define TWO_ADKEY_PORT_P03
 #endif
 

@@ -36,6 +36,11 @@ xd_u8 adc_vddio;
 xd_u8 adc_vdd12l;
 xd_u8 adc_vddiol;
 u8 key_value;
+
+#ifdef TWO_ADKEY_ENABLE
+u8 key_value_2;
+u8 ad_key=0;
+#endif
 bool sys_pwr_flag=0,adkey_detect=0;
 
 xd_u8 fm_sw_volt=0,sys_mod_volt=0,cur_work_mod=0,sys_func_sel=0;
@@ -313,29 +318,42 @@ void adc_scan(void)
         P0IE = ~(BIT(7));
 #endif		
     }
-#ifdef ADKEY_SELECT_MODE
+#ifdef TWO_ADKEY_ENABLE
     else if (cnt == 2)
     {
         key_value = ADCDATH;
-        ADCCON = ADC_KEY_IO6; //
+#if defined(TWO_ADKEY_PORT_P06)
     	 P0PD &= ~(BIT(6));
     	 P0DIR |= BIT(6);
-	 P0IE = ~(BIT(6));        
-    }
+        ADCCON = ADC_KEY_IO6; //
+        P0IE = ~(BIT(6));
+#elif defined(TWO_ADKEY_PORT_P02)
+    	 P0PD &= ~(BIT(2));
+    	 P0DIR |= BIT(2);
+        ADCCON = ADC_KEY_IO2; //
+        P0IE = ~(BIT(2));
+#elif defined(TWO_ADKEY_PORT_P03)
+    	 P0PD &= ~(BIT(3));
+    	 P0DIR |= BIT(3);
+        ADCCON = ADC_KEY_IO3; //
+        P0IE = ~(BIT(3));			
+#elif defined(TWO_ADKEY_PORT_P04)
+    	 P0PD &= ~(BIT(4));
+    	 P0DIR |= BIT(4);
+        ADCCON = ADC_KEY_IO4; //
+        P0IE = ~(BIT(4));		
+#elif defined(TWO_ADKEY_PORT_P07)
+	 P0DIR |= BIT(7);
+    	 P0PD &= ~(BIT(7));
+        ADCCON = ADC_KEY_IO7; //
+        P0IE = ~(BIT(7));
+#endif		
+    }	
     else if (cnt == 3)
     {
-        sys_mod_volt = ADCDATH;
-    
-        ADCCON = ADC_KEY_IO5; //
-        P0PD &= ~(BIT(5));
-    	 P0DIR |= BIT(5);
-     	 P0IE = ~(BIT(5));        
-    }	
-    else if (cnt == 4)
-    {
-        fm_sw_volt = ADCDATH;
+        key_value_2 = ADCDATH;
         ADCCON = ADC_VDD_12;
-    }		
+    }
 #else
     else if (cnt == 2)
     {
@@ -853,4 +871,7 @@ void key_tone(void)
 */
 /*----------------------------------------------------------------------------*/
 void keyScan(void);
+#if defined(TWO_ADKEY_ENABLE)
+void keyScan_adkey2(void);
+#endif
 

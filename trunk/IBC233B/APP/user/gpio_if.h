@@ -256,7 +256,7 @@ extern void wkup_pin_ctrl(bool dir);
 #else
 #define ADC_MAX_USED   0x03
 #endif
-#ifdef USE_TWO_ADKEY
+#ifdef TWO_ADKEY_ENABLE
 #undef ADC_MAX_USED
 #define ADC_MAX_USED   0x04
 #endif

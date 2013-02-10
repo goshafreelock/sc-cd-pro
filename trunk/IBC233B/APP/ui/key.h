@@ -28,6 +28,11 @@ u8 get_cur_select_func();
 #if defined(USE_BAT_MANAGEMENT)
 void bmt_hdlr(void);
 #endif
+
+#if defined(TWO_ADKEY_ENABLE)
+void keyScan_adkey2(void);
+#endif
+
 #endif
 
 #if 0
@@ -305,13 +310,13 @@ void bmt_hdlr(void);
 #else
 #define ADKEY_1		INFO_POWER
 #define ADKEY_2		INFO_STOP
-#define ADKEY_3		INFO_NEXT_FIL
+#define ADKEY_3		NO_KEY
 #define ADKEY_4		INFO_PREV_FIL
-#define ADKEY_5		INFO_PROG
+#define ADKEY_5		NO_KEY
 #define ADKEY_6		INFO_VOL_PLUS
-#define ADKEY_7		INFO_VOL_MINUS
+#define ADKEY_7		NO_KEY
 #define ADKEY_8		INFO_PLAY
-#define ADKEY_9		INFO_PLAY_MODE
+#define ADKEY_9		NO_KEY
 #define ADKEY_10	INFO_MODE
 #define ADKEY_11	INFO_MODE
 #define ADKEY_NOKEY	NO_KEY
@@ -342,16 +347,29 @@ void bmt_hdlr(void);
 #endif
 
 
-#define ADKEY2_RES_1		0x0F
-#define ADKEY2_RES_2		0x2A
-#define ADKEY2_RES_3		0x41
-#define ADKEY2_RES_4		0x58
-#define ADKEY2_RES_5		0x73
-#define ADKEY2_RES_6		0x8E
-#define ADKEY2_RES_7		0xA5	/**/
-#define ADKEY2_RES_8		0xC0
-#define ADKEY2_RES_9		0xDB
-#define ADKEY2_RES_10		0xF0	/**/
-#define ADKEY2_RES_NOKEY	0xF0	/*NO KEY*/
+#define ADKEY2_RES_1		RES_VOLT_1
+#define ADKEY2_RES_2		RES_VOLT_2
+#define ADKEY2_RES_3		RES_VOLT_3
+#define ADKEY2_RES_4		RES_VOLT_4
+#define ADKEY2_RES_5		RES_VOLT_5
+#define ADKEY2_RES_6		RES_VOLT_6
+#define ADKEY2_RES_7		RES_VOLT_7	
+#define ADKEY2_RES_8		RES_VOLT_8	
+#define ADKEY2_RES_9		RES_VOLT_9	
+#define ADKEY2_RES_10		RES_VOLT_10	
+#define ADKEY2_RES_NOKEY		RES_VOLT_NO_KEY	/*NO KEY*/
+
+
+#define ADKEY2_1		NO_KEY
+#define ADKEY2_2		NO_KEY
+#define ADKEY2_3		INFO_NEXT_FIL
+#define ADKEY2_4		NO_KEY
+#define ADKEY2_5		INFO_PROG
+#define ADKEY2_6		NO_KEY
+#define ADKEY2_7		INFO_VOL_MINUS
+#define ADKEY2_8		NO_KEY
+#define ADKEY2_9		INFO_PLAY_MODE
+#define ADKEY2_10		NO_KEY
+#define ADKEY2_NOKEY	NO_KEY
 #endif
 

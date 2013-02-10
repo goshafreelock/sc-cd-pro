@@ -39,6 +39,11 @@
     extrn data (otp_music_addr)
 #endif
 
+#if defined(TWO_ADKEY_ENABLE)
+    extrn data (key_value_2)
+    extrn data (ad_key)
+#endif    
+
 #if OTP_MUSIC_ENABLE
 	extrn code (music_file)
 #endif
@@ -256,6 +261,83 @@ timer3isr_7:
 //----------------------------------------------------------------------------------------
 //°´¼ü¼ì²â
 //----------------------------------------------------------------------------------------
+
+#if defined(TWO_ADKEY_ENABLE)
+    ?PR?keyScan_adkey2?KEY segment code
+    public keyScan_adkey2
+    RSEG  ?PR?keyScan_adkey2?KEY
+keyScan_adkey2:
+       MOV     R7,key_value_2
+	//MOV  	R7,ADCDATH
+	//ORL  	ADCCON,#080H
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY2_RES_NOKEY
+	JC   	?C00049
+	MOV  	R7,#ADKEY2_NOKEY
+	SJMP 	?C00066
+?C00049:
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY2_RES_8
+	JC   	?C00050
+	MOV  	R7,#ADKEY2_9
+	SJMP 	?C00066	
+?C00050:
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY2_RES_7
+	JC   	?C00051
+	MOV  	R7,#ADKEY2_8
+	SJMP 	?C00066
+?C00051:
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY2_RES_6
+	JC   	?C00052
+	MOV  	R7,#ADKEY2_7
+	SJMP 	?C00066
+?C00052:
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY2_RES_5
+	JC   	?C00053
+	MOV  	R7,#ADKEY2_6
+	SJMP 	?C00066
+?C00053:
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY2_RES_4
+	JC   	?C00054
+	MOV  	R7,#ADKEY2_5
+	SJMP 	?C00066
+?C00054:
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY2_RES_3
+	JC   	?C00055
+	MOV  	R7,#ADKEY2_4
+	SJMP 	?C00066
+?C00055:
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY2_RES_2
+	JC   	?C00056
+	MOV  	R7,#ADKEY2_3
+	SJMP 	?C00066
+?C00056:
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY2_RES_1
+	MOV  	R7,#ADKEY2_1
+	JC   	?C00066
+	MOV  	R7,#ADKEY2_2
+?C00066:
+	MOV ad_key,R7
+	RET
+	
+#endif
+
     ?PR?keyScan?KEY segment code
     public keyScan
     RSEG  ?PR?keyScan?KEY
@@ -265,10 +347,26 @@ keyScan:
 	MOV  	A,R7
 	CPL  	A
 	JNZ  	?C0008
+#if 0	
     CALL    key_power
 	MOV  	A,R7
 	CPL  	A
 	JNZ  	?C0008
+#endif
+
+#if defined(TWO_ADKEY_ENABLE)
+
+	MOV  	R7,ad_key
+	MOV  	A,R7
+	SETB 	C
+	SUBB 	A,#ADKEY_RES_NOKEY
+	JC   	?C0008
+	MOV  	R7,#ADKEY_NOKEY
+	SJMP 	?C0110
+	
+?C0110:
+#endif
+	
     MOV     R7,key_value
 	//MOV  	R7,ADCDATH
 	//ORL  	ADCCON,#080H

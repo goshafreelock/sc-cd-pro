@@ -294,7 +294,11 @@ void timer1isr(void)
 
 #ifdef USE_LINE_IN_DETECT_FUNC        
         aux_check();
-#endif        
+#endif  
+#if defined(TWO_ADKEY_ENABLE)
+	keyScan_adkey2();
+#endif
+
         keyScan();
         dec_delay_counter();
 
