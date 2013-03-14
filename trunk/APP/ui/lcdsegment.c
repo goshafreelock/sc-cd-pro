@@ -88,6 +88,9 @@ void disp_icon(u8 id)
 	case ICON_AUX:
 		F_AUX_DEV |=AUX_DEV_MASK;
 		break;
+	case ICON_TUNER:
+		F_FM_DEV |= FM_DEV_MASK;		
+		break;
 	case ICON_FM_MHZ:
 		F_FM_DEV |= FM_DEV_MASK;
 		F_MHZ_DEV |=FM_MHZ_MASK;
@@ -175,6 +178,9 @@ void disp_clr_icon(u8 id)
 	case ICON_AUX:
 		F_AUX_DEV &=~AUX_DEV_MASK;
 		break;
+	case ICON_TUNER:
+		F_FM_DEV &=~ FM_DEV_MASK;		
+		break;		
 	case ICON_FM_MHZ:
 		F_MHZ_DEV &=~FM_MHZ_MASK;
 		break;

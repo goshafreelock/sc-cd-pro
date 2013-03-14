@@ -46,7 +46,7 @@ u8 ReadLFSR()
     tmp = CRCFIFO ;
     return tmp;
 }
-
+extern void usb_prog_mode_cls();
 /*----------------------------------------------------------------------------*/
 /**@brief    超找上一个或下一个文件，或自动获取下一个
    @param    dir：0:next file, 1:previous file, 2:auto next,可能会导致设备的切换
@@ -100,7 +100,9 @@ void get_music_file1(u8 dir)
 
 #ifdef USE_USB_PROG_PLAY_MODE
     		if(usb_prog_icon_bit){
+				
 			given_file_number =usb_prog_tab[0];
+			usb_prog_mode_cls();			
     		}
 #endif	
 		//folder_mode_select=0;

@@ -12,6 +12,7 @@
 #include "gpio_if.h"
 #include "msgfor_hot.h"
 extern xd_u8 work_mode;
+extern u8 _idata music_vol;
 
 bool sys_clock_flag;  ///<AD
 u8 clock_change_delay;
@@ -236,7 +237,9 @@ extern void  KT_AMFMStandby(void);
 /*----------------------------------------------------------------------------*/
 void sys_power_down(void)
 {
-    sys_printf("---sys_power_down");
+    //sys_printf("---sys_power_down");
+
+    write_info(MEM_VOL, music_vol);
 
     Mute_Ext_PA(MUTE);
 

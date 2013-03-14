@@ -239,6 +239,11 @@ void Disp_Vol(void)
 {
 	printf_char('V',1);
 	printf_num(my_music_vol,2,2);
+
+	if((work_mode ==SYS_FMREV)||(work_mode ==SYS_AMREV)){
+
+		disp_icon(ICON_TUNER);			
+	}	
 }
 void Diap_Playmode(void)
 {
@@ -665,6 +670,7 @@ void custom_buf_update(void)
 #ifdef USE_USB_PROG_PLAY_MODE
 	if(work_mode ==SYS_MP3DECODE_USB){
 
+	 	disp_icon(ICON_USB);		
 		if(usb_play_prog_mode){
 	    		disp_flash_icon(ICON_PROG);
 		}
@@ -693,7 +699,7 @@ void custom_buf_update(void)
 
 #ifdef RADIO_ST_INDICATOR
 	if(work_mode ==SYS_FMREV){
-
+		
 		if(radio_prog_spark){			
 			disp_icon(ICON_PROG);			
 		}

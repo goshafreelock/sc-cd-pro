@@ -36,6 +36,7 @@ extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
 extern xd_u8 my_music_vol;
+extern bool adkey_detect;
 
 TOC_TIME cur_time;
 bool toc_flag=0,send_buf_cmd=0;
@@ -195,16 +196,28 @@ void mcu_master_info_hdlr()
 			if(info_timer_toc++>2){
 				toc_flag=1;
 			}
+			else{
+				
+				if(!toc_flag){
+					if(curr_menu != DISP_SCAN_TOC){
+						Disp_Con(DISP_SCAN_TOC);
+					}
+				}
+			}
 		}
 
 //4 DOOR STATUS
 		if((rev_buf[1]&(BIT(1)))){
 
 			info_timer_2++;
+			info_timer_toc =0;			
 			if((curr_menu != DISP_OPEN)&&(info_timer_2>2)){
 			   	Mute_Ext_PA(MUTE);
 				Disp_Con(DISP_OPEN);
 				toc_flag=0;
+
+				prog_cur_num=0;	
+				prog_disp_srn=1;				
 				prog_icon_bit=0;
 				play_prog_mode=0;
 			    	play_mode=REPEAT_OFF;
@@ -366,6 +379,7 @@ void prog_play_init()
 	play_prog_mode=1;
 	prog_disp_srn=1;
 	//my_memset(&prog_file_tab[0], 0x0, 20);
+	master_push_cmd(STOP_CMD);
 	master_push_cmd(MEM_CMD);
 	Disp_Con(DISP_PROG_FILENUM);
 
@@ -441,15 +455,14 @@ void mcu_hdlr( void )
 {
     u8 key;
 
-    aux_channel_crosstalk_improve(DAC_AMUX0);
+    aux_channel_crosstalk_improve(DAC_AMUX1);
     delay_10ms(80);
     set_sys_vol(my_music_vol);
 	
     while (1)
     {
 		//suspend_sdmmc();
-  	dac_out_select(DAC_AMUX0);
-		
+  	dac_out_select(DAC_AMUX1);
 	key = get_msg();
 #if 0	
 	if(key!= 0xff)
@@ -496,8 +509,11 @@ void mcu_hdlr( void )
 			if(play_prog_mode){
 
 			       play_mode = REPEAT_OFF;
+				master_push_cmd(REP_OFF_CMD);   
 				play_prog_mode=0;
 				prog_icon_bit=1;
+				prog_disp_srn=1;
+				prog_cur_num=0;	
 			}
 #endif			
 			if(cd_play_status== MUSIC_PLAY){
@@ -529,10 +545,11 @@ void mcu_hdlr( void )
 			{
 #ifdef USE_PROG_PLAY_MODE
 				play_prog_mode=0;	
-				prog_cur_num=0;	
+				prog_cur_num=0;
+				prog_disp_srn=1;					
 #endif
 			       play_mode = REPEAT_OFF;
-			      Mute_Ext_PA(MUTE);
+			       Mute_Ext_PA(MUTE);
 				cd_play_status=MUSIC_STOP;			
 				master_push_cmd(STOP_CMD);
 	                    	Disp_Con(DISP_DWORD_NUMBER);		
@@ -658,7 +675,12 @@ void mcu_hdlr( void )
 	            {
 	                	disp_file_time();
 	            }
-				
+
+		    if(adkey_detect){
+		   	    adkey_detect=0;
+		   	    set_sys_vol(my_music_vol);
+		    }		
+			
 	            set_brightness_fade_out();
 	            if (return_cnt < RETURN_TIME)
 	            {

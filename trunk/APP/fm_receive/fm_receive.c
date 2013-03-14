@@ -46,6 +46,8 @@ xd_u16 REG_MAX_FREQ=0,REG_MIN_FREQ=0;
 xd_u8 sw_fm_pos=0;
 xd_u8 station_save_pos=0,station_sel_pos=0;
 extern xd_u8 my_music_vol;
+xd_u8 radio_force_preset=0;
+
 
 #ifdef RADIO_ST_INDICATOR
 bool radio_st_ind=0;
@@ -183,6 +185,7 @@ void load_preset_table(u8 pre_cmd)
 		if(i<5)p++;
 	}
 #endif
+
 	for(i=0;i<FM_MAX_CH;i++){
 #ifdef FM_UART_ENABLE
 		printf("------->-station form  TABLE  fre:%4u  at : %d \r\n",(*(p)),(u16)((i*2)+epprom_offset));
@@ -202,7 +205,12 @@ void radio_preset_init()
 
 	preset_reg =read_info(MEM_PRESET_REG);
 
-	if(((preset_reg&PRESET_MASK)==PRESET_OK)&&((preset_reg&PRESET_ZONE_MASK)==gpio_sel_band_info_config)){		
+#ifdef CUSTOMED_KEY_FORCED_INIT_PRESET
+	if(radio_force_preset>0){
+#else		
+	if((((preset_reg&PRESET_MASK)==PRESET_OK)&&((preset_reg&PRESET_ZONE_MASK)==gpio_sel_band_info_config))){		
+#endif
+
 #ifdef FM_UART_ENABLE
 	    	printf("------->-station form  epprom    \r\n");
 #endif
@@ -372,7 +380,7 @@ bool radio_get_validstation(u16 freq)
 #endif
 	return 0;
 }
-
+#ifdef ALL_AUTO_SCAN_FUNC
 #define BAND_FULL_SCAN_KEY	(INFO_PLAY |KEY_LONG)
 void full_band_scan_hdlr()
 {
@@ -392,7 +400,7 @@ void full_band_scan_hdlr()
 	frequency =REG_MIN_FREQ;
 	station_save_pos=0;
 	station_sel_pos=0;
-
+    	Mute_Ext_PA(MUTE);            
    	dac_mute_control(1,1);		
 	
 	while(1)
@@ -476,12 +484,15 @@ void full_band_scan_hdlr()
 	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
 
    	dac_mute_control(0,1);		
-
+   	delay_10ms(1);
+   	Mute_Ext_PA(UNMUTE);            
 #ifdef FM_UART_ENABLE
 	sys_printf(" FINISH RADIO ALL SCAN  MODE");
 #endif
 
 }
+#endif
+
 #define SEMI_AUTO_SCAN_KEY_UP		INFO_NEXT_FIL | KEY_LONG
 #define SEMI_AUTO_SCAN_KEY_DOWN	INFO_PREV_FIL | KEY_LONG
 void semi_auto_scan(u8 scan_dir)
@@ -495,8 +506,8 @@ void semi_auto_scan(u8 scan_dir)
 #endif
 
     adkey_detect=0;
-
-   dac_mute_control(1,1);		
+    Mute_Ext_PA(MUTE);            
+    dac_mute_control(1,1);		
     do   
     {
 	 key = get_msg();	
@@ -520,7 +531,6 @@ void semi_auto_scan(u8 scan_dir)
             	break;
 	}
 	if(adkey_detect){
-
 		adkey_detect=0;
 		break;
 	}
@@ -553,6 +563,9 @@ void semi_auto_scan(u8 scan_dir)
    set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
 
    dac_mute_control(0,1);		
+   delay_10ms(1);
+   Mute_Ext_PA(UNMUTE);            
+   
 
 }
 #endif
@@ -603,7 +616,13 @@ void radio_save_station_hdlr()
 				else if(cur_sw_fm_band==1){
 					save_radio_freq(frequency,station_save_pos*2+AM_CH_OFFSET);
 				}
-	                    Disp_Con(DISP_FREQ);
+				
+				station_save_pos++;
+				if(station_save_pos> Current_Band.MAX_CH)
+					station_save_pos=0;
+	                     Disp_Con(DISP_SAVE_POS);				
+
+	                    //Disp_Con(DISP_FREQ);
 			      return;
 	
 		       case INFO_HALF_SECOND:
@@ -703,9 +722,18 @@ void fm_hdlr( void )
 		radio_prog_spark=0;		
 		break;
 #endif		
+#ifdef ALL_AUTO_SCAN_FUNC
 	case BAND_FULL_SCAN_KEY:
 		full_band_scan_hdlr();
 		break;
+#endif
+
+#ifdef CUSTOMED_KEY_FORCED_INIT_PRESET
+	case INFO_PLAY |KEY_LONG:
+		radio_preset_init();
+		break;
+#endif
+
 #ifdef SEMI_AUTO_SCAN_FUNC
         case SEMI_AUTO_SCAN_KEY_UP:			
 		semi_auto_scan(SEARCH_UP);
@@ -715,6 +743,7 @@ void fm_hdlr( void )
 		semi_auto_scan(SEARCH_DN);
 		break;	
 #endif
+
         case INFO_FRE_UP | KEY_SHORT_UP:
         case INFO_NEXT_FIL | KEY_SHORT_UP:	
     		dac_mute_control(1, 1);	
@@ -743,12 +772,21 @@ void fm_hdlr( void )
 	 	KT_Radio_ST_Check();
 #endif
 
+	    if(adkey_detect){
+	   	    adkey_detect=0;
+	   	    set_sys_vol(my_music_vol);
+	   }
+		
             set_brightness_fade_out();
             if (return_cnt < RETURN_TIME)
             {
                 return_cnt++;
             }
-			
+
+	     if(radio_force_preset>0){
+			radio_force_preset--;
+	     }
+
             if (RETURN_TIME == return_cnt)
             {
 
@@ -848,8 +886,10 @@ void fm_radio(void)
 	{
 
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
+#ifndef CUSTOMED_KEY_FORCED_INIT_PRESET
 		scan_gpio_band_info_config();
 		radio_preset_init();
+#endif		
 #endif		
 		sysclock_div2(1);
 #if SDMMC_CMD_MODE
