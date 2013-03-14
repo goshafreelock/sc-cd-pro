@@ -47,6 +47,8 @@ extern xd_u8 curr_menu,disp_scenario;
 volatile u8 bDACTimeOut;			//µÈ´ýOBUF Çå¿Õtimeout
 extern xd_u8 LDO_IN_Volt;
 extern bool sys_pwr_flag,sys_mute_flag;
+extern xd_u8 radio_force_preset;
+
 #ifdef JOG_STICK_FUNC	 
 extern void JogDetect(void);
 #endif
@@ -741,6 +743,7 @@ void main(void)
 	Set_Curr_Func(SYS_MCU_CD);
 #endif
 
+	radio_force_preset=6;
 #ifdef UART_ENABLE
     	printf("------->- SYS INIT   work_mode:%d   \r\n",(u16)work_mode);
 #endif

@@ -27,6 +27,8 @@ extern xd_u8 work_mode;
 extern xd_u8 curr_menu,disp_scenario;
 extern u8 device_active;
 extern u8 decode_cmd;
+extern xd_u8 my_music_vol;
+extern bool adkey_detect;
 
 extern s8 _idata ff_fr_step;  ///<快进 快退步径 负数为快退 正数为快进
 
@@ -43,7 +45,6 @@ xd_u16 given_file_number;
 u8 music_type;
 /** 文件信息滚动显示的计数值 */
 xd_u16 filenameCnt;
-
 bool playpoint_flag;
 
 
@@ -103,7 +104,13 @@ bool get_prog_song_num(u8 get_Mode)
 		usb_play_prog_index++;
 	
 		if(usb_play_prog_index>(usb_prog_total_num-2)){
+
 			usb_play_prog_index =0;
+
+			if(get_Mode==GET_PLAY_FILE){
+				repeat_off_flag =1;
+				return 0;		
+			}			
 		}
 	}
 
@@ -192,7 +199,7 @@ void usb_prog_play_init()
 		usb_play_prog_index=0;
 		usb_prog_total_num=1;
 		usb_prog_cur_num=0;
-		prog_disp_srn=0;
+		prog_disp_srn=1;
 		my_memset(&usb_prog_tab[0], 0x0, 20);
 		Disp_Con(DISP_PROG_FILENUM);
 	}
@@ -203,7 +210,7 @@ void usb_prog_mode_cls()
 
 		usb_play_prog_mode=0;
 		usb_prog_icon_bit=0;	
-		prog_disp_srn=0;
+		prog_disp_srn=1;
 
 		usb_prog_total_num=1;
 		usb_prog_cur_num=0;
@@ -408,13 +415,13 @@ bool start_decode(void)
 #endif
 	}
 #endif
-    get_filetag(buffer);
-    my_memset(win_buffer, 0, 512);              //解码前，必须清除buffer
+    	get_filetag(buffer);
+    	my_memset(win_buffer, 0, 512);              //解码前，必须清除buffer
   	write_info(MEM_ACTIVE_DEV,device_active);	
 //breakpoint
 	load_playpoint();
 	write_playpoint_info(device_active);
-    update_playpoint(&playpoint_time);		//半秒更新断点进度，不写入存储器
+    	update_playpoint(&playpoint_time);		//半秒更新断点进度，不写入存储器
 	write_dev_playtime(device_active);			 //更新断点信息
     	playpoint_filenum = 0;
 //breakpoint
@@ -424,10 +431,10 @@ bool start_decode(void)
     	decode_user_exit(0);				  //非正常歌曲可通过按键强行停止解码,每次播放前必须清除
     	enable_softint();					   
     	enable_decode_isr();
-    if (2 == music_type)                   //wav文件，
-    {
-      delay_10ms(5);
-    }
+    	if (2 == music_type)                   //wav文件，
+    	{
+     		 delay_10ms(5);
+    	}
 	set_sys_vol(my_music_vol);
 	Mute_Ext_PA(UNMUTE);
 	
@@ -533,6 +540,8 @@ void music_play(void)
 		if((get_device_online_status()==0)){
 			break;
 		}
+
+		Mute_Ext_PA(MUTE);            
 		
 		flush_all_msg();
 		stop_decode();
@@ -638,6 +647,9 @@ void music_play(void)
 		//work_mode = SYS_IDLE;
             //return;
 #ifdef NO_DEV_SHOW_NO_DEV
+		usb_prog_mode_cls();
+		folder_select=0;
+		folder_mode_select=0;
 		Disp_Con(DISP_NODEVICE);
 #else
              	Disp_Con(DISP_RTC);
@@ -664,6 +676,7 @@ void music_play(void)
 			
             if (play_status == MUSIC_PAUSE)
             {
+			Mute_Ext_PA(UNMUTE);
 			play_status = MUSIC_PLAY;
 			Disp_Con(DISP_PLAY);
                 	mad_control(MAD_PLAY,0);
@@ -674,6 +687,7 @@ void music_play(void)
             }
             else if (play_status == MUSIC_PLAY)
             {
+			Mute_Ext_PA(MUTE);            
 			play_status = MUSIC_PAUSE;
 			if(music_type == 1)
 				disable_decodeint();
@@ -691,6 +705,7 @@ void music_play(void)
 			}				
 #endif
                 	put_msg_lifo(INIT_PLAY);
+			//Mute_Ext_PA(UNMUTE);
 
 	     }
             break;
@@ -737,7 +752,11 @@ void music_play(void)
 			}
 		}
 #endif		
-	     
+	    if(adkey_detect){
+	   	    adkey_detect=0;
+	   	    set_sys_vol(my_music_vol);
+	    }
+		
             if (file_end_time)
             {
 			file_end_time--;
@@ -1000,6 +1019,10 @@ void decode_play(void)
     	mode_switch_protect_bit=1;
 #endif
 	disp_scenario = DISP_NORMAL;
+
+	folder_select=0;
+	folder_mode_select=0;
+	
 	stop_decode();
 	usb_prog_mode_cls();	
 #if(MEMORY_STYLE != USE_DEVICE)

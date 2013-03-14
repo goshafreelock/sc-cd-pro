@@ -438,7 +438,7 @@ u8 ap_handle_hotkey(u8 key)
 		else if(work_mode==SYS_IDLE){
 			//put_msg_lifo(MSG_SYS_IDLE);
 		}
-		
+
       		put_msg_lifo(INFO_NEXT_SYS_MODE);	   
 	
 	break;
@@ -518,7 +518,7 @@ u8 ap_handle_hotkey(u8 key)
 	dac_mute_control(0, 1);	
 	set_sys_vol(my_music_vol);
 
-	write_info(MEM_VOL, music_vol);
+	//write_info(MEM_VOL, music_vol);
 	
        // printf(" -------> vol %d   \r\n",(u16)my_music_vol);
        // printf(" -------> vol %d   \r\n",(u16)music_vol);
@@ -585,6 +585,7 @@ u8 ap_handle_hotkey(u8 key)
 		break;
 #endif		
 #else		
+#if 0
     case INFO_POWER | KEY_SHORT_UP :	
 		if(sys_pwr_flag==0){
 
@@ -595,6 +596,7 @@ u8 ap_handle_hotkey(u8 key)
 		}
         	put_msg_lifo(INFO_NEXT_SYS_MODE);		
         break;
+#endif		
 #endif
 
 #ifdef KEY_100_ENABLE		

@@ -535,7 +535,7 @@ xd_u8 KT_AMFMWakeUp(void) //0->Fail 1->Success
 	regx = KT_Bus_Read(0x0F);
 	KT_Bus_Write(0x0F, regx & 0xEFFF);			//Write Standby bit to 0
 
-	delay_10ms(20);	
+	delay_10ms(50);	
 #if 1
 	if(KT_pre_init()==1){
 
@@ -689,7 +689,7 @@ xd_u8 KT_FMTune(xd_u16 Frequency) //87.5MHz-->Frequency=8750; Mute the chip and 
 		KT_Bus_Write(0x03, (regx & 0xF000) | 0x8000 | (Frequency / 5));	   		//set tune bit to 1
 	 }
 
-	delay_10ms(2);
+	delay_10ms(5);
 
 	//regx = KT_Bus_Read(0x0F);       
 	//KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x1E));		//Write volume to 0
@@ -2118,7 +2118,7 @@ void KT_FM_SOFTMUTE(xd_u16 Frequency)
 
 	KT_Mute_Ctrl(1);
 	
-	regx = KT_Bus_Read(0x04);
+	//regx = KT_Bus_Read(0x04);
 	if(KT_FMValidStation(Frequency))
 	{
 //		KT_FM_SOFTMUTE_SETTING(2,3,4,5);					// SMUTEA=4,SMUTER=60ms,SMMD=SNR mode,FM_SMTH=9,VOLUMET=5
@@ -2138,7 +2138,7 @@ void KT_FM_SOFTMUTE(xd_u16 Frequency)
 
 		 //printf("------->-soft   mute     \r\n");
 		regx = KT_Bus_Read(0x0F);       
-		KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x10));		//Write volume to 0	
+		KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x12));		//Write volume to 0	
 	}
 //	reg4=KT_Bus_Read(0x04);									// FM Softmute Enable
 //	KT_Bus_Write(0x04,reg4 & 0x7FFF);

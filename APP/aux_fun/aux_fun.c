@@ -23,6 +23,8 @@ extern bool key_voice_disable;
 extern void chk_date_err(void);
 extern u8 xdata last_work_mode;
 extern bool alarm_on;
+extern xd_u8 my_music_vol;
+extern bool adkey_detect;
 
 /*----------------------------------------------------------------------------*/
 /**@brief  AUX消息处理
@@ -35,15 +37,15 @@ void deal_aux( void )
 {
     u8 key;
 
-    aux_channel_crosstalk_improve(DAC_AMUX1);
-    delay_10ms(120);	
+    aux_channel_crosstalk_improve(DAC_AMUX0);
+    delay_10ms(60);	
     Mute_Ext_PA(UNMUTE);
 	
     while (1)
     {
-        	dac_out_select(DAC_AMUX1);
+        	dac_out_select(DAC_AMUX0);
 		//suspend_sdmmc();
-
+		
 		key = get_msg();
 		
 		if(dac_cnt > 20)
@@ -53,6 +55,8 @@ void deal_aux( void )
 
 	switch (key)
         {
+        case INFO_NEXT_SYS_MODE:
+		return;        
         case INFO_HALF_SECOND :
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
             updata_fat_memory();
@@ -65,6 +69,10 @@ void deal_aux( void )
 	       timer_pwr_off_hdlr();
 #endif
 
+	    if(adkey_detect){
+	   	    adkey_detect=0;
+	   	    set_sys_vol(my_music_vol);
+	    }
             set_brightness_fade_out();
             if (return_cnt < RETURN_TIME)
             {
