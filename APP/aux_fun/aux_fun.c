@@ -26,6 +26,31 @@ extern bool alarm_on;
 extern xd_u8 my_music_vol;
 extern bool adkey_detect;
 
+#ifdef USE_ERP_2_HDLR
+static xd_u16 aux_erp_timer=0;
+void aux_erp_2_timer_hdlr()
+{
+
+    	WKUPPND |= BIT(6);  //开VPP的上拉
+
+	if((WKUPPND&BIT(7))>0){
+
+		aux_erp_timer++;
+		if(aux_erp_timer>=(10*60*2)){
+
+    			//CD_PWR_GPIO_OFF();
+		    	Disp_Con(DISP_POWER_OFF);
+#ifdef USE_POWER_KEY				
+			sys_power_down();
+#endif
+		}
+	}
+	else{
+		aux_erp_timer = 0;
+	}
+}
+#endif
+
 /*----------------------------------------------------------------------------*/
 /**@brief  AUX消息处理
    @param  无
@@ -68,7 +93,9 @@ void deal_aux( void )
 #if defined(USE_TIMER_POWER_OFF_FUNC)
 	       timer_pwr_off_hdlr();
 #endif
-
+#ifdef USE_ERP_2_HDLR
+	aux_erp_2_timer_hdlr();
+#endif
 	    if(adkey_detect){
 	   	    adkey_detect=0;
 	   	    set_sys_vol(my_music_vol);
