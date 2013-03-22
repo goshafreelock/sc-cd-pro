@@ -262,7 +262,13 @@ void keyInit(void)
     //P0IE = ~(BIT(7));
     P0DIR |= BIT(7);
 #endif	
+
+    P0PD &= ~(BIT(3)|BIT(4));
+    //P0IE = ~(BIT(5));
+    P0DIR |= (BIT(3)|BIT(4));	
+	
     key_value = 0xff;
+    key_value_2= 0xff;
     //P3PU  &= ~(1<<4);
     //P3DIR |= (1<<4);
     MAX_IR_KEY = get_my_IR_key_MAX();
