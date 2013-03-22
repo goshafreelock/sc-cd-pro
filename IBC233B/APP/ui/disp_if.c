@@ -295,10 +295,12 @@ void Disp_Playmode_icon()
 	disp_clr_icon(ICON_REP_1);
 	disp_clr_icon(ICON_REP_RDM);
 	disp_clr_icon(ICON_REP_FOD);
-
+#if 0
 	if(prog_icon_bit||play_prog_mode){
 		return;
 	}
+#endif
+	
 #ifdef USE_USB_SD_DECODE_FUNC	       
 	if(usb_play_prog_mode||usb_prog_icon_bit){
 		return;
