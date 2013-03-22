@@ -39,7 +39,7 @@ extern bool IR_key_det,adkey_detect;
 
 bool next_prev_key=0,play_key=0;
 TOC_TIME cur_time;
-bool toc_flag=0,send_buf_cmd=0,fisrt_time_op=0;
+bool toc_flag=0,send_buf_cmd=0,fisrt_time_op=0,door_open=0;
 xd_u8 fast_fr_release_cnt=0;
 xd_u16 send_buf=0;
 xd_u8 rev_buf[10]={0};
@@ -50,6 +50,7 @@ bool play_prog_mode=0,prog_icon_bit=0,prog_disp_srn=0;
 xd_u8 prog_total_num=0,prog_cur_num=0,prog_first_num=0;
 
 #endif
+void prog_play_clear(void);
 
 void master_push_cmd(u8 cmd)
 {
@@ -150,22 +151,25 @@ void mcu_master_info_hdlr()
 
 //4 TOC 
 		if((rev_buf[1]&(BIT(2)))==0){
-			
+
+			if((!door_open)){
 #ifdef DISP_TOC_BAR
-			if(curr_menu != DISP_SCAN_TOC){
-				Disp_Con(DISP_SCAN_TOC);
-			}
-			else{
-				Disp_Con(DISP_NULL);
-			}
+				if(curr_menu != DISP_SCAN_TOC){
+					Disp_Con(DISP_SCAN_TOC);
+				}
+				else{
+					Disp_Con(DISP_NULL);
+				}
 #else
-			if(curr_menu != DISP_SCAN_DISK){
-				Disp_Con(DISP_SCAN_DISK);
-			}
+				if(curr_menu != DISP_SCAN_DISK){
+					Disp_Con(DISP_SCAN_DISK);
+				}
 #endif			
+			}
 		}
 		else{
-			
+
+			door_open=0;
 			toc_flag=1;
 		}
 		
@@ -225,19 +229,27 @@ void mcu_master_info_hdlr()
 //4 DOOR STATUS
 		if((rev_buf[1]&(BIT(1)))){
 
-			info_timer_2++;
-			if((curr_menu != DISP_OPEN)&&(info_timer_2>1)){
-			   	Mute_Ext_PA(MUTE);
+			if((curr_menu != DISP_OPEN)&&(info_timer_2>2)){
+
 				Disp_Con(DISP_OPEN);
+				door_open=1;
+				info_timer_2=0;
+			   	Mute_Ext_PA(MUTE);
 				toc_flag=0;
+				prog_play_clear();
 				prog_icon_bit=0;
 				play_prog_mode=0;
 				clr_flick_timer();
 			    	play_mode=REPEAT_OFF;
 			    	master_push_cmd(REP_OFF_CMD);					
 			}
+			else{
+				info_timer_2++;
+			}
 		}
 		else{
+
+			door_open=0;			
 			info_timer_2=0;
 		}
 
@@ -273,11 +285,14 @@ void mcu_master_info_hdlr()
 					//	play_key=0;
 					//}
 					//else 
-					if(cd_play_status!=MUSIC_STOP||(next_prev_key)){
+					if(toc_flag){
+						
+						if(cd_play_status!=MUSIC_STOP||(next_prev_key)){
 
-						play_disp_scr=0;
-						//if(next_prev_key)next_prev_key=0;
-		                    		Disp_Con(DISP_FILENUM);	
+							play_disp_scr=0;
+							//if(next_prev_key)next_prev_key=0;
+			                    		Disp_Con(DISP_FILENUM);	
+						}
 					}
 				}
 			}
@@ -399,19 +414,21 @@ void prog_play_init()
 	prog_total_num=1;
 	prog_cur_num=0;	
 	play_prog_mode=1;
-	prog_disp_srn=0;
+	prog_disp_srn=1;
 	prog_first_num =0;
 	//my_memset(&prog_file_tab[0], 0x0, 20);
+	
+	master_push_cmd(STOP_CMD);
 	master_push_cmd(MEM_CMD);
 	Disp_Con(DISP_PROG_FILENUM);
 
 }
-void prog_play_clear()
+void prog_play_clear(void)
 {
 	prog_total_num=1;
 	prog_cur_num=0;	
 	play_prog_mode=0;
-	prog_disp_srn=0;	
+	prog_disp_srn=1;	
 }
 void prog_hdlr(u8 key)
 {
@@ -535,6 +552,7 @@ void mcu_hdlr( void )
 			if(play_prog_mode){
 
 			       play_mode = REPEAT_OFF;
+				master_push_cmd(REP_OFF_CMD);				   
 				play_prog_mode=0;
 				if(prog_first_num>0)
 				prog_icon_bit=1;
@@ -641,9 +659,12 @@ void mcu_hdlr( void )
         	case INFO_PLAY_MODE :
 			if(toc_flag==0)break;
 
+#if 0
 			if(prog_icon_bit||play_prog_mode){
 				break;
 			}
+#endif
+			
 #ifdef USE_INTRO_MODE_FUNC			
 			if(play_mode==REPEAT_INTRO){
 				master_push_cmd(INTRO_OFF_CMD);
@@ -715,9 +736,11 @@ void mcu_hdlr( void )
 #ifdef USE_ERP_2_HDLR
 			erp_2_timer_hdlr();
 #endif
+			 
 	            if (DISP_PLAY == curr_menu)
 	            {
-	                	disp_file_time();
+	            		 if(toc_flag)
+	                		disp_file_time();
 	            }
 				
 	            set_brightness_fade_out();
