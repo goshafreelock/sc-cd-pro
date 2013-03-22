@@ -241,15 +241,15 @@ extern void wkup_pin_ctrl(bool dir);
 
 //4 ----- KEY ¡£H
 
-#define ADC_KEY_IO     0x4f
-#define ADC_KEY_IO6     0x4E
-#define ADC_KEY_IO7     0x4F
-#define ADC_KEY_IO5     0x4D
-#define ADC_KEY_IO4     0x4C
-#define ADC_KEY_IO3    0xFB
-#define ADC_KEY_IO2     0x4A
-#define ADC_VDD_12     0x48
-#define ADC_LDOIN      0x49
+#define ADC_KEY_IO     	0x4F
+#define ADC_KEY_IO7     	0x4F
+#define ADC_KEY_IO6     	0x4E
+#define ADC_KEY_IO5     	0x4D
+#define ADC_KEY_IO4     	0x4C
+#define ADC_KEY_IO3    	0x4B
+#define ADC_KEY_IO2     	0x4A
+#define ADC_VDD_12     	0x48
+#define ADC_LDOIN      	0x49
 
 #ifdef ADKEY_SELECT_MODE
 #define ADC_MAX_USED   (0x03+2)
