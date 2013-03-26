@@ -20,6 +20,7 @@
 typedef enum
 {
     DISP_NULL = 0,
+    DISP_VERSION,
     DISP_HELLO,
     DISP_SCAN_DISK,
     DISP_SCAN_TOC,
