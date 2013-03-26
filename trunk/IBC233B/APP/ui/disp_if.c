@@ -596,7 +596,11 @@ void Disp_sel_station_ch(void)
     	printf_str("P",1);
     	printf_num((station_sel_pos+1),2,2);
 }
-
+void Disp_version(void)
+{
+	printf_char('V',1);
+	printf_num(CUSTOMER_FW_VERSION,2,2);
+}
 #if RTC_ENABLE
 xd_u8  clock_points=0;
 extern RTC_TIME curr_date;
@@ -853,6 +857,9 @@ void Disp_Con(u8 LCDinterf)
     case DISP_NULL:
         Disp_Null();
         break;
+    case DISP_VERSION:
+        Disp_version();
+        break;	
     case DISP_HELLO:
         Disp_Hello();
         break;		

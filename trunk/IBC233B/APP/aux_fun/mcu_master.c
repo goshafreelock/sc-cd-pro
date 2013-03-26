@@ -546,6 +546,12 @@ void mcu_hdlr( void )
 			return;
 	        case INFO_PLAY | KEY_SHORT_UP :
 
+			if((door_open)&&(curr_menu == DISP_OPEN)){
+
+				info_timer_2=0;
+			        Disp_Con(DISP_VERSION);	
+			}
+			
 			if(!toc_flag)break;		//2 TOC  NOT READY
 
 #ifdef USE_PROG_PLAY_MODE
