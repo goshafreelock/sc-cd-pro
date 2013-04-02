@@ -165,6 +165,8 @@ void mcu_master_info_hdlr()
 					Disp_Con(DISP_SCAN_DISK);
 				}
 #endif			
+				cfilenum=0;
+				toc_flag=0;
 			}
 		}
 		else{
@@ -227,11 +229,12 @@ void mcu_master_info_hdlr()
 
 
 //4 DOOR STATUS
-		if((rev_buf[1]&(BIT(1)))){
+		if((rev_buf[1]&(BIT(1)))>0){
 
 			if((curr_menu != DISP_OPEN)&&(info_timer_2>2)){
 
 				Disp_Con(DISP_OPEN);
+				cfilenum=0;
 				door_open=1;
 				info_timer_2=0;
 			   	Mute_Ext_PA(MUTE);
@@ -742,7 +745,10 @@ void mcu_hdlr( void )
 #ifdef USE_ERP_2_HDLR
 			erp_2_timer_hdlr();
 #endif
-			 
+	            if (DISP_OPEN== curr_menu){
+				break;
+		     }
+				
 	            if (DISP_PLAY == curr_menu)
 	            {
 	            		 if(toc_flag)
