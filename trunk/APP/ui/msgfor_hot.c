@@ -197,7 +197,7 @@ void Init_Func_List()
 	//sys_printf("Init_Func_List");
 	Sys_Func_List=0;
 #ifdef USE_USB_SD_DECODE_FUNC	       
-	if((get_device_online_status()&0x02))
+	//if((get_device_online_status()&0x02))
 		Add_Func_To_List(USB_DEV);
 #ifndef NO_SD_DECODE_FUNC
 	if((get_device_online_status()&0x01))
@@ -281,6 +281,36 @@ static SYS_WORK_MODE Next_Func()
 	
 	return SYS_IDLE;
 }
+
+extern xd_u16 usb_erp_timer,aux_erp_timer,erp_timer;
+
+xd_u8 erp2_test_mode_timer=0;
+xd_u8 erp2_test_enable=0;
+void erp_2_test_mode_enable()
+{
+	erp2_test_enable=2;
+}
+void erp_2_test_mode_handlr(void)
+{
+	if(erp2_test_enable>0){
+
+		erp2_test_enable--;
+		
+		erp2_test_mode_timer++;
+		if(erp2_test_mode_timer>10){
+			usb_erp_timer=0x1FFF;
+			aux_erp_timer=0x1FFF;
+			erp_timer=0x1FFF;
+		}
+	}
+	else{
+
+		usb_erp_timer=0;
+		aux_erp_timer=0;
+		erp_timer=0;
+		erp2_test_mode_timer=0;
+	}
+}
 /*----------------------------------------------------------------------------*/
 /**@brief   几个任务都会用到的消息集中处理的函数
    @param   key： 需要处理的消息
@@ -299,7 +329,8 @@ u8 ap_handle_hotkey(u8 key)
 
     switch (key)
     {
-#ifdef USE_USB_SD_DECODE_FUNC	       
+ 
+#if 0//def USE_USB_SD_DECODE_FUNC	       
    
     case MSG_USB_DISK_OUT: 
 	 Remov_Func_From_List(USB_DEV);
@@ -366,7 +397,9 @@ u8 ap_handle_hotkey(u8 key)
         }
         break;
 #endif		
-	
+    case INFO_STOP| KEY_HOLD:
+		erp_2_test_mode_enable();
+		break;
 #ifdef MODE_KEY_SEL_FUNC
 #ifdef USE_POWER_KEY_SHORT_FOR_MODE
     case INFO_POWER | KEY_SHORT_UP :	
