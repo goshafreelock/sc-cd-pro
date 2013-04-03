@@ -23,6 +23,7 @@
 #include "uart.h"
 #include "voice_time.h"
 #include "mcu_master.h"
+#include "KT_AMFMdrv.h"
 
 extern u8 _idata music_vol;
 extern xd_u8 my_music_vol;
@@ -48,7 +49,7 @@ volatile u8 bDACTimeOut;			//等待OBUF 清空timeout
 extern xd_u8 LDO_IN_Volt;
 extern bool sys_pwr_flag,sys_mute_flag;
 extern xd_u8 radio_force_preset;
-
+extern xd_u8 cur_sw_fm_band;
 #ifdef JOG_STICK_FUNC	 
 extern void JogDetect(void);
 #endif
@@ -82,6 +83,7 @@ extern u8 alm_bell_mode(void);
 
 #endif
 
+extern void radio_band_hdlr();
 
 //#define ADKEY_DEBUG
 #ifdef ADKEY_DEBUG
@@ -476,6 +478,32 @@ void sys_init(void)
 #endif
     DACCON0 |= 0x05;	//打开DSP
     EA = 1;
+
+
+    work_mode = read_info(MEM_SYSMODE);
+    if (work_mode  == SYS_MP3DECODE_USB){
+
+	Disp_Con(DISP_SCAN_DISK);
+
+    }
+    else if ((work_mode  == SYS_FMREV)||(work_mode == SYS_AMREV)){
+		
+		if(work_mode == SYS_AMREV){
+			cur_sw_fm_band = MW_MODE;
+		}
+		else{
+			cur_sw_fm_band = FM_MODE;
+
+		}
+	     	radio_band_hdlr();   
+    }
+    else if (work_mode  == SYS_MCU_CD){
+
+    		Disp_Con(DISP_SCAN_TOC);
+    }	
+    else if (work_mode  == SYS_AUX){
+    		Disp_Con(DISP_AUX);
+    }	
 }
 
 /*----------------------------------------------------------------------------*/
@@ -701,6 +729,7 @@ void main(void)
 {
      xd_u8 sys_timer=0;
 
+      sys_power_up();
       Mute_Ext_PA(MUTE);
 	 
 #ifdef PWR_CTRL_IN_IDLE_MODE
@@ -724,7 +753,7 @@ void main(void)
 #ifdef USE_POWER_KEY
 	waiting_power_key();
 #endif	
-	Disp_Con(DISP_HELLO);
+	//Disp_Con(DISP_HELLO);
 	sys_init();
     	sys_info_init();
 	Init_Func_List();

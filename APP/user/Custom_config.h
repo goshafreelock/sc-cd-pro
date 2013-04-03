@@ -143,6 +143,7 @@
 #define DISP_LCD_GPIO_DRV		//GPIOÖ±½ÓÇý¶¯LCD
 #define MCU_CD_728_LCD_MODULE
 
+#define PROG_EXIT_TIMER		60
 #define DISP_TOC_BAR
 #define LCD_MODULE_WITHOUT_F_DIGIT
 
@@ -189,6 +190,7 @@
 
 #define USE_AUX_FUNC
 #endif
+#if 0
 
 #if 0//def JK_CD_ZG_KS218_V001
 
@@ -279,6 +281,7 @@
 #define GPIO_SEL_BAND_INFO_CONFIG
 #define FM_SAVE_STATION_MANUAL
 #define RADIO_ST_INDICATOR
+#endif
 #endif
 
 

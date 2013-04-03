@@ -571,14 +571,14 @@ void semi_auto_scan(u8 scan_dir)
 #endif
 #ifdef FM_SAVE_STATION_MANUAL
 
-#define MANUAL_STATION_SAVE_KEY	(INFO_MODE|KEY_LONG)
+#define MANUAL_STATION_SAVE_KEY	(INFO_MODE|KEY_SHORT_UP)
 
 void radio_save_station_hdlr()
 {
     	u8 key,timerout_cnt=0;	
 
 	radio_prog_spark=1;
-	station_save_pos=0;
+	//station_save_pos=0;
 	Disp_Con(DISP_SAVE_POS);
 
 	while (1)
@@ -620,15 +620,15 @@ void radio_save_station_hdlr()
 				station_save_pos++;
 				if(station_save_pos> Current_Band.MAX_CH)
 					station_save_pos=0;
-	                     Disp_Con(DISP_SAVE_POS);				
+	                     //Disp_Con(DISP_SAVE_POS);				
 
-	                    //Disp_Con(DISP_FREQ);
+	                    Disp_Con(DISP_FREQ);
 			      return;
 	
 		       case INFO_HALF_SECOND:
 
 				timerout_cnt++;
-				if(timerout_cnt==4){
+				if(timerout_cnt==14){
 		                    Disp_Con(DISP_FREQ);
 				      return;
 				}

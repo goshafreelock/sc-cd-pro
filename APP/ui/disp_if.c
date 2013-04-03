@@ -41,7 +41,7 @@ extern _xdata SYS_WORK_MODE  work_mode;
 
 #ifdef USE_PROG_PLAY_MODE
 extern  xd_u8 prog_total_num,prog_cur_num;
-extern bool prog_icon_bit,play_prog_mode,prog_disp_srn;
+extern bool prog_icon_bit,play_prog_mode,prog_disp_srn,fisrt_time_op;
 #endif
 
 
@@ -139,7 +139,8 @@ void Disp_prog_num(void)
 		else{
 
 			if(prog_total_num==20){
-		    		printf_str("FUL",1);
+		    		//printf_str("FUL",1);
+		    		printf_str("---",1);
 			}
 			else{
 				printf_num(prog_cur_num,2,2);
@@ -169,7 +170,8 @@ void Disp_prog_num(void)
 		else{
 
 			if(usb_prog_total_num==20){
-		    		printf_str("FUL",1);
+		    		//printf_str("FUL",1);
+		    		printf_str("---",1);					
 			}
 			else{
 				printf_num(usb_prog_cur_num,2,2);
@@ -337,7 +339,8 @@ void Disp_Pause(void)
 #elif defined(DISP_PAU_STR)
     printf_str("PAU",1);
 #else
-    disp_file_time();
+    //disp_file_time();
+	Disp_Filenum();    
 #endif
     disp_clr_icon(ICON_PLAY);	
     disp_icon(ICON_PAUSE);
@@ -632,13 +635,15 @@ void custom_buf_update(void)
 
 #ifdef USE_CD_MCU_MASTER_FUNC
 	if(work_mode == SYS_MCU_CD){
-		
+
 		if((cd_play_status == MUSIC_PLAY)||(cd_play_status==MUSIC_FF_FR)){
+			
 	    		disp_icon(ICON_PLAY);		
 		}
 		else{
 	    		disp_clr_icon(ICON_PLAY);		
 		}		
+		
 		
 	 	disp_icon(ICON_CD);	
 	 	disp_clr_icon(ICON_USB);		
@@ -684,6 +689,13 @@ void custom_buf_update(void)
 		else{
 			disp_clr_icon(ICON_PROG);		
 		}
+
+		if((play_status == MUSIC_PLAY)||(play_status==MUSIC_FF_FR)){
+	    		disp_icon(ICON_PLAY);		
+		}
+		else{
+	    		disp_clr_icon(ICON_PLAY);		
+		}			
 	}
 #endif
 
@@ -701,10 +713,10 @@ void custom_buf_update(void)
 	if(work_mode ==SYS_FMREV){
 		
 		if(radio_prog_spark){			
-			disp_icon(ICON_PROG);			
+			disp_flash_icon(ICON_PROG);			
 		}
 		else{
-			disp_clr_icon(ICON_PROG);		
+			disp_clr_flash_icon(ICON_PROG);		
 		}
 		
 		if(radio_st_ind){
@@ -726,7 +738,7 @@ void custom_buf_update(void)
 #endif
 
 #ifdef FLASH_PLAY_ICON_WHEN_PAUSE
-	if(((toc_flag)&&(cd_play_status == MUSIC_PAUSE)&&(work_mode == SYS_MCU_CD))||((play_status == MUSIC_PAUSE)&&(work_mode == SYS_MP3DECODE_USB))){
+	if(((!fisrt_time_op)&&(toc_flag)&&(cd_play_status == MUSIC_PAUSE)&&(work_mode == SYS_MCU_CD))||((play_status == MUSIC_PAUSE)&&(work_mode == SYS_MP3DECODE_USB))){
 	    		disp_flash_icon(ICON_PLAY);
 	}
 	else{
@@ -734,6 +746,13 @@ void custom_buf_update(void)
 	}
 #endif
 
+	if(work_mode ==SYS_MCU_CD){
+
+		if(fisrt_time_op){
+			disp_clr_icon(ICON_PLAY);
+			disp_clr_flash_icon(ICON_PLAY);
+		}
+	}
 #if defined(USE_BAT_MANAGEMENT)
 	Bat_icon_chk();
 #endif
