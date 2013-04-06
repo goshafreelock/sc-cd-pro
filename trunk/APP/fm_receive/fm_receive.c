@@ -346,6 +346,8 @@ void radio_band_hdlr()
 
 	 if((frequency > REG_MAX_FREQ)||(frequency < REG_MIN_FREQ))		
 	 	frequency =REG_MIN_FREQ;
+
+       Disp_Con(DISP_FREQ);
 		
 	station_save_pos=0;
 	station_sel_pos=0;
@@ -356,7 +358,7 @@ void radio_band_hdlr()
 
 	KT_AMFMSetMode(cur_sw_fm_band);	
 
-    	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
+    	set_radio_freq(FM_CUR_FRE,NO_SHOW_FREQ);
 }
 void restore_last_radio_band()
 {
@@ -586,6 +588,9 @@ void radio_save_station_hdlr()
 		key = get_msg();
 		switch(key)
 		{
+    			case INFO_POWER | KEY_SHORT_UP :
+				put_msg_fifo(INFO_POWER | KEY_SHORT_UP);		
+				return;
 		     	case INFO_MODE| KEY_HOLD:
 				timerout_cnt=0;	
 				break;
@@ -886,8 +891,8 @@ void fm_radio(void)
 	{
 
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
-#ifndef CUSTOMED_KEY_FORCED_INIT_PRESET
 		scan_gpio_band_info_config();
+#ifndef CUSTOMED_KEY_FORCED_INIT_PRESET
 		radio_preset_init();
 #endif		
 #endif		
@@ -916,8 +921,7 @@ void fm_radio(void)
 #endif
 	     	radio_band_hdlr();   
 	    	flush_low_msg();
-
-	    	Disp_Con(DISP_FREQ);
+	    	//Disp_Con(DISP_FREQ);
 		set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置FM模式的音量上限
 	    	fm_hdlr();
 

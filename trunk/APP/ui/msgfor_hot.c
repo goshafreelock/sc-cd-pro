@@ -198,7 +198,7 @@ void Init_Func_List()
 	Sys_Func_List=0;
 #ifdef USE_USB_SD_DECODE_FUNC	       
 	//if((get_device_online_status()&0x02))
-		Add_Func_To_List(USB_DEV);
+	//	Add_Func_To_List(USB_DEV);
 #ifndef NO_SD_DECODE_FUNC
 	if((get_device_online_status()&0x01))
 		Add_Func_To_List(SD_DEV);
@@ -302,12 +302,14 @@ void erp_2_test_mode_handlr(void)
 			aux_erp_timer=0x1FFF;
 			erp_timer=0x1FFF;
 		}
+		else{
+
+			usb_erp_timer=0;
+			aux_erp_timer=0;
+			erp_timer=0;
+		}
 	}
 	else{
-
-		usb_erp_timer=0;
-		aux_erp_timer=0;
-		erp_timer=0;
 		erp2_test_mode_timer=0;
 	}
 }

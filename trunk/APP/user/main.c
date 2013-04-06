@@ -462,6 +462,7 @@ void sys_init(void)
 	    }
 	}
 #endif
+    set_brightness_all_on();	
 
     P0IE_init();
     keyInit();
@@ -476,12 +477,23 @@ void sys_init(void)
 #if SDMMC_CMD_MODE
 	sd_chk_ctl(SET_SD_H_CHK);
 #endif
+#ifdef USE_POWER_KEY
+      sys_power_up();	
+#endif	
     DACCON0 |= 0x05;	//´ò¿ªDSP
     EA = 1;
-
-
+#ifdef USE_POWER_KEY
+      sys_power_up();	
+#endif	
     work_mode = read_info(MEM_SYSMODE);
+
     if (work_mode  == SYS_MP3DECODE_USB){
+
+#if 1
+	work_mode  = SYS_FMREV;
+	Disp_Con(DISP_TUNER);			
+	return;
+#endif
 
 	Disp_Con(DISP_SCAN_DISK);
 
@@ -493,9 +505,8 @@ void sys_init(void)
 		}
 		else{
 			cur_sw_fm_band = FM_MODE;
-
 		}
-	     	radio_band_hdlr();   
+		Disp_Con(DISP_TUNER);			
     }
     else if (work_mode  == SYS_MCU_CD){
 
@@ -524,6 +535,7 @@ void sys_info_init(void)
 	get_info_memory();
 	get_info();
 #endif  
+
 #if ((USE_RTC_EEPROM == MEMORY_STYLE))
 	check_eeprom_status();
 #endif
@@ -731,6 +743,7 @@ void main(void)
 
       sys_power_up();
       Mute_Ext_PA(MUTE);
+      sys_clock_pll();//(MAIN_CLK_PLL);
 	 
 #ifdef PWR_CTRL_IN_IDLE_MODE
 
@@ -749,9 +762,9 @@ void main(void)
 #ifdef ADKEY_SELECT_MODE
    	mode_switch_protect_bit=1;
 #endif
-	sys_clock_pll();//(MAIN_CLK_PLL);
 #ifdef USE_POWER_KEY
-	waiting_power_key();
+	//waiting_power_key();
+      sys_power_up();	
 #endif	
 	//Disp_Con(DISP_HELLO);
 	sys_init();
@@ -827,10 +840,12 @@ void main(void)
 	        	default:
 
 #ifdef USE_USB_SD_DECODE_FUNC	               	
-	            		work_mode = SYS_MP3DECODE_USB;
+	            		//work_mode = SYS_MP3DECODE_USB;
 #else
-	            		work_mode = SYS_MCU_CD;
+	            		//work_mode = SYS_MCU_CD;
 #endif
+			Set_Curr_Func(SYS_FMREV);
+
 	            	break;
 	        }
 #ifdef USE_SYS_MODE_RECOVER

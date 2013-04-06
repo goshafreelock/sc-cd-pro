@@ -592,7 +592,8 @@ void mcu_hdlr( void )
 				adkey_stop_file=1;
 			       play_mode = REPEAT_OFF;
 			       Mute_Ext_PA(MUTE);
-				cd_play_status=MUSIC_STOP;			
+				cd_play_status=MUSIC_STOP;	
+				master_push_cmd(REP_OFF_CMD);				
 				master_push_cmd(STOP_CMD);
 	                    	Disp_Con(DISP_DWORD_NUMBER);		
 			}
@@ -643,9 +644,9 @@ void mcu_hdlr( void )
         	case INFO_PLAY_MODE :
 			if(toc_flag==0)break;
 
-			if(prog_icon_bit||play_prog_mode){
-				break;
-			}
+			//if(prog_icon_bit||play_prog_mode){
+				//break;
+			//}
 #ifdef USE_INTRO_MODE_FUNC			
 			if(play_mode==REPEAT_INTRO){
 				master_push_cmd(INTRO_OFF_CMD);

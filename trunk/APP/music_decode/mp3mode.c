@@ -91,7 +91,7 @@ extern u8 ReadLFSR();
 bool get_prog_song_num(u8 get_Mode)
 {
 
-#if 1
+#if 0
 	if(get_Mode==GET_PREV_FILE){
 
 		if(usb_play_prog_index>0){
@@ -548,6 +548,7 @@ void music_play(void)
 				stop_decode();
 				Disp_Con(DISP_STOP);
    			 //printf(" ---> usb_prog_icon_bit	%x \r\n",(u16)usb_prog_icon_bit);
+				play_mode  =REPEAT_OFF;
 				
 				break;
 		}
@@ -560,6 +561,7 @@ void music_play(void)
 
 		Mute_Ext_PA(MUTE);            
 		disp_play_filenum_timer=6;
+		play_mode  =REPEAT_OFF;
 
 		flush_all_msg();
 		stop_decode();
@@ -933,9 +935,9 @@ void music_play(void)
 #endif
         case INFO_PLAY_MODE :
 
-		if(usb_play_prog_mode||usb_prog_icon_bit){
-			 break;
-		}			
+		//if(usb_play_prog_mode||usb_prog_icon_bit){
+		//	 break;
+		//}			
 		
 		play_mode++;
             	if (play_mode > REPEAT_END)

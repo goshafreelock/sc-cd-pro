@@ -48,7 +48,9 @@ void aux_erp_2_timer_hdlr()
 		}
 	}
 	else{
-		aux_erp_timer = 0;
+		
+		aux_erp_timer=0;
+		
 	}
 }
 #endif

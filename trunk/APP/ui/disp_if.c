@@ -63,6 +63,8 @@ extern bool folder_mode_select;
 extern void Bat_icon_chk(void);
 #endif
 
+void Disp_Playmode_icon(void);
+
 u8 _code playmodestr[4][7] =
 {
     {"ALL"},
@@ -78,7 +80,7 @@ void disp_clr_buf()
 void disp_init_if(void)
 {
 	init_disp();
-	disp_clr_buf();
+	//disp_clr_buf();
 	LCD_BACKLIGHT_OFF();	
 }
 xd_u8 backlight_timer=0;
@@ -200,6 +202,8 @@ void Disp_Filenum(void)
     	printf_num(given_file_number,1,3);
 	else 
     	printf_num(given_file_number,2,2);
+
+    	Disp_Playmode_icon();
 	
     	disp_active();	
 }
@@ -251,20 +255,20 @@ void Diap_Playmode(void)
 {
     printf_str(&playmodestr[play_mode][0],0);
 }
-void Disp_Playmode_icon()
+void Disp_Playmode_icon(void)
 {
 	disp_clr_icon(ICON_REP_ALL);
 	disp_clr_icon(ICON_REP_1);
 	disp_clr_icon(ICON_REP_RDM);
 	disp_clr_icon(ICON_REP_FOD);
-
+#if 0
 	if(prog_icon_bit||play_prog_mode){
 		return;
 	}
 	if(usb_play_prog_mode||usb_prog_icon_bit){
 		return;
 	}
-
+#endif
 	if(play_mode==REPEAT_ALL){
 	    disp_icon(ICON_REP_ALL);
 	}
@@ -491,6 +495,10 @@ void Disp_freq(void )
     }
 
 }
+void Disp_Tuner(void )
+{
+    printf_str("TUNE",0);
+}
 void Disp_Aux(void )
 {
     printf_str("AUX",1);
@@ -638,7 +646,8 @@ void custom_buf_update(void)
 
 		if((cd_play_status == MUSIC_PLAY)||(cd_play_status==MUSIC_FF_FR)){
 			
-	    		disp_icon(ICON_PLAY);		
+	    		disp_icon(ICON_PLAY);
+			Disp_Playmode_icon();
 		}
 		else{
 	    		disp_clr_icon(ICON_PLAY);		
@@ -691,7 +700,8 @@ void custom_buf_update(void)
 		}
 
 		if((play_status == MUSIC_PLAY)||(play_status==MUSIC_FF_FR)){
-	    		disp_icon(ICON_PLAY);		
+	    		disp_icon(ICON_PLAY);	
+			Disp_Playmode_icon();				
 		}
 		else{
 	    		disp_clr_icon(ICON_PLAY);		
@@ -731,7 +741,14 @@ void custom_buf_update(void)
 			disp_clr_icon(ICON_PLAY);		
 	}
 	else if(work_mode ==SYS_AMREV){
-
+		
+		if(radio_prog_spark){			
+			disp_flash_icon(ICON_PROG);			
+		}
+		else{
+			disp_clr_flash_icon(ICON_PROG);		
+		}
+		
 		disp_clr_icon(ICON_PLAY);		
 		disp_clr_icon(ICON_RADIO_ST);	
 	}
@@ -840,6 +857,9 @@ void Disp_Con(u8 LCDinterf)
         break;
     case DISP_USBDEV:
         Diap_usbslave();
+        break;
+    case DISP_TUNER:
+        Disp_Tuner();
         break;
     case DISP_FREQ:
         Disp_freq();
