@@ -150,7 +150,7 @@ void sys_clock_pll(void)
 {
     SPIBAUD = 0x04;
 #ifdef USE_USB_SD_DECODE_FUNC	       
-    sd_speed_init(1, 200);
+    //sd_speed_init(1, 200);
 #endif
     mainclock_select(MAIN_CLK_PLL);
     sys_clock_flag = 1;

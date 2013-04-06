@@ -43,6 +43,7 @@ typedef enum
     DISP_DWORD_NUMBER,
     DISP_WAIT,
     DISP_USBDEV,
+    DISP_TUNER,
     DISP_FREQ,
     DISP_SAVE_POS,
     DISP_SEL_POS,

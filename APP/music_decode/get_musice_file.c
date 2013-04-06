@@ -280,17 +280,17 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
         }
         else					                //next file
         {
-        
             given_file_number++;
+			
             if (given_file_number > fileTotal)
             {
+            		given_file_number=1;
 			if(0x03 != (0x03&get_device_online_status()))
 			{
 				clean_playpoint_info(device_active);
 				
 				if(searchMode==GET_PLAY_FILE){
 					repeat_off_flag =1;
-					given_file_number =1;
 					return 0;		
 				}
 			}
@@ -300,10 +300,9 @@ bool fs_get_filenum(PLAY_MODE playmode, u8 searchMode)
 				clean_playpoint_info(BIT(USB_DISK));
 			}
 
-					
 			if(searchMode==GET_PLAY_FILE){
+				
 				repeat_off_flag =1;
-				given_file_number =1;
 				return 0;		
 			}
 		}

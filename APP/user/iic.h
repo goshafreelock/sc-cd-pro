@@ -16,7 +16,7 @@
 #define USE_DEVICE     2   // 使用播放设备记忆
 #define USE_RTC_EEPROM	3
 
-#define MEMORY_STYLE    USE_RTC_EEPROM      //记忆方式选择
+#define MEMORY_STYLE    USE_EEPROM      //记忆方式选择
 #ifdef __C51__
 #include "AC209N.h"
 #include "typedef.h"
