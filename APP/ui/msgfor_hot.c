@@ -59,6 +59,7 @@ void aux_channel_crosstalk_improve(u8 ch_num)
 #ifdef UART_ENABLE
 		if(ch_num == DAC_AMUX0){
 			sys_printf(" AUX0_SELECTED_P24_P25");
+			return ;
 		}
 		else{
 			sys_printf(" AUX1_SELECTED_P26_P27");
