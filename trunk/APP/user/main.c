@@ -567,6 +567,7 @@ void sys_info_init(void)
 	}
 #endif
 
+#if 0
 #ifdef USE_SYS_MODE_RECOVER
         work_mode = read_info(MEM_SYSMODE);
 #ifdef UART_ENABLE
@@ -581,6 +582,8 @@ void sys_info_init(void)
 	}
 #else
 	work_mode = SYS_MCU_CD;
+#endif
+
 #endif
 }
 #ifdef USE_SYS_IDEL_FUNC
