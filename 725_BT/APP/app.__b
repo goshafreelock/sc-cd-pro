@@ -1,0 +1,6 @@
+TRANSFER
+"decode.obj",
+"entry.obj",
+"dac.obj",
+"clock.obj" 
+TO "app.LIB"

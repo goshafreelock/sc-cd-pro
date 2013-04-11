@@ -1,0 +1,1418 @@
+<html>
+<body>
+<pre>
+<h1>礦ision Build Log</h1>
+<h2>Project:</h2>
+F:\bak\sc-cd-pro\APP\app.uvproj
+Project File Date:  09/13/2012
+
+<h2>Output:</h2>
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(228): warning C206: 'disp_scan': missing function-prototype
+compiling uart.c...
+compiling filesystem.c...
+compiling device.c...
+compiling key.c...
+compiling resource.c...
+compiling msgfor_hot.c...
+assembling isr.a51...
+assembling STARTUP.A51...
+compiling power.c...
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling dac_vol.c...
+compiling eq.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling id3.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+assembling MANUFACTURE.a51...
+compiling disp_if.c...
+UI\DISP_IF.C(51): warning C206: 'init_disp_buf': missing function-prototype
+UI\DISP_IF.C(67): warning C206: 'LCD_BACKLIGHT_OFF': missing function-prototype
+UI\DISP_IF.C(72): warning C206: 'LCD_BACKLIGHT_ON': missing function-prototype
+UI\DISP_IF.C(80): error C202: 'ICON_USB': undefined identifier
+UI\DISP_IF.C(84): error C202: 'ICON_SD': undefined identifier
+compiling lcdsegment.c...
+compiling my_printf.c...
+UI\MY_PRINTF.C(66): error C202: 'FIGURE_NUM': undefined identifier
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling decode_otp.c...
+compiling music_resource.c...
+compiling voice_time.c...
+compiling voicetime_reource.c...
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(228): warning C206: 'disp_scan': missing function-prototype
+USER\MAIN.C(659): warning C206: 'mcu_main_hdlr': missing function-prototype
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+compiling msgfor_hot.c...
+compiling power.c...
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+compiling disp_if.c...
+UI\DISP_IF.C(51): warning C206: 'init_disp_buf': missing function-prototype
+UI\DISP_IF.C(67): warning C206: 'LCD_BACKLIGHT_OFF': missing function-prototype
+UI\DISP_IF.C(72): warning C206: 'LCD_BACKLIGHT_ON': missing function-prototype
+UI\DISP_IF.C(80): error C202: 'ICON_USB': undefined identifier
+UI\DISP_IF.C(84): error C202: 'ICON_SD': undefined identifier
+compiling lcdsegment.c...
+compiling my_printf.c...
+UI\MY_PRINTF.C(66): error C202: 'FIGURE_NUM': undefined identifier
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling voice_time.c...
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(659): warning C206: 'mcu_main_hdlr': missing function-prototype
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+compiling msgfor_hot.c...
+compiling power.c...
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+compiling disp_if.c...
+compiling lcdsegment.c...
+UI\LCDSEGMENT.C(197): warning C280: 'id': unreferenced local variable
+UI\LCDSEGMENT.C(223): warning C280: 'br': unreferenced local variable
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling voice_time.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mcu_master_tranceive_tick
+    ADDRESS: 100083FH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1000B6DH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  sys_power_up
+    ADDRESS: 1001015H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1001A0FH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1001A3CH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mcu_main_hdlr
+    ADDRESS: 1001A59H
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mode_switch_protect_bit
+    MODULE:  main.obj (MAIN)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_up
+    MODULE:  main.obj (MAIN)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mcu_main_hdlr
+    MODULE:  main.obj (MAIN)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mcu_master_tranceive_tick
+    MODULE:  main.obj (MAIN)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  filesystem.obj (FILESYSTEM)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  device.obj (DEVICE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mode_switch_protect_bit
+    MODULE:  fm_receive.obj (FM_RECEIVE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_down
+    MODULE:  rtc_mode.obj (RTC_MODE)
+Program Size: data=102.4 xdata=1927 const=328 code=9250
+Target not created
+Build target 'OTP_APP'
+compiling mcu_master.c...
+AUX_FUN\MCU_MASTER.C(64): warning C209: '_iic_drv_revbyte': too few actual parameters
+AUX_FUN\MCU_MASTER.C(120): error C202: 'play_status': undefined identifier
+AUX_FUN\MCU_MASTER.C(123): error C202: 'play_status': undefined identifier
+compiling iic_drv.c...
+aux_fun\iic_drv.c(193): warning C316: unterminated conditionals
+Target not created
+Build target 'OTP_APP'
+compiling mcu_master.c...
+AUX_FUN\MCU_MASTER.C(64): warning C209: '_iic_drv_revbyte': too few actual parameters
+AUX_FUN\MCU_MASTER.C(120): error C202: 'play_status': undefined identifier
+AUX_FUN\MCU_MASTER.C(123): error C202: 'play_status': undefined identifier
+compiling iic_drv.c...
+Target not created
+Build target 'OTP_APP'
+compiling mcu_master.c...
+AUX_FUN\MCU_MASTER.C(67): warning C209: '_iic_drv_revbyte': too few actual parameters
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1000BF9H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  sys_power_up
+    ADDRESS: 100114FH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1001E87H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1001EEEH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  iic_drv_start
+    ADDRESS: 100245AH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _iic_drv_sendbyte
+    ADDRESS: 100245FH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _iic_drv_revbyte
+    ADDRESS: 100246CH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  drv_rev_ack
+    ADDRESS: 1002471H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  iic_drv_stop
+    ADDRESS: 1002486H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  iic_drv_start
+    ADDRESS: 1002494H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _iic_drv_sendbyte
+    ADDRESS: 1002499H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _iic_drv_sendbyte
+    ADDRESS: 10024A1H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  iic_drv_stop
+    ADDRESS: 10024A4H
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mode_switch_protect_bit
+    MODULE:  main.obj (MAIN)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_up
+    MODULE:  main.obj (MAIN)
+*** WARNING L25: DATA TYPES DIFFERENT
+    SYMBOL:  mcu_main_hdlr
+    MODULE:  main.obj (MAIN)
+   DEFINED:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  filesystem.obj (FILESYSTEM)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  device.obj (DEVICE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mode_switch_protect_bit
+    MODULE:  fm_receive.obj (FM_RECEIVE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  drv_rev_ack
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  iic_drv_stop
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _iic_drv_sendbyte
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _iic_drv_revbyte
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  iic_drv_start
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_down
+    MODULE:  rtc_mode.obj (RTC_MODE)
+Program Size: data=105.5 xdata=1940 const=328 code=9917
+Target not created
+Build target 'OTP_APP'
+compiling mcu_master.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1000BF9H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  sys_power_up
+    ADDRESS: 100114FH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1001E87H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1001EEEH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  iic_drv_start
+    ADDRESS: 100245AH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _iic_drv_sendbyte
+    ADDRESS: 100245FH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  iic_drv_revbyte_io
+    ADDRESS: 100246CH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  drv_rev_ack
+    ADDRESS: 1002471H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  iic_drv_stop
+    ADDRESS: 1002486H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  iic_drv_start
+    ADDRESS: 1002494H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _iic_drv_sendbyte
+    ADDRESS: 1002499H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _iic_drv_sendbyte
+    ADDRESS: 10024A1H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  iic_drv_stop
+    ADDRESS: 10024A4H
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mode_switch_protect_bit
+    MODULE:  main.obj (MAIN)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_up
+    MODULE:  main.obj (MAIN)
+*** WARNING L25: DATA TYPES DIFFERENT
+    SYMBOL:  mcu_main_hdlr
+    MODULE:  main.obj (MAIN)
+   DEFINED:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  filesystem.obj (FILESYSTEM)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  device.obj (DEVICE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mode_switch_protect_bit
+    MODULE:  fm_receive.obj (FM_RECEIVE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  iic_drv_revbyte_io
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  drv_rev_ack
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  iic_drv_stop
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _iic_drv_sendbyte
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  iic_drv_start
+    MODULE:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_down
+    MODULE:  rtc_mode.obj (RTC_MODE)
+Program Size: data=105.5 xdata=1940 const=328 code=9917
+Target not created
+Build target 'OTP_APP'
+compiling iic_drv.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 1000BF9H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  sys_power_up
+    ADDRESS: 100180FH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 100200AH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  mode_switch_protect_bit
+    ADDRESS: 100205DH
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mode_switch_protect_bit
+    MODULE:  main.obj (MAIN)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_up
+    MODULE:  main.obj (MAIN)
+*** WARNING L25: DATA TYPES DIFFERENT
+    SYMBOL:  mcu_main_hdlr
+    MODULE:  main.obj (MAIN)
+   DEFINED:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  filesystem.obj (FILESYSTEM)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  device.obj (DEVICE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  mode_switch_protect_bit
+    MODULE:  fm_receive.obj (FM_RECEIVE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_down
+    MODULE:  rtc_mode.obj (RTC_MODE)
+Program Size: data=105.5 xdata=1940 const=328 code=10130
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(638): error C202: 'mode_switch_protect_bit': undefined identifier
+compiling fm_receive.c...
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(666): warning C206: 'mcu_main_hdlr': missing function-prototype
+compiling mp3mode.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  sys_power_up
+    ADDRESS: 10010F9H
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_up
+    MODULE:  main.obj (MAIN)
+*** WARNING L25: DATA TYPES DIFFERENT
+    SYMBOL:  mcu_main_hdlr
+    MODULE:  main.obj (MAIN)
+   DEFINED:  mcu_master.obj (MCU_MASTER)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  filesystem.obj (FILESYSTEM)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  device.obj (DEVICE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  sys_power_down
+    MODULE:  rtc_mode.obj (RTC_MODE)
+Program Size: data=105.5 xdata=1940 const=328 code=10086
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(666): warning C206: 'mcu_main_hdlr': missing function-prototype
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+compiling msgfor_hot.c...
+UI\MSGFOR_HOT.C(363): error C202: 'cur_sw_fm_band': undefined identifier
+UI\MSGFOR_HOT.C(368): error C202: 'cur_sw_fm_band': undefined identifier
+UI\MSGFOR_HOT.C(369): error C202: 'cur_sw_fm_band': undefined identifier
+compiling power.c...
+LIB\POWER.C(164): warning C206: 'Pwr_Key_input': missing function-prototype
+LIB\POWER.C(168): error C202: 'GPIO_POWER_KEY': undefined identifier
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+compiling disp_if.c...
+compiling lcdsegment.c...
+UI\LCDSEGMENT.C(197): warning C280: 'id': unreferenced local variable
+UI\LCDSEGMENT.C(223): warning C280: 'br': unreferenced local variable
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling mcu_master.c...
+compiling iic_drv.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling voice_time.c...
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+compiling msgfor_hot.c...
+compiling power.c...
+LIB\POWER.C(164): warning C206: 'Pwr_Key_input': missing function-prototype
+LIB\POWER.C(168): error C202: 'GPIO_POWER_KEY': undefined identifier
+Target not created
+Build target 'OTP_APP'
+compiling key.c...
+compiling power.c...
+LIB\POWER.C(164): warning C206: 'Pwr_Key_input': missing function-prototype
+LIB\POWER.C(168): error C202: 'GPIO_POWER_KEY': undefined identifier
+Target not created
+Build target 'OTP_APP'
+compiling key.c...
+compiling power.c...
+LIB\POWER.C(184): error C141: syntax error near '}'
+Target not created
+Build target 'OTP_APP'
+compiling power.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  lcd_power_down
+    ADDRESS: 1001FBDH
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  filesystem.obj (FILESYSTEM)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  stop_decode
+    MODULE:  device.obj (DEVICE)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  lcd_power_down
+    MODULE:  power.obj (POWER)
+Program Size: data=105.5 xdata=1940 const=328 code=10212
+Target not created
+Build target 'OTP_APP'
+compiling filesystem.c...
+compiling mp3mode.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  lcd_power_down
+    ADDRESS: 1001FBDH
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  lcd_power_down
+    MODULE:  power.obj (POWER)
+Program Size: data=105.5 xdata=1940 const=328 code=10212
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+compiling mp3mode.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  lcd_power_down
+    ADDRESS: 1001FBDH
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  lcd_power_down
+    MODULE:  power.obj (POWER)
+Program Size: data=105.5 xdata=1940 const=328 code=10212
+Target not created
+Build target 'OTP_APP'
+compiling power.c...
+LIB\POWER.C(231): error C202: 'DISP_POWER_OFF': undefined identifier
+Target not created
+Build target 'OTP_APP'
+compiling msgfor_hot.c...
+compiling power.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+Program Size: data=105.5 xdata=1940 const=328 code=10224
+creating hex file from "app"...
+User command #1: .\copy.bat
+F:\bak\sc-cd-pro\APP>copy .\app.hex ..\link_hex\ 
+已复制         1 个文件。
+User command #2: ..\link_hex\make.bat
+F:\bak\sc-cd-pro\APP>cd ..\link_hex 
+F:\bak\sc-cd-pro\link_hex>maker -c image.cfg 
+suport vs 00000104 
+suport vs 00000100 
+suport vs 00000101 
+suport vs 00000102 
+suport vs 00000103 
+maker
+-c
+image.cfg
+chip type : ac209n 
+fill size  = 008000 
+enter  file = F:\bak\sc-cd-pro\link_hex\app.hex 
+out put file = F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+vector size = 8 
+ waring  :enter code over rode 
+Lowest address = 00000000
+Highest address = 00007F9A
+Lowest address = 00000000
+Highest address = 00007F9A
+waring: 16 文件地址000000 - 007f9a  over ride  mem1:  000090 - 0053ff  
+Lowest address = 00000000
+Highest address = 000046CE
+F:\bak\sc-cd-pro\link_hex>download.bat
+F:\bak\sc-cd-pro\link_hex>isd_download.exe -f myoutotp.bin.fw -toram -w 500 -osc 32K 
+input file name F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+down load file to ram 
+yulin   device         
+ide device online 
+download file ok 
+"app" - 0 Error(s), 1 Warning(s).
+Build target 'OTP_APP'
+compiling main.c...
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+compiling msgfor_hot.c...
+compiling power.c...
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+compiling disp_if.c...
+UI\DISP_IF.C(67): warning C206: 'LCD_BACKLIGHT_OFF': missing function-prototype
+UI\DISP_IF.C(72): warning C206: 'LCD_BACKLIGHT_ON': missing function-prototype
+UI\DISP_IF.C(120): error C202: 'ICON_REP_ALL': undefined identifier
+UI\DISP_IF.C(121): error C202: 'ICON_REP_1': undefined identifier
+UI\DISP_IF.C(124): error C202: 'ICON_REP_ALL': undefined identifier
+UI\DISP_IF.C(127): error C202: 'ICON_REP_1': undefined identifier
+UI\DISP_IF.C(260): error C202: 'ICON_FM_MHZ': undefined identifier
+UI\DISP_IF.C(264): error C202: 'ICON_AM_KHZ': undefined identifier
+UI\DISP_IF.C(268): error C202: 'ICON_SW': undefined identifier
+compiling lcdsegment.c...
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling mcu_master.c...
+compiling iic_drv.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling voice_time.c...
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+.\UI\LED.H(137): warning C317: attempt to redefine macro 'ICON_FM'
+compiling disp_if.c...
+UI\LED.H(137): warning C317: attempt to redefine macro 'ICON_FM'
+UI\DISP_IF.C(67): warning C206: 'LCD_BACKLIGHT_OFF': missing function-prototype
+UI\DISP_IF.C(72): warning C206: 'LCD_BACKLIGHT_ON': missing function-prototype
+UI\DISP_IF.C(331): warning C206: 'clr_lcd_digit': missing function-prototype
+UI\DISP_IF.C(331): error C267: 'clr_lcd_digit': requires ANSI-style prototype
+compiling my_printf.c...
+UI\LED.H(137): warning C317: attempt to redefine macro 'ICON_FM'
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+compiling disp_if.c...
+UI\DISP_IF.C(67): warning C206: 'LCD_BACKLIGHT_OFF': missing function-prototype
+UI\DISP_IF.C(72): warning C206: 'LCD_BACKLIGHT_ON': missing function-prototype
+UI\DISP_IF.C(331): warning C206: 'clr_lcd_digit': missing function-prototype
+UI\DISP_IF.C(331): error C267: 'clr_lcd_digit': requires ANSI-style prototype
+compiling my_printf.c...
+Target not created
+Build target 'OTP_APP'
+compiling disp_if.c...
+UI\DISP_IF.C(67): warning C206: 'LCD_BACKLIGHT_OFF': missing function-prototype
+UI\DISP_IF.C(72): warning C206: 'LCD_BACKLIGHT_ON': missing function-prototype
+UI\DISP_IF.C(331): warning C206: 'clr_lcd_digit': missing function-prototype
+UI\DISP_IF.C(331): error C267: 'clr_lcd_digit': requires ANSI-style prototype
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+compiling disp_if.c...
+UI\DISP_IF.C(67): warning C206: 'LCD_BACKLIGHT_OFF': missing function-prototype
+UI\DISP_IF.C(72): warning C206: 'LCD_BACKLIGHT_ON': missing function-prototype
+compiling my_printf.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  disp_scan
+    ADDRESS: 1000821H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  init_disp
+    ADDRESS: 1000968H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  init_disp_buf
+    ADDRESS: 100096BH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_icon
+    ADDRESS: 1000D54H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_putchar
+    ADDRESS: 1000DB7H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _clr_lcd_digit
+    ADDRESS: 1000E0DH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _clr_lcd_digit
+    ADDRESS: 1000E60H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_putchar
+    ADDRESS: 1000E6AH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _clr_lcd_digit
+    ADDRESS: 1000FBEH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _clr_lcd_digit
+    ADDRESS: 1000FC6H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  LCD_BACKLIGHT_OFF
+    ADDRESS: 10013CAH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  LCD_BACKLIGHT_ON
+    ADDRESS: 1001903H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_icon
+    ADDRESS: 100203EH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_icon
+    ADDRESS: 1002051H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_clr_icon
+    ADDRESS: 100209BH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_clr_icon
+    ADDRESS: 10020A0H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_icon
+    ADDRESS: 10020B4H
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_icon
+    ADDRESS: 10020BAH
+*** ERROR L128: REFERENCE MADE TO UNRESOLVED EXTERNAL
+    SYMBOL:  _disp_putchar
+    ADDRESS: 10020F8H
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  disp_scan
+    MODULE:  main.obj (MAIN)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _disp_icon
+    MODULE:  disp_if.obj (DISP_IF)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  LCD_BACKLIGHT_ON
+    MODULE:  disp_if.obj (DISP_IF)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  init_disp
+    MODULE:  disp_if.obj (DISP_IF)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _clr_lcd_digit
+    MODULE:  disp_if.obj (DISP_IF)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _disp_clr_icon
+    MODULE:  disp_if.obj (DISP_IF)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  init_disp_buf
+    MODULE:  disp_if.obj (DISP_IF)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  LCD_BACKLIGHT_OFF
+    MODULE:  disp_if.obj (DISP_IF)
+*** ERROR L127: UNRESOLVED EXTERNAL SYMBOL
+    SYMBOL:  _disp_putchar
+    MODULE:  my_printf.obj (MY_PRINTF)
+Program Size: data=105.4 xdata=1926 const=262 code=9292
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+compiling msgfor_hot.c...
+compiling power.c...
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+compiling disp_if.c...
+compiling lcdsegment.c...
+UI\LCDSEGMENT.C(197): warning C280: 'id': unreferenced local variable
+UI\LCDSEGMENT.C(223): warning C280: 'br': unreferenced local variable
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling mcu_master.c...
+compiling iic_drv.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling voice_time.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+Program Size: data=105.5 xdata=1940 const=328 code=10224
+creating hex file from "app"...
+User command #1: .\copy.bat
+F:\bak\sc-cd-pro\APP>copy .\app.hex ..\link_hex\ 
+已复制         1 个文件。
+User command #2: ..\link_hex\make.bat
+F:\bak\sc-cd-pro\APP>cd ..\link_hex 
+F:\bak\sc-cd-pro\link_hex>maker -c image.cfg 
+suport vs 00000104 
+suport vs 00000100 
+suport vs 00000101 
+suport vs 00000102 
+suport vs 00000103 
+maker
+-c
+image.cfg
+chip type : ac209n 
+fill size  = 008000 
+enter  file = F:\bak\sc-cd-pro\link_hex\app.hex 
+out put file = F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+vector size = 8 
+ waring  :enter code over rode 
+Lowest address = 00000000
+Highest address = 00007F9A
+Lowest address = 00000000
+Highest address = 00007F9A
+waring: 16 文件地址000000 - 007f9a  over ride  mem1:  000090 - 0053ff  
+Lowest address = 00000000
+Highest address = 000046CE
+F:\bak\sc-cd-pro\link_hex>download.bat
+F:\bak\sc-cd-pro\link_hex>isd_download.exe -f myoutotp.bin.fw -toram -w 500 -osc 32K 
+input file name F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+down load file to ram 
+yulin   device         
+ide device online 
+download file ok 
+"app" - 0 Error(s), 3 Warning(s).
+Build target 'OTP_APP'
+compiling main.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+Program Size: data=105.5 xdata=1940 const=328 code=10174
+creating hex file from "app"...
+User command #1: .\copy.bat
+F:\bak\sc-cd-pro\APP>copy .\app.hex ..\link_hex\ 
+已复制         1 个文件。
+User command #2: ..\link_hex\make.bat
+F:\bak\sc-cd-pro\APP>cd ..\link_hex 
+F:\bak\sc-cd-pro\link_hex>maker -c image.cfg 
+suport vs 00000104 
+suport vs 00000100 
+suport vs 00000101 
+suport vs 00000102 
+suport vs 00000103 
+maker
+-c
+image.cfg
+chip type : ac209n 
+fill size  = 008000 
+enter  file = F:\bak\sc-cd-pro\link_hex\app.hex 
+out put file = F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+vector size = 8 
+ waring  :enter code over rode 
+Lowest address = 00000000
+Highest address = 00007F9A
+Lowest address = 00000000
+Highest address = 00007F9A
+waring: 16 文件地址000000 - 007f9a  over ride  mem1:  000090 - 0053ff  
+Lowest address = 00000000
+Highest address = 000046CE
+F:\bak\sc-cd-pro\link_hex>download.bat
+F:\bak\sc-cd-pro\link_hex>isd_download.exe -f myoutotp.bin.fw -toram -w 500 -osc 32K 
+input file name F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+down load file to ram 
+yulin   device         
+ide device online 
+download file ok 
+"app" - 0 Error(s), 1 Warning(s).
+Build target 'OTP_APP'
+compiling main.c...
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+compiling msgfor_hot.c...
+compiling power.c...
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+compiling disp_if.c...
+compiling lcdsegment.c...
+UI\LCDSEGMENT.C(197): warning C280: 'id': unreferenced local variable
+UI\LCDSEGMENT.C(223): warning C280: 'br': unreferenced local variable
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling mcu_master.c...
+compiling iic_drv.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling voice_time.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+Program Size: data=105.5 xdata=1940 const=328 code=10196
+creating hex file from "app"...
+User command #1: .\copy.bat
+F:\bak\sc-cd-pro\APP>copy .\app.hex ..\link_hex\ 
+已复制         1 个文件。
+User command #2: ..\link_hex\make.bat
+F:\bak\sc-cd-pro\APP>cd ..\link_hex 
+F:\bak\sc-cd-pro\link_hex>maker -c image.cfg 
+suport vs 00000104 
+suport vs 00000100 
+suport vs 00000101 
+suport vs 00000102 
+suport vs 00000103 
+maker
+-c
+image.cfg
+chip type : ac209n 
+fill size  = 008000 
+enter  file = F:\bak\sc-cd-pro\link_hex\app.hex 
+out put file = F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+vector size = 8 
+ waring  :enter code over rode 
+Lowest address = 00000000
+Highest address = 00007F9A
+Lowest address = 00000000
+Highest address = 00007F9A
+waring: 16 文件地址000000 - 007f9a  over ride  mem1:  000090 - 0053ff  
+Lowest address = 00000000
+Highest address = 000046CE
+F:\bak\sc-cd-pro\link_hex>download.bat
+F:\bak\sc-cd-pro\link_hex>isd_download.exe -f myoutotp.bin.fw -toram -w 500 -osc 32K 
+input file name F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+down load file to ram 
+yulin   device         
+ide device online 
+download file ok 
+"app" - 0 Error(s), 3 Warning(s).
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(396): warning C206: 'init_rtc': missing function-prototype
+USER\MAIN.C(676): warning C206: 'mcu_main_hdlr': missing function-prototype
+USER\MAIN.C(681): warning C206: 'fm_radio': missing function-prototype
+user\main.c(714): warning C316: unterminated conditionals
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+UI\KEY.C(813): warning C206: 'set_brightness_all_on': missing function-prototype
+ui\key.c(844): warning C316: unterminated conditionals
+compiling msgfor_hot.c...
+UI\MSGFOR_HOT.C(31): error C129: missing ';' before 'curr_date'
+ui\msgfor_hot.c(504): warning C316: unterminated conditionals
+assembling isr.a51...
+user\isr.a51(475): error A316: unterminated conditionals
+compiling power.c...
+compiling fat_memory.c...
+user\fat_memory.c(210): warning C316: unterminated conditionals
+compiling my_IR_key.c...
+ui\my_IR_key.c(51): warning C316: unterminated conditionals
+compiling mp3mode.c...
+music_decode\mp3mode.c(630): warning C316: unterminated conditionals
+compiling get_musice_file.c...
+MUSIC_DECODE\GET_MUSICE_FILE.C(54): warning C206: 'fs_get_filenum': missing function-prototype
+MUSIC_DECODE\GET_MUSICE_FILE.C(54): error C267: 'fs_get_filenum': requires ANSI-style prototype
+music_decode\get_musice_file.c(198): warning C316: unterminated conditionals
+compiling fm_receive.c...
+FM_RECEIVE\FM_RECEIVE.C(523): warning C206: 'ap_handle_hotkey': missing function-prototype
+FM_RECEIVE\FM_RECEIVE.C(523): error C267: 'ap_handle_hotkey': requires ANSI-style prototype
+fm_receive\fm_receive.c(592): warning C316: unterminated conditionals
+compiling fm_receive_api.c...
+fm_receive\fm_receive_api.c(198): warning C316: unterminated conditionals
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+USB_DEVICE\MSGFOR_USB.C(206): warning C206: 'ap_handle_hotkey': missing function-prototype
+USB_DEVICE\MSGFOR_USB.C(206): error C267: 'ap_handle_hotkey': requires ANSI-style prototype
+usb_device\msgfor_usb.c(253): warning C316: unterminated conditionals
+compiling disp_if.c...
+UI\DISP_IF.C(307): error C129: missing ';' before 'curr_date'
+ui\disp_if.c(506): warning C316: unterminated conditionals
+compiling lcdsegment.c...
+UI\LCDSEGMENT.C(197): warning C280: 'id': unreferenced local variable
+UI\LCDSEGMENT.C(223): warning C280: 'br': unreferenced local variable
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+aux_fun\aux_fun.c(123): warning C316: unterminated conditionals
+compiling mcu_master.c...
+AUX_FUN\MCU_MASTER.C(123): error C202: 'MUSIC_PLAY': undefined identifier
+AUX_FUN\MCU_MASTER.C(124): error C202: 'MUSIC_PAUSE': undefined identifier
+AUX_FUN\MCU_MASTER.C(127): error C202: 'MUSIC_PAUSE': undefined identifier
+AUX_FUN\MCU_MASTER.C(128): error C202: 'MUSIC_PLAY': undefined identifier
+aux_fun\mcu_master.c(150): warning C322: unknown identifier
+aux_fun\mcu_master.c(150): warning C322: unknown identifier
+aux_fun\mcu_master.c(219): warning C316: unterminated conditionals
+compiling iic_drv.c...
+compiling rtc_cpu.c...
+rtc_fun\rtc_cpu.c(210): warning C316: unterminated conditionals
+compiling rtc_fun.c...
+RTC_FUN\RTC_FUN.H(24): error C141: syntax error near '*', expected ')'
+RTC_FUN\RTC_FUN.H(25): error C141: syntax error near '*', expected ')'
+RTC_FUN\RTC_FUN.C(15): error C129: missing ';' before 'curr_date'
+rtc_fun\rtc_fun.c(292): warning C316: unterminated conditionals
+compiling rtc_mode.c...
+RTC_FUN\RTC_MODE.C(28): error C129: missing ';' before 'curr_date'
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(632): warning C316: unterminated conditionals
+compiling voice_time.c...
+voice_time\voice_time.c(185): warning C316: unterminated conditionals
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(396): warning C206: 'init_rtc': missing function-prototype
+USER\MAIN.C(676): warning C206: 'mcu_main_hdlr': missing function-prototype
+USER\MAIN.C(681): warning C206: 'fm_radio': missing function-prototype
+user\main.c(714): warning C316: unterminated conditionals
+compiling key.c...
+UI\KEY.C(813): warning C206: 'set_brightness_all_on': missing function-prototype
+ui\key.c(844): warning C316: unterminated conditionals
+compiling msgfor_hot.c...
+UI\MSGFOR_HOT.C(31): error C129: missing ';' before 'curr_date'
+ui\msgfor_hot.c(504): warning C316: unterminated conditionals
+assembling isr.a51...
+user\isr.a51(475): error A316: unterminated conditionals
+compiling fat_memory.c...
+user\fat_memory.c(210): warning C316: unterminated conditionals
+compiling my_IR_key.c...
+ui\my_IR_key.c(51): warning C316: unterminated conditionals
+compiling mp3mode.c...
+music_decode\mp3mode.c(630): warning C316: unterminated conditionals
+compiling get_musice_file.c...
+MUSIC_DECODE\GET_MUSICE_FILE.C(54): warning C206: 'fs_get_filenum': missing function-prototype
+MUSIC_DECODE\GET_MUSICE_FILE.C(54): error C267: 'fs_get_filenum': requires ANSI-style prototype
+music_decode\get_musice_file.c(198): warning C316: unterminated conditionals
+compiling fm_receive.c...
+FM_RECEIVE\FM_RECEIVE.C(523): warning C206: 'ap_handle_hotkey': missing function-prototype
+FM_RECEIVE\FM_RECEIVE.C(523): error C267: 'ap_handle_hotkey': requires ANSI-style prototype
+fm_receive\fm_receive.c(592): warning C316: unterminated conditionals
+compiling fm_receive_api.c...
+fm_receive\fm_receive_api.c(198): warning C316: unterminated conditionals
+compiling msgfor_usb.c...
+USB_DEVICE\MSGFOR_USB.C(206): warning C206: 'ap_handle_hotkey': missing function-prototype
+USB_DEVICE\MSGFOR_USB.C(206): error C267: 'ap_handle_hotkey': requires ANSI-style prototype
+usb_device\msgfor_usb.c(253): warning C316: unterminated conditionals
+compiling disp_if.c...
+UI\DISP_IF.C(307): error C129: missing ';' before 'curr_date'
+ui\disp_if.c(506): warning C316: unterminated conditionals
+compiling aux_fun.c...
+aux_fun\aux_fun.c(123): warning C316: unterminated conditionals
+compiling mcu_master.c...
+AUX_FUN\MCU_MASTER.C(123): error C202: 'MUSIC_PLAY': undefined identifier
+AUX_FUN\MCU_MASTER.C(124): error C202: 'MUSIC_PAUSE': undefined identifier
+AUX_FUN\MCU_MASTER.C(127): error C202: 'MUSIC_PAUSE': undefined identifier
+AUX_FUN\MCU_MASTER.C(128): error C202: 'MUSIC_PLAY': undefined identifier
+aux_fun\mcu_master.c(150): warning C322: unknown identifier
+aux_fun\mcu_master.c(150): warning C322: unknown identifier
+aux_fun\mcu_master.c(219): warning C316: unterminated conditionals
+compiling rtc_cpu.c...
+rtc_fun\rtc_cpu.c(210): warning C316: unterminated conditionals
+compiling rtc_fun.c...
+RTC_FUN\RTC_FUN.H(24): error C141: syntax error near '*', expected ')'
+RTC_FUN\RTC_FUN.H(25): error C141: syntax error near '*', expected ')'
+RTC_FUN\RTC_FUN.C(15): error C129: missing ';' before 'curr_date'
+rtc_fun\rtc_fun.c(292): warning C316: unterminated conditionals
+compiling rtc_mode.c...
+RTC_FUN\RTC_MODE.C(28): error C129: missing ';' before 'curr_date'
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(632): warning C316: unterminated conditionals
+compiling voice_time.c...
+voice_time\voice_time.c(185): warning C316: unterminated conditionals
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(396): warning C206: 'init_rtc': missing function-prototype
+USER\MAIN.C(676): warning C206: 'mcu_main_hdlr': missing function-prototype
+USER\MAIN.C(681): warning C206: 'fm_radio': missing function-prototype
+user\main.c(714): warning C316: unterminated conditionals
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+UI\KEY.C(813): warning C206: 'set_brightness_all_on': missing function-prototype
+ui\key.c(844): warning C316: unterminated conditionals
+compiling msgfor_hot.c...
+UI\MSGFOR_HOT.C(31): error C129: missing ';' before 'curr_date'
+ui\msgfor_hot.c(504): warning C316: unterminated conditionals
+assembling isr.a51...
+user\isr.a51(475): error A316: unterminated conditionals
+compiling power.c...
+compiling fat_memory.c...
+user\fat_memory.c(210): warning C316: unterminated conditionals
+compiling my_IR_key.c...
+ui\my_IR_key.c(51): warning C316: unterminated conditionals
+compiling mp3mode.c...
+music_decode\mp3mode.c(630): warning C316: unterminated conditionals
+compiling get_musice_file.c...
+MUSIC_DECODE\GET_MUSICE_FILE.C(54): warning C206: 'fs_get_filenum': missing function-prototype
+MUSIC_DECODE\GET_MUSICE_FILE.C(54): error C267: 'fs_get_filenum': requires ANSI-style prototype
+music_decode\get_musice_file.c(198): warning C316: unterminated conditionals
+compiling fm_receive.c...
+FM_RECEIVE\FM_RECEIVE.C(523): warning C206: 'ap_handle_hotkey': missing function-prototype
+FM_RECEIVE\FM_RECEIVE.C(523): error C267: 'ap_handle_hotkey': requires ANSI-style prototype
+fm_receive\fm_receive.c(592): warning C316: unterminated conditionals
+compiling fm_receive_api.c...
+fm_receive\fm_receive_api.c(198): warning C316: unterminated conditionals
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+USB_DEVICE\MSGFOR_USB.C(206): warning C206: 'ap_handle_hotkey': missing function-prototype
+USB_DEVICE\MSGFOR_USB.C(206): error C267: 'ap_handle_hotkey': requires ANSI-style prototype
+usb_device\msgfor_usb.c(253): warning C316: unterminated conditionals
+compiling disp_if.c...
+UI\DISP_IF.C(307): error C129: missing ';' before 'curr_date'
+ui\disp_if.c(506): warning C316: unterminated conditionals
+compiling lcdsegment.c...
+UI\LCDSEGMENT.C(197): warning C280: 'id': unreferenced local variable
+UI\LCDSEGMENT.C(223): warning C280: 'br': unreferenced local variable
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+aux_fun\aux_fun.c(123): warning C316: unterminated conditionals
+compiling mcu_master.c...
+AUX_FUN\MCU_MASTER.C(123): error C202: 'MUSIC_PLAY': undefined identifier
+AUX_FUN\MCU_MASTER.C(124): error C202: 'MUSIC_PAUSE': undefined identifier
+AUX_FUN\MCU_MASTER.C(127): error C202: 'MUSIC_PAUSE': undefined identifier
+AUX_FUN\MCU_MASTER.C(128): error C202: 'MUSIC_PLAY': undefined identifier
+aux_fun\mcu_master.c(150): warning C322: unknown identifier
+aux_fun\mcu_master.c(150): warning C322: unknown identifier
+aux_fun\mcu_master.c(219): warning C316: unterminated conditionals
+compiling iic_drv.c...
+compiling rtc_cpu.c...
+rtc_fun\rtc_cpu.c(210): warning C316: unterminated conditionals
+compiling rtc_fun.c...
+RTC_FUN\RTC_FUN.H(24): error C141: syntax error near '*', expected ')'
+RTC_FUN\RTC_FUN.H(25): error C141: syntax error near '*', expected ')'
+RTC_FUN\RTC_FUN.C(15): error C129: missing ';' before 'curr_date'
+rtc_fun\rtc_fun.c(292): warning C316: unterminated conditionals
+compiling rtc_mode.c...
+RTC_FUN\RTC_MODE.C(28): error C129: missing ';' before 'curr_date'
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(632): warning C316: unterminated conditionals
+compiling voice_time.c...
+voice_time\voice_time.c(185): warning C316: unterminated conditionals
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+USER\MAIN.C(396): warning C206: 'init_rtc': missing function-prototype
+USER\MAIN.C(676): warning C206: 'mcu_main_hdlr': missing function-prototype
+USER\MAIN.C(681): warning C206: 'fm_radio': missing function-prototype
+user\main.c(714): warning C316: unterminated conditionals
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+UI\KEY.C(813): warning C206: 'set_brightness_all_on': missing function-prototype
+ui\key.c(844): warning C316: unterminated conditionals
+compiling msgfor_hot.c...
+UI\MSGFOR_HOT.C(31): error C129: missing ';' before 'curr_date'
+ui\msgfor_hot.c(504): warning C316: unterminated conditionals
+assembling isr.a51...
+user\isr.a51(475): error A316: unterminated conditionals
+compiling power.c...
+compiling fat_memory.c...
+user\fat_memory.c(210): warning C316: unterminated conditionals
+compiling my_IR_key.c...
+ui\my_IR_key.c(51): warning C316: unterminated conditionals
+compiling mp3mode.c...
+music_decode\mp3mode.c(630): warning C316: unterminated conditionals
+compiling get_musice_file.c...
+MUSIC_DECODE\GET_MUSICE_FILE.C(54): warning C206: 'fs_get_filenum': missing function-prototype
+MUSIC_DECODE\GET_MUSICE_FILE.C(54): error C267: 'fs_get_filenum': requires ANSI-style prototype
+music_decode\get_musice_file.c(198): warning C316: unterminated conditionals
+compiling fm_receive.c...
+FM_RECEIVE\FM_RECEIVE.C(523): warning C206: 'ap_handle_hotkey': missing function-prototype
+FM_RECEIVE\FM_RECEIVE.C(523): error C267: 'ap_handle_hotkey': requires ANSI-style prototype
+fm_receive\fm_receive.c(592): warning C316: unterminated conditionals
+compiling fm_receive_api.c...
+fm_receive\fm_receive_api.c(198): warning C316: unterminated conditionals
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+USB_DEVICE\MSGFOR_USB.C(206): warning C206: 'ap_handle_hotkey': missing function-prototype
+USB_DEVICE\MSGFOR_USB.C(206): error C267: 'ap_handle_hotkey': requires ANSI-style prototype
+usb_device\msgfor_usb.c(253): warning C316: unterminated conditionals
+compiling disp_if.c...
+UI\DISP_IF.C(307): error C129: missing ';' before 'curr_date'
+ui\disp_if.c(506): warning C316: unterminated conditionals
+compiling lcdsegment.c...
+UI\LCDSEGMENT.C(197): warning C280: 'id': unreferenced local variable
+UI\LCDSEGMENT.C(223): warning C280: 'br': unreferenced local variable
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+aux_fun\aux_fun.c(123): warning C316: unterminated conditionals
+compiling mcu_master.c...
+AUX_FUN\MCU_MASTER.C(123): error C202: 'MUSIC_PLAY': undefined identifier
+AUX_FUN\MCU_MASTER.C(124): error C202: 'MUSIC_PAUSE': undefined identifier
+AUX_FUN\MCU_MASTER.C(127): error C202: 'MUSIC_PAUSE': undefined identifier
+AUX_FUN\MCU_MASTER.C(128): error C202: 'MUSIC_PLAY': undefined identifier
+aux_fun\mcu_master.c(150): warning C322: unknown identifier
+aux_fun\mcu_master.c(150): warning C322: unknown identifier
+aux_fun\mcu_master.c(219): warning C316: unterminated conditionals
+compiling iic_drv.c...
+compiling rtc_cpu.c...
+rtc_fun\rtc_cpu.c(210): warning C316: unterminated conditionals
+compiling rtc_fun.c...
+RTC_FUN\RTC_FUN.H(24): error C141: syntax error near '*', expected ')'
+RTC_FUN\RTC_FUN.H(25): error C141: syntax error near '*', expected ')'
+RTC_FUN\RTC_FUN.C(15): error C129: missing ';' before 'curr_date'
+rtc_fun\rtc_fun.c(292): warning C316: unterminated conditionals
+compiling rtc_mode.c...
+RTC_FUN\RTC_MODE.C(28): error C129: missing ';' before 'curr_date'
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(328): warning C322: unknown identifier
+rtc_fun\rtc_mode.c(632): warning C316: unterminated conditionals
+compiling voice_time.c...
+voice_time\voice_time.c(185): warning C316: unterminated conditionals
+Target not created
+Build target 'OTP_APP'
+compiling main.c...
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+compiling msgfor_hot.c...
+assembling isr.a51...
+compiling power.c...
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+compiling disp_if.c...
+compiling lcdsegment.c...
+UI\LCDSEGMENT.C(197): warning C280: 'id': unreferenced local variable
+UI\LCDSEGMENT.C(223): warning C280: 'br': unreferenced local variable
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling mcu_master.c...
+compiling iic_drv.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling voice_time.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+Program Size: data=105.5 xdata=1940 const=328 code=10196
+creating hex file from "app"...
+User command #1: .\copy.bat
+F:\bak\sc-cd-pro\APP>copy .\app.hex ..\link_hex\ 
+已复制         1 个文件。
+User command #2: ..\link_hex\make.bat
+F:\bak\sc-cd-pro\APP>cd ..\link_hex 
+F:\bak\sc-cd-pro\link_hex>maker -c image.cfg 
+suport vs 00000104 
+suport vs 00000100 
+suport vs 00000101 
+suport vs 00000102 
+suport vs 00000103 
+maker
+-c
+image.cfg
+chip type : ac209n 
+fill size  = 008000 
+enter  file = F:\bak\sc-cd-pro\link_hex\app.hex 
+out put file = F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+vector size = 8 
+ waring  :enter code over rode 
+Lowest address = 00000000
+Highest address = 00007F9A
+Lowest address = 00000000
+Highest address = 00007F9A
+waring: 16 文件地址000000 - 007f9a  over ride  mem1:  000090 - 0053ff  
+Lowest address = 00000000
+Highest address = 000046CE
+F:\bak\sc-cd-pro\link_hex>download.bat
+F:\bak\sc-cd-pro\link_hex>isd_download.exe -f myoutotp.bin.fw -toram -w 500 -osc 32K 
+input file name F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+down load file to ram 
+yulin   device         
+ide device online 
+download file ok 
+"app" - 0 Error(s), 3 Warning(s).
+Build target 'OTP_APP'
+compiling main.c...
+compiling device.c...
+compiling key.c...
+compiling msgfor_hot.c...
+compiling power.c...
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+compiling disp_if.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling mcu_master.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling voice_time.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+Program Size: data=105.5 xdata=1940 const=328 code=10196
+creating hex file from "app"...
+User command #1: .\copy.bat
+F:\bak\sc-cd-pro\APP>copy .\app.hex ..\link_hex\ 
+已复制         1 个文件。
+User command #2: ..\link_hex\make.bat
+F:\bak\sc-cd-pro\APP>cd ..\link_hex 
+F:\bak\sc-cd-pro\link_hex>maker -c image.cfg 
+suport vs 00000104 
+suport vs 00000100 
+suport vs 00000101 
+suport vs 00000102 
+suport vs 00000103 
+maker
+-c
+image.cfg
+chip type : ac209n 
+fill size  = 008000 
+enter  file = F:\bak\sc-cd-pro\link_hex\app.hex 
+out put file = F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+vector size = 8 
+ waring  :enter code over rode 
+Lowest address = 00000000
+Highest address = 00007F9A
+Lowest address = 00000000
+Highest address = 00007F9A
+waring: 16 文件地址000000 - 007f9a  over ride  mem1:  000090 - 0053ff  
+Lowest address = 00000000
+Highest address = 000046CE
+F:\bak\sc-cd-pro\link_hex>download.bat
+F:\bak\sc-cd-pro\link_hex>isd_download.exe -f myoutotp.bin.fw -toram -w 500 -osc 32K 
+input file name F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+down load file to ram 
+yulin   device         
+ide device online 
+download file ok 
+"app" - 0 Error(s), 1 Warning(s).
+Build target 'OTP_APP'
+compiling main.c...
+compiling uart.c...
+compiling device.c...
+compiling key.c...
+compiling msgfor_hot.c...
+assembling isr.a51...
+compiling power.c...
+compiling fat_memory.c...
+compiling my_IR_key.c...
+compiling mp3mode.c...
+compiling get_musice_file.c...
+compiling fm_receive.c...
+compiling fm_receive_api.c...
+compiling KT_AMFMdrv.c...
+compiling msgfor_usb.c...
+compiling disp_if.c...
+compiling lcdsegment.c...
+UI\LCDSEGMENT.C(197): warning C280: 'id': unreferenced local variable
+UI\LCDSEGMENT.C(223): warning C280: 'br': unreferenced local variable
+compiling my_printf.c...
+compiling iic_io.c...
+compiling iic_api.c...
+compiling aux_fun.c...
+compiling mcu_master.c...
+compiling iic_drv.c...
+compiling rtc_cpu.c...
+compiling rtc_fun.c...
+compiling rtc_mode.c...
+compiling voice_time.c...
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+Program Size: data=105.5 xdata=1940 const=328 code=10257
+creating hex file from "app"...
+User command #1: .\copy.bat
+F:\bak\sc-cd-pro\APP>copy .\app.hex ..\link_hex\ 
+已复制         1 个文件。
+User command #2: ..\link_hex\make.bat
+F:\bak\sc-cd-pro\APP>cd ..\link_hex 
+F:\bak\sc-cd-pro\link_hex>maker -c image.cfg 
+suport vs 00000104 
+suport vs 00000100 
+suport vs 00000101 
+suport vs 00000102 
+suport vs 00000103 
+maker
+-c
+image.cfg
+chip type : ac209n 
+fill size  = 008000 
+enter  file = F:\bak\sc-cd-pro\link_hex\app.hex 
+out put file = F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+vector size = 8 
+ waring  :enter code over rode 
+Lowest address = 00000000
+Highest address = 00007F9A
+Lowest address = 00000000
+Highest address = 00007F9A
+waring: 16 文件地址000000 - 007f9a  over ride  mem1:  000090 - 0053ff  
+Lowest address = 00000000
+Highest address = 000046CE
+F:\bak\sc-cd-pro\link_hex>download.bat
+F:\bak\sc-cd-pro\link_hex>isd_download.exe -f myoutotp.bin.fw -toram -w 500 -osc 32K 
+input file name F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+down load file to ram 
+yulin   device         
+ide device online 
+download file ok 
+"app" - 0 Error(s), 3 Warning(s).
+Build target 'OTP_APP'
+linking...
+*** WARNING L9: EMPTY SEGMENTS ENCOUNTERED
+Program Size: data=105.5 xdata=1940 const=328 code=10257
+creating hex file from "app"...
+User command #1: .\copy.bat
+F:\bak\sc-cd-pro\APP>copy .\app.hex ..\link_hex\ 
+已复制         1 个文件。
+User command #2: ..\link_hex\make.bat
+F:\bak\sc-cd-pro\APP>cd ..\link_hex 
+F:\bak\sc-cd-pro\link_hex>maker -c image.cfg 
+suport vs 00000104 
+suport vs 00000100 
+suport vs 00000101 
+suport vs 00000102 
+suport vs 00000103 
+maker
+-c
+image.cfg
+chip type : ac209n 
+fill size  = 008000 
+enter  file = F:\bak\sc-cd-pro\link_hex\app.hex 
+out put file = F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+vector size = 8 
+ waring  :enter code over rode 
+Lowest address = 00000000
+Highest address = 00007F9A
+Lowest address = 00000000
+Highest address = 00007F9A
+waring: 16 文件地址000000 - 007f9a  over ride  mem1:  000090 - 0053ff  
+Lowest address = 00000000
+Highest address = 000046CE
+F:\bak\sc-cd-pro\link_hex>download.bat
+F:\bak\sc-cd-pro\link_hex>isd_download.exe -f myoutotp.bin.fw -toram -w 500 -osc 32K 
+input file name F:\bak\sc-cd-pro\link_hex\myoutotp.bin.fw 
+down load file to ram 
+yulin   device         
+ide device online 
+download file ok 
+"app" - 0 Error(s), 1 Warning(s).
