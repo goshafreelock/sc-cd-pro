@@ -489,7 +489,7 @@ void sys_init(void)
 
     if (work_mode  == SYS_MP3DECODE_USB){
 
-#if 1
+#ifdef REMOVE_USE_MODE
 	work_mode  = SYS_FMREV;
 	Disp_Con(DISP_TUNER);			
 	return;
