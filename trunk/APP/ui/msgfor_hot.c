@@ -199,7 +199,9 @@ void Init_Func_List()
 	Sys_Func_List=0;
 #ifdef USE_USB_SD_DECODE_FUNC	       
 	//if((get_device_online_status()&0x02))
-	//	Add_Func_To_List(USB_DEV);
+#ifndef REMOVE_USE_MODE	
+		Add_Func_To_List(USB_DEV);
+#endif
 #ifndef NO_SD_DECODE_FUNC
 	if((get_device_online_status()&0x01))
 		Add_Func_To_List(SD_DEV);

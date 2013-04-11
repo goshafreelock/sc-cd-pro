@@ -750,6 +750,8 @@ void mcu_hdlr( void )
 				adkey_stop_file--;
 				if(adkey_stop_file==1){
 					if((cd_play_status== MUSIC_STOP)){
+
+						master_push_cmd(STOP_CMD);				
 		                    		Disp_Con(DISP_DWORD_NUMBER);
 					}
 				}
