@@ -44,9 +44,9 @@ extern  xd_u8 prog_total_num,prog_cur_num;
 extern bool prog_icon_bit,play_prog_mode,prog_disp_srn,fisrt_time_op;
 #endif
 
-
+extern bool toc_flag;
 #ifdef USE_USB_PROG_PLAY_MODE
-extern bool usb_play_prog_mode,usb_prog_icon_bit,toc_flag;
+extern bool usb_play_prog_mode,usb_prog_icon_bit;
 extern xd_u8 usb_prog_total_num,usb_prog_cur_num;
 #endif
 
@@ -529,7 +529,10 @@ void Disp_sel_station_ch(void)
     	printf_str("P",1);
     	printf_num((station_sel_pos+1),2,2);
 }
-
+void Disp_Bluetooth(void)
+{
+    printf_str("bt",1);
+}
 #if RTC_ENABLE
 xd_u8  clock_points=0;
 extern RTC_TIME curr_date;
@@ -876,6 +879,9 @@ void Disp_Con(u8 LCDinterf)
     case DISP_AUX:
         Disp_Aux();
         break;	
+    case DISP_BT:
+        Disp_Bluetooth();
+        break;			
 #if RTC_ENABLE		
     case DISP_RTC:
         Disp_curr_time();

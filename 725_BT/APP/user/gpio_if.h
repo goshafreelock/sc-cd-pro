@@ -81,6 +81,10 @@
 #define AMP_MUTE_PORT_INIT() 	 P0DIR &= ~(BIT(3));P0PU |=(BIT(3))//;P0PD &= ~(BIT(3))
 #define AMP_MUTE_DISABLE() 	 	 P03 = UNMUTE_LEVEL
 #define AMP_MUTE_ENABLE() 	 	 P03 = MUTE_LEVEL
+#elif defined( MUTE_PORT_USE_P37)
+#define AMP_MUTE_PORT_INIT() 	 P3DIR &= ~(BIT(7));P3PU |=(BIT(7));disable_usb()//;P0PD &= ~(BIT(3))
+#define AMP_MUTE_DISABLE() 	 	 P37 = UNMUTE_LEVEL
+#define AMP_MUTE_ENABLE() 	 	 P37 = MUTE_LEVEL
 #elif defined(MUTE_PORT_USE_WKUP)
 //dummy
 #elif defined(MUTE_PORT_USE_P25)
@@ -136,6 +140,17 @@
 #define iic_clk_out()    	P0DIR &= ~(1<<3);P0PU |= (1<<3)
 #define iic_clk_h()      	P03 = 1
 #define iic_clk_l()      		P03 = 0
+#elif defined(IIC_GPIO_USE_P06_P07)
+
+#define iic_data_out()    	P0DIR &= ~(1<<6);P0PU |= (1<<6)
+#define iic_data_in()     	P0DIR |= (1<<6);P0PU |= (1<<6)
+#define iic_data_r()      	P06
+#define iic_data_h()      	P06 = 1
+#define iic_data_l()      	P06 = 0
+
+#define iic_clk_out()    	P0DIR &= ~(1<<7);P0PU |= (1<<7)
+#define iic_clk_h()      	P07 = 1
+#define iic_clk_l()      		P07 = 0
 #else
 #define iic_data_out()   	P1DIR &= ~(1<<6);//P0PU |= (1<<2)
 #define iic_data_in()    	P1DIR |= (1<<6);P1PU |= (1<<6)
@@ -259,14 +274,23 @@
 #define SW_GAIN_CTRL_DIS()				P25=0
 
 
+#define BT_GPIO_CTRL_INIT()			P0DIR &= ~(BIT(2));P0PU |=BIT(2);
+#define BT_PWR_GPIO_ON()			P02=1
+#define BT_PWR_GPIO_OFF()			P02=0
+
+#define AUX_GPIO_CTRL_INIT()		P0DIR &= ~(BIT(2));P0PU |=BIT(2);P3DIR &= ~(BIT(6));P3PU |=BIT(6);disable_usb()
+#define AUX_PWR_GPIO_ON()			P02=1;	P36 = 0
+#define AUX_PWR_GPIO_OFF()			P02=1;	P36 = 1
+
+
 #define HDMI_SRC_GPIO_INIT()		P3DIR &= ~(BIT(4));P3PU |=BIT(4); 
-#define SRC_HDMI_1_EN()		P3|=(BIT(4))
-#define SRC_HDMI_2_EN()		P3&=~(BIT(4))
+#define SRC_HDMI_1_EN()				P3|=(BIT(4))
+#define SRC_HDMI_2_EN()				P3&=~(BIT(4))
 
 #ifdef REC_GPIO_CTRL
-#define REC_GPIO_CTRL_INIT()	P0DIR &= ~(BIT(2));P0PU |=BIT(2);
-#define REC_GPIO_HIGH()			P0|=(BIT(2))
-#define REC_GPIO_LOW()			P0&=~(BIT(2))
+#define REC_GPIO_CTRL_INIT()		P0DIR &= ~(BIT(2));P0PU |=BIT(2);
+#define REC_GPIO_HIGH()				P0|=(BIT(2))
+#define REC_GPIO_LOW()				P0&=~(BIT(2))
 #endif
 
 #ifdef USE_AMP_MODE_SELECT

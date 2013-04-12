@@ -78,7 +78,7 @@ void bmt_hdlr(void);
 #define  INFO_POWER         	0x1b
 
 #define INFO_ALM_BELL		0x1c
-#define  INFO_250MS	         	0x1d
+#define  INFO_250_MS         	0x1d
 #define  INFO_SECOND	     	0x1e
 #define  INFO_HALF_SECOND	 0x1f
 #define  INFO_100         		0x1d

@@ -24,6 +24,7 @@
 #include "voice_time.h"
 #include "mcu_master.h"
 #include "KT_AMFMdrv.h"
+#include "blue_tooth.h"
 
 extern u8 _idata music_vol;
 extern xd_u8 my_music_vol;
@@ -321,6 +322,12 @@ void timer1isr(void)
 	 }	 
 #endif
 
+	 if(ms_cnt%25==0){
+	 	
+            put_msg_fifo(INFO_250_MS);
+
+	 }
+	 
         if (ms_cnt ==  50)
         {
             ms_cnt = 0;
@@ -355,9 +362,11 @@ void pll_init(void)
 {
     P0PU = 0;
     PCON = 0;
+#if 0	
     USBCON0 |= BIT(0);							//usb io is port
     P3PD |= 0xc0;
     P3PU &= ~0xC0;
+#endif
     CLKGAT = 0;
     CLKCON = 0x01;
     DACCON1 |= BIT(6);                  //DAC高阻
@@ -417,6 +426,7 @@ void timer1Init(void)
 /*----------------------------------------------------------------------------*/
 void timer3Init(void)
 {
+#if 0
     	WKUPPND |= (1<<6);  //开VPP的上拉
     	PT3 = 1;
     	T3SCA = 0x20;      // 1/(2^n)分频
@@ -426,6 +436,7 @@ void timer3Init(void)
     	T3PRD = 0x88;		//0x22;
     	T3CON = 0x3e;       //设置为capture模式，并将其相应的中断打开
     	ET3 = 1;
+#endif		
 }
 
 /*----------------------------------------------------------------------------*/
@@ -515,6 +526,19 @@ void sys_init(void)
     else if (work_mode  == SYS_AUX){
     		Disp_Con(DISP_AUX);
     }	
+
+
+	CD_PWR_GPIO_CTRL_INIT();
+    	CD_PWR_GPIO_OFF();
+
+	//TUNER_PWR_GPIO_CTRL_INIT();		
+    	//TUNER_PWR_GPIO_OFF();
+
+	AUX_GPIO_CTRL_INIT();
+	AUX_PWR_GPIO_OFF();		
+
+	BT_GPIO_CTRL_INIT();
+	BT_PWR_GPIO_OFF();	
 }
 
 /*----------------------------------------------------------------------------*/
@@ -821,6 +845,13 @@ void main(void)
 	            		aux_function();
 	            	break;
 #endif			
+
+#ifdef USE_BLUE_TOOTH_FUNC			
+    	        	case SYS_BLUE_TOOTH:
+	            		Blue_tooth_main();
+	            	break;
+#endif
+
 #ifdef USE_RTC_FUNC
 	        	case SYS_RTC:
 	            		rtc_function();

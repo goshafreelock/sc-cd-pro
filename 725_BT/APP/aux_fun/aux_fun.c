@@ -158,6 +158,7 @@ void aux_function(void)
 	    }
 #endif	
 	Mute_Ext_PA(MUTE);
+	AUX_PWR_GPIO_ON();		
 
 	sysclock_div2(1);
     	flush_low_msg();
@@ -166,6 +167,8 @@ void aux_function(void)
     	deal_aux();
 
 	Mute_Ext_PA(MUTE);
+	
+	AUX_PWR_GPIO_OFF();				
 		
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
 }

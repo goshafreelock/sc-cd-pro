@@ -62,9 +62,9 @@ SEG8     P34
 #define	set_com(n)      	P3 |= (1<<(n))
 #define   clr_com(n)      	P3 &= ~(1<<(n)) 
 	
-#define   seg_init()      	P1DIR = 0;P0DIR &= ~(BIT(2));P0PU &= ~(BIT(2))//;P3PD &= ~(BIT(4))
+#define   seg_init()      	P1DIR = 0;P0DIR &= ~(BIT(1));P0PU &= ~(BIT(1))//;P3PD &= ~(BIT(4))
 #define   seg07_port(n)   	P1 = n
-#define   seg8_port(n)	P02 = n
+#define   seg8_port(n)	P01 = n
 //#define   bklt_init()	  	//P3DIR &= ~(1<<0);P3 |= (1<<0);
 #endif
 

@@ -39,6 +39,8 @@ bool sys_mute_flag=0;
 xd_u8 key_100_flag=0;
 xd_u8 my_sys_vol=0;
 xd_u8 my_music_vol=0;
+xd_u8 rew_play_timer=0,disp_play_filenum_timer=0;
+
 
 extern bool sys_pwr_flag;
 extern xd_u8 cur_sw_fm_band;
@@ -240,6 +242,11 @@ void Init_Func_List()
 #endif
 #endif
 
+
+#ifdef USE_BLUE_TOOTH_FUNC
+		Add_Func_To_List(BT_DEV);
+#endif
+
 #if defined(IPONE_INDEPENDENT_MODE)
 		Add_Func_To_List(IPH_DEV);
 #endif
@@ -285,7 +292,10 @@ static SYS_WORK_MODE Next_Func()
 	return SYS_IDLE;
 }
 
-extern xd_u16 usb_erp_timer,aux_erp_timer,erp_timer;
+#ifdef USE_USB_ERP_2_HDLR
+extern xd_u16 usb_erp_timer;
+#endif
+extern xd_u16 aux_erp_timer,erp_timer;
 
 xd_u8 erp2_test_mode_timer=0;
 xd_u8 erp2_test_enable=0;
@@ -301,13 +311,16 @@ void erp_2_test_mode_handlr(void)
 		
 		erp2_test_mode_timer++;
 		if(erp2_test_mode_timer>10){
+#ifdef USE_USB_ERP_2_HDLR			
 			usb_erp_timer=0x1FFF;
+#endif
 			aux_erp_timer=0x1FFF;
 			erp_timer=0x1FFF;
 		}
 		else{
-
+#ifdef USE_USB_ERP_2_HDLR			
 			usb_erp_timer=0;
+#endif
 			aux_erp_timer=0;
 			erp_timer=0;
 		}

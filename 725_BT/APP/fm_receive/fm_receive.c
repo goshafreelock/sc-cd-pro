@@ -321,6 +321,31 @@ void set_radio_freq(u8 mode,bool disp_pro)
     dac_mute_control(0, 1);	
     set_sys_vol(my_music_vol);
 }
+void radio_pre_init()
+{
+	cur_sw_fm_band =0;
+#ifdef GPIO_SEL_BAND_INFO_CONFIG
+
+	if(get_band_info_config()==0){
+		
+		REG_MAX_FREQ = radio_freq_tab_USA[cur_sw_fm_band].MAX_FREQ;
+		REG_MIN_FREQ = radio_freq_tab_USA[cur_sw_fm_band].MIN_FREQ;
+	}
+	else
+#endif
+	{
+		REG_MAX_FREQ = radio_freq_tab_EUR[cur_sw_fm_band].MAX_FREQ;
+		REG_MIN_FREQ = radio_freq_tab_EUR[cur_sw_fm_band].MIN_FREQ;
+	}
+
+	frequency = read_radio_freq(cur_sw_fm_band*2+MEM_FREQ_BASE);
+	
+	 if((frequency > REG_MAX_FREQ)||(frequency < REG_MIN_FREQ))		
+	 	frequency =REG_MIN_FREQ;
+
+       Disp_Con(DISP_FREQ);
+	   
+}
 void radio_band_hdlr()
 {
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
@@ -882,6 +907,8 @@ void fm_radio(void)
 #ifndef DISABLE_P05_OSC_OUTPUT
    	fm_osc_output_select(TRUE);
 #endif
+	scan_gpio_band_info_config();
+	radio_pre_init();
        if (KT_AMFMWakeUp()==0)
        {
     		Disp_Con(DISP_ERROR);
@@ -891,7 +918,6 @@ void fm_radio(void)
 	{
 
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
-		scan_gpio_band_info_config();
 #ifndef CUSTOMED_KEY_FORCED_INIT_PRESET
 		radio_preset_init();
 #endif		
