@@ -11,6 +11,7 @@
 
 #include "get_music_file.h"
 
+#ifdef USE_USB_SD_DECODE_FUNC	       
 
 extern xd_u16 given_file_number;
 extern xd_u8 given_device;
@@ -349,6 +350,9 @@ void select_folder_file(u8 cmd)
     given_file_number= get_dir_file(cmd);                //查找错误，文件序号已经超出当前设备的范围(也有可能是当前设备已经不存在)
     put_msg_lifo(INIT_PLAY);
 }
+#endif
+
+
 #endif
 
 

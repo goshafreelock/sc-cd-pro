@@ -75,7 +75,7 @@ extern xd_u8 rtc_setting,rtc_set,rtc_set_cnt;
 
 extern bool repeat_off_flag;
 
-xd_u8 rew_play_timer=0,disp_play_filenum_timer=0;
+extern xd_u8 rew_play_timer,disp_play_filenum_timer;
 bool folder_select=0,folder_mode_select=0;
 
 #ifdef USE_USB_PROG_PLAY_MODE

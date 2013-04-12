@@ -20,14 +20,15 @@
 /*----------------------------------------------------------------------------*/
 void uartInit(void)
 {
-
-    UTBAUD = (48000000/(8 * 115200)) - 1;	//25;//0x37;					/* 25: cpu 24M, 115200bps*/	/*77 for 384*/ /*0x137 for 9600*/
-    UTCON = 0x01;
-#if defined (_USE_UART_P0_)
+#if defined (_USE_UART_P0_)||defined(BLUE_TOOTH_UART_FUNC)
+    UTBAUD = 0x9c;		//19200
+    //UTBAUD = 0x37;		//9600
     P0DIR &= ~(1<<6);
     P0DIR |= (1<<7);
-    UTCON = 0x41;							/* enable uart */
+    UTCON = 0x09;		//19200					/* enable uart */
+    //UTCON = 0x19;
 #elif defined(_USE_UART_P2_)
+    UTBAUD = (48000000/(8 * 115200)) - 1;	//25;//0x37;					/* 25: cpu 24M, 115200bps*/	/*77 for 384*/ /*0x137 for 9600*/
     P2DIR &= 0xef;							/* P06 for transmit */
     P2DIR |= 0x20;							/* P07 for receive */
     UTCON = 0x41;							/* enable uart */

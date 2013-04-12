@@ -22,6 +22,7 @@
 #include "entry.h"
 
 void uartInit(void);
+void putbyte(u8 c);
 char putchar (char c);
 void sys_printf(char *str);
 void printf_u8(u8 dat);
