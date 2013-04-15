@@ -127,7 +127,7 @@ void check_eeprom_status(void)
 		eeprom_type = 0;
 	}
 
-	printf("eeprom_type %x \r\n",(u16)eeprom_type);
+	//printf("eeprom_type %x \r\n",(u16)eeprom_type);
 	
 	iic_busy = 0;
 }

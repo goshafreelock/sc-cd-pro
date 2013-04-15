@@ -59,6 +59,9 @@ extern bool radio_st_ind;
 extern bool folder_mode_select;
 #endif
 
+
+extern bool prog_mem_full;
+
 #if defined(USE_BAT_MANAGEMENT)
 extern void Bat_icon_chk(void);
 #endif
@@ -135,12 +138,20 @@ void Disp_prog_num(void)
 	if(work_mode == SYS_MCU_CD){
 #if 1
 		if(prog_disp_srn){
-			printf_char('P',1);
-			printf_num(prog_total_num,2,2);
+			
+			if(prog_mem_full){
+		    		//printf_str("FUL",1);
+		    		printf_str("---",1);					
+			}	
+			else{			
+				printf_char('P',1);
+				printf_num(prog_total_num,2,2);
+			}
 		}
 		else{
 
-			if(prog_total_num==20){
+			if(prog_mem_full){
+			//if(prog_total_num==20){
 		    		//printf_str("FUL",1);
 		    		printf_str("---",1);
 			}
@@ -166,12 +177,20 @@ void Disp_prog_num(void)
 
 #if 1
 		if(prog_disp_srn){
-			printf_char('P',1);
-			printf_num(usb_prog_total_num,2,2);
+			
+			if(prog_mem_full){
+		    		//printf_str("FUL",1);
+		    		printf_str("---",1);					
+			}	
+			else{
+				printf_char('P',1);
+				printf_num(usb_prog_total_num,2,2);
+			}
 		}
 		else{
 
-			if(usb_prog_total_num==20){
+			if(prog_mem_full){
+			//if(usb_prog_total_num==20){
 		    		//printf_str("FUL",1);
 		    		printf_str("---",1);					
 			}
