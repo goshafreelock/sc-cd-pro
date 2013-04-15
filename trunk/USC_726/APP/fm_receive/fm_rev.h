@@ -54,6 +54,7 @@ typedef enum {
 
 	SEARCH_UP =0,
 	SEARCH_DN,
+	SEARCH_INIT,
 }AUTO_DIR;
 
 #endif

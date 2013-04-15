@@ -642,12 +642,28 @@ void radio_save_station_hdlr()
 	}
 }
 #define MANUAL_SEL_STATION_KEY    	(INFO_STOP| KEY_SHORT_UP)
-void restore_station_from_ch()
+bool restore_station_enable=0;
+void restore_station_from_ch(u8 getch_cmd)
 {
-	station_sel_pos++;
-	if(station_sel_pos> Current_Band.MAX_CH)
-		station_sel_pos=0;
+	if(getch_cmd == SEARCH_UP){
+		station_sel_pos++;
+		if(station_sel_pos> Current_Band.MAX_CH)
+			station_sel_pos=0;
+	}
+	else if(getch_cmd == SEARCH_DN){
 
+		if(station_sel_pos> 0){
+			station_sel_pos--;
+		}
+		else{
+			station_sel_pos=Current_Band.MAX_CH;
+		}
+	}
+	else{
+		station_sel_pos =0;
+	}
+
+	
 	if(cur_sw_fm_band==0){
 		frequency = read_radio_freq(station_sel_pos*2+FM_CH_OFFSET);
 	}
@@ -720,7 +736,8 @@ void fm_hdlr( void )
 		break;
 #ifdef FM_SAVE_STATION_MANUAL
      	case MANUAL_SEL_STATION_KEY:
-		restore_station_from_ch();
+		restore_station_enable=1;
+		restore_station_from_ch(SEARCH_UP);
 		break;
      	case MANUAL_STATION_SAVE_KEY:
 		radio_save_station_hdlr();
@@ -751,13 +768,23 @@ void fm_hdlr( void )
 
         case INFO_FRE_UP | KEY_SHORT_UP:
         case INFO_NEXT_FIL | KEY_SHORT_UP:	
-    		dac_mute_control(1, 1);	
-             	set_radio_freq(FM_FRE_INC,SHOW_FREQ);
+		if(restore_station_enable){
+			restore_station_from_ch(SEARCH_UP);
+		}
+		else{
+    			dac_mute_control(1, 1);	
+             		set_radio_freq(FM_FRE_INC,SHOW_FREQ);
+		}
 		break;
         case INFO_FRE_DOWN | KEY_SHORT_UP:
         case INFO_PREV_FIL | KEY_SHORT_UP:
-    		dac_mute_control(1, 1);	
-             	set_radio_freq(FM_FRE_DEC,SHOW_FREQ);
+		if(restore_station_enable){
+			restore_station_from_ch(SEARCH_DN);
+		}
+		else{			
+    			dac_mute_control(1, 1);	
+             		set_radio_freq(FM_FRE_DEC,SHOW_FREQ);
+		}
             break;
         case INFO_HALF_SECOND :
 
@@ -813,7 +840,9 @@ void fm_hdlr( void )
 				cfilenum =0;				
 	            }	
 	 	     else if (DISP_FREQ != curr_menu){
-			 	
+
+				restore_station_enable=0;
+				
 	                    Disp_Con(DISP_FREQ);
 	           }
             }

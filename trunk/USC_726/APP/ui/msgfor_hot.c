@@ -13,6 +13,8 @@
 #include "rtc_mode.h"
 #include "config.h"
 #include "mp3mode.h"
+#include "KT_AMFMdrv.h"
+
 extern u8 _idata music_vol;
 extern xd_u8 given_device;
 extern xd_u16 given_file_number;
@@ -219,7 +221,7 @@ void Init_Func_List()
 		Add_Func_To_List(AM_DEV);
 #endif
  	    	//enter_fm_rev();  
-		//KT_AMFMStandby();
+		KT_AMFMStandby();
 	//}
 #endif
 
@@ -552,9 +554,19 @@ u8 ap_handle_hotkey(u8 key)
 	if(my_music_vol > MAX_MAIN_VOL)
 		  my_music_vol = MAX_MAIN_VOL;
 
+	if(my_music_vol ==0){
 
+    		Mute_Ext_PA(MUTE);
+	}
+	else{
+    		Mute_Ext_PA(UNMUTE);
+
+	}
+	
 	dac_mute_control(0, 1);	
 	set_sys_vol(my_music_vol);
+	
+	write_info(MEM_VOL, music_vol);
 
 	//write_info(MEM_VOL, music_vol);
 	

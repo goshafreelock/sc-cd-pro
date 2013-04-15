@@ -353,6 +353,12 @@ void timer1isr(void)
 /*----------------------------------------------------------------------------*/
 void pll_init(void)
 {
+#ifdef USE_POWER_KEY
+    sys_power_up();
+    CD_PWR_GPIO_CTRL_INIT();
+    CD_PWR_GPIO_OFF();
+#endif
+
     P0PU = 0;
     PCON = 0;
     USBCON0 |= BIT(0);							//usb io is port
@@ -361,9 +367,7 @@ void pll_init(void)
     CLKGAT = 0;
     CLKCON = 0x01;
     DACCON1 |= BIT(6);                  //DAC高阻
-#ifdef USE_POWER_KEY   
     sys_power_up();
-#endif
     disp_init_if();						//在芯片上电后，马上显示初始界面
 
 #if OSC_CLOCK == 24000000L
@@ -544,7 +548,7 @@ void sys_info_init(void)
 	my_music_vol = read_info(MEM_VOL);
     	if ((my_music_vol > MAX_MAIN_VOL) || (my_music_vol == 0))              //每次开机时，不要超过最大音量的一半，以免开机音量过大
     	{
-        	my_music_vol = 10;
+        	my_music_vol = 16;
     	}
 #endif
 
@@ -743,8 +747,10 @@ void idle_mode(void)
 void main(void)
 {
      xd_u8 sys_timer=0;
-
+	 
       sys_power_up();
+      CD_PWR_GPIO_CTRL_INIT();
+      CD_PWR_GPIO_OFF();
       Mute_Ext_PA(MUTE);
       sys_clock_pll();//(MAIN_CLK_PLL);
 	 

@@ -83,8 +83,9 @@ extern bool prog_disp_srn;
 bool usb_play_prog_mode=0,usb_prog_icon_bit=0,usb_prog_play=0;
 xd_u8 usb_prog_total_num=0,usb_prog_cur_num=0;
 xd_u8 usb_play_prog_index=0;
-xd_u8 usb_prog_tab[20]={0};
+//xd_u8 usb_prog_tab[20]={0};
 extern xd_u8 prog_exit_timer;
+extern bool prog_mem_full;
 
 extern u8 ReadLFSR();
 
@@ -122,18 +123,18 @@ bool get_prog_song_num(u8 get_Mode)
 
 		if(get_Mode==GET_PREV_FILE){
 
-			if(usb_play_prog_index>0){
+			if(usb_play_prog_index>1){
 				usb_play_prog_index--;
 			}
 			else{
-				usb_play_prog_index=usb_prog_total_num-2;
+				usb_play_prog_index=usb_prog_total_num-1;
 			}
 		}
 		else{			
 			usb_play_prog_index++;
 	
 			if(usb_play_prog_index>=usb_prog_total_num){
-				usb_play_prog_index =0;
+				usb_play_prog_index =1;
 			}
 		}
 	}
@@ -145,11 +146,11 @@ bool get_prog_song_num(u8 get_Mode)
 
 		if(get_Mode==GET_PREV_FILE){
 
-			if(usb_play_prog_index>0){
+			if(usb_play_prog_index>1){
 				usb_play_prog_index--;
 			}
 			else{
-				usb_play_prog_index=usb_prog_total_num-2;
+				usb_play_prog_index=usb_prog_total_num-1;
 			}
 		}
 		else{
@@ -157,7 +158,7 @@ bool get_prog_song_num(u8 get_Mode)
 			usb_play_prog_index++;
 	
 			if(usb_play_prog_index>=usb_prog_total_num){
-				usb_play_prog_index =0;
+				usb_play_prog_index =1;
 			}			
 		}
 		
@@ -174,17 +175,19 @@ bool get_prog_song_num(u8 get_Mode)
 	        CRCREG = T3CNTL;
 
 	        usb_play_prog_index = ReadLFSR();
-	        usb_play_prog_index = usb_play_prog_index % (usb_prog_total_num-1)+ 1;
+	        usb_play_prog_index = usb_play_prog_index % (usb_prog_total_num)+ 1;
 	}	
 #endif
-	given_file_number =usb_prog_tab[usb_play_prog_index];
+	//given_file_number =usb_prog_tab[usb_play_prog_index];
+	
+	given_file_number =read_rtc_ram(usb_play_prog_index);
 
 #ifdef MP3_UART_ENABLE
-    printf(" ---> 1111	get_prog_song_num	IDX%x    FILE NUM %x  \r\n",(u16)usb_play_prog_index,(u16)usb_prog_total_num);
+    printf(" ---> 1111	get_prog_song_num	IDX%d    FILE NUM %d  \r\n",(u16)usb_play_prog_index,(u16)usb_prog_total_num);
 #endif
 	
 #ifdef MP3_UART_ENABLE
-    printf(" ---> 2222	get_prog_song_num	%x \r\n",(u16)given_file_number);
+    printf(" ---> 2222	get_prog_song_num	%d  \r\n",(u16)given_file_number);
 #endif
 
 	return 1;
@@ -196,13 +199,14 @@ void usb_prog_play_init()
 		
 		usb_play_prog_mode=1;
 		usb_prog_icon_bit=1;	
-		prog_exit_timer=14;	
+		prog_exit_timer=PROG_EXIT_TIMER;	
+		prog_mem_full=0;
 
 		usb_play_prog_index=0;
 		usb_prog_total_num=1;
 		usb_prog_cur_num=0;
 		prog_disp_srn=1;
-		my_memset(&usb_prog_tab[0], 0x0, 20);
+		//my_memset(&usb_prog_tab[0], 0x0, 20);
 		Disp_Con(DISP_PROG_FILENUM);
 	}
 }
@@ -218,7 +222,7 @@ void usb_prog_mode_cls()
 		usb_prog_cur_num=0;
 		prog_exit_timer=0;	
 		
-		my_memset(&usb_prog_tab[0], 0x0, 20);
+		//my_memset(&usb_prog_tab[0], 0x0, 20);
 		Disp_Con(DISP_STOP);
 	}
 }
@@ -229,18 +233,25 @@ void usb_prog_hdlr(u8 key)
 	        case INFO_MODE | KEY_SHORT_UP :
 
 			prog_exit_timer=PROG_EXIT_TIMER;	
-			if((usb_prog_cur_num!=0)&&(usb_prog_total_num<20)){
-				usb_prog_tab[usb_prog_total_num-1]=usb_prog_cur_num;
-				usb_prog_cur_num=0;
-				usb_prog_total_num++;	
-				prog_disp_srn=1;
-
+			if((usb_prog_cur_num>0)&&(usb_prog_total_num<=20)){
+									
+				write_rtc_ram((usb_prog_total_num),usb_prog_cur_num);
 #ifdef MP3_UART_ENABLE
-    printf(" ---> usb_prog_hdlr	%x \r\n",(u16)usb_prog_total_num);
+			    	printf(" ---> usb_prog_hdlr	T  %d \r\n",(u16)usb_prog_total_num);
+			    	printf(" ---> usb_prog_hdlr	C  %d \r\n",(u16)usb_prog_cur_num);
 #endif
-				Disp_Con(DISP_PROG_FILENUM);
+
+				usb_prog_cur_num=0;
+				prog_disp_srn=1;
+				usb_prog_total_num++;
 				
+				if(usb_prog_total_num>20)
+					prog_mem_full=1;
+
+				Disp_Con(DISP_PROG_FILENUM);
+
 			}
+
 			break;		
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
 			prog_exit_timer=PROG_EXIT_TIMER;	
@@ -454,7 +465,7 @@ bool start_decode(void)
     	}
 	set_sys_vol(my_music_vol);
 	Mute_Ext_PA(UNMUTE);
-	
+
     	cfilenum = 0;
     	return 1;
 }
@@ -733,12 +744,13 @@ void music_play(void)
 			
 #ifdef USE_USB_PROG_PLAY_MODE
 			if(usb_play_prog_mode){
-
-				if(usb_prog_tab[0]!=0){
-					given_file_number =usb_prog_tab[0];
-
-				}
-				else{
+				
+				given_file_number =read_rtc_ram(1);
+#ifdef MP3_UART_ENABLE
+			    printf(" ---> play prog	%x \r\n",(u16)given_file_number);
+#endif
+				if(given_file_number==0){
+					given_file_number =1;
 					usb_prog_mode_cls();
 				}
 				usb_play_prog_mode=0;
@@ -795,8 +807,8 @@ void music_play(void)
 	    if(adkey_detect){
 	   	    adkey_detect=0;
 	   	    set_sys_vol(my_music_vol);
-	    }
-
+	    	}
+			
 	     if(disp_play_filenum_timer>0)disp_play_filenum_timer--;
 		 
             if (file_end_time)
@@ -851,13 +863,14 @@ void music_play(void)
 		}
 #endif            
 
+			
             if (DISP_PLAY == curr_menu)
             {
-			rew_play_timer=1;				            
                 	disp_file_time();
             }
 
             return_cnt++;
+
             if (RETURN_TIME == return_cnt)
             {
 
@@ -865,6 +878,11 @@ void music_play(void)
 			timer_setting_enable=0;
 #endif
 
+	      if (MUSIC_PLAY == play_status)
+            {
+			rew_play_timer=1;				            
+            }
+		  
                 if (DISP_DWORD_NUMBER == curr_menu)
                 {
 			Disp_Con(DISP_NULL);

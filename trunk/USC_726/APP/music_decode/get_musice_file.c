@@ -28,7 +28,7 @@ bool repeat_off_flag=0;
 
 #ifdef USE_USB_PROG_PLAY_MODE
 extern bool usb_prog_icon_bit;
-extern xd_u8 usb_prog_tab[20];
+//extern xd_u8 usb_prog_tab[20];
 extern bool get_prog_song_num(u8 get_Mode);
 #endif
 
@@ -101,7 +101,7 @@ void get_music_file1(u8 dir)
 #ifdef USE_USB_PROG_PLAY_MODE
     		if(usb_prog_icon_bit){
 				
-			given_file_number =usb_prog_tab[0];
+			given_file_number =read_rtc_ram(1);
 			usb_prog_mode_cls();			
     		}
 #endif	
