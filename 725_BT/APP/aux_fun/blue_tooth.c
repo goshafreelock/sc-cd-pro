@@ -46,6 +46,10 @@ extern void config_dev_name(void);
 #endif
 #endif
 
+#ifdef USE_ERP_2_HDLR
+void aux_erp_2_timer_hdlr();
+#endif	
+
 xd_u8 bt_pwr_off_timer=0,bt_pwr_on_timer=0,retry_timer=0;
 void bt_disconnect_power_hldr()
 {
@@ -186,7 +190,7 @@ void Blue_tooth_hdlr( void )
 
 	promt_dev_disconnect=0;
 	wait_for_dev_connect=1;
-    //dac_out_select(DAC_AMUX0);
+    aux_channel_crosstalk_improve(DAC_AMUX0);
     //delay_10ms(20);	
     //Mute_Ext_PA(UNMUTE);
     activate_beep_ind(BT_POWER_ON);
@@ -416,6 +420,10 @@ void Blue_tooth_hdlr( void )
 	       timer_pwr_off_hdlr();
 #endif
 
+#ifdef USE_ERP_2_HDLR
+		aux_erp_2_timer_hdlr();
+#endif	
+
             set_brightness_fade_out();
             if (return_cnt < RETURN_TIME)
             {
@@ -489,7 +497,7 @@ void Blue_tooth_main(void)
        Mute_Ext_PA(MUTE);
 		
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
-	BT_PWR_GPIO_OFF();
+	//BT_PWR_GPIO_OFF();
 	
 }
 #endif

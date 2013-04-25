@@ -274,13 +274,13 @@
 #define SW_GAIN_CTRL_DIS()				P25=0
 
 
-#define BT_GPIO_CTRL_INIT()			P0DIR &= ~(BIT(2));P0PU |=BIT(2);
-#define BT_PWR_GPIO_ON()			P02=1
-#define BT_PWR_GPIO_OFF()			P02=0
+#define BT_GPIO_CTRL_INIT()			P3DIR &= ~(BIT(7));P3PU |=BIT(7);disable_usb()
+#define BT_PWR_GPIO_ON()			P37=1
+#define BT_PWR_GPIO_OFF()			P37=0
 
-#define AUX_GPIO_CTRL_INIT()		P0DIR &= ~(BIT(2));P0PU |=BIT(2);P3DIR &= ~(BIT(6));P3PU |=BIT(6);disable_usb()
-#define AUX_PWR_GPIO_ON()			P02=1;	P36 = 0
-#define AUX_PWR_GPIO_OFF()			P02=1;	P36 = 1
+#define AUX_GPIO_CTRL_INIT()		P3DIR &= ~(BIT(7));P3PU |=BIT(7);P3DIR &= ~(BIT(6));P3PU |=BIT(6);disable_usb()
+#define AUX_PWR_GPIO_ON()			P37=1;	P36 = 0
+#define AUX_PWR_GPIO_OFF()			P37=0;	P36 = 1
 
 
 #define HDMI_SRC_GPIO_INIT()		P3DIR &= ~(BIT(4));P3PU |=BIT(4); 

@@ -961,6 +961,11 @@
               <FileType>1</FileType>
               <FilePath>.\fm_receive\KT_AMFMdrv.c</FilePath>
             </File>
+            <File>
+              <FileName>rda5807.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\fm_receive\rda5807.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -1102,6 +1107,9 @@
               <FilePath>.\voice_time\voicetime_reource.c</FilePath>
             </File>
           </Files>
+        </Group>
+        <Group>
+          <GroupName>New Group</GroupName>
         </Group>
       </Groups>
     </Target>

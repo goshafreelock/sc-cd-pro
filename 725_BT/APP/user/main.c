@@ -360,6 +360,11 @@ void timer1isr(void)
 /*----------------------------------------------------------------------------*/
 void pll_init(void)
 {
+#ifdef USE_POWER_KEY
+    sys_power_up();
+    CD_PWR_GPIO_CTRL_INIT();
+    CD_PWR_GPIO_OFF();
+#endif
     P0PU = 0;
     PCON = 0;
 #if 0	
@@ -509,12 +514,19 @@ void sys_init(void)
 	Disp_Con(DISP_SCAN_DISK);
 
     }
-    else if ((work_mode  == SYS_FMREV)||(work_mode == SYS_AMREV)){
-		
+    else if ((work_mode  == SYS_FMREV)
+#ifdef AM_RADIO_FUNC		
+	||(work_mode == SYS_AMREV)
+#endif			
+){
+
+#ifdef AM_RADIO_FUNC		
 		if(work_mode == SYS_AMREV){
 			cur_sw_fm_band = MW_MODE;
 		}
-		else{
+		else
+#endif		
+		{
 			cur_sw_fm_band = FM_MODE;
 		}
 		Disp_Con(DISP_TUNER);			
@@ -526,7 +538,9 @@ void sys_init(void)
     else if (work_mode  == SYS_AUX){
     		Disp_Con(DISP_AUX);
     }	
-
+    else if (work_mode  == SYS_BLUE_TOOTH){
+    		Disp_Con(DISP_BT);
+    }	
 
 	CD_PWR_GPIO_CTRL_INIT();
     	CD_PWR_GPIO_OFF();
@@ -568,7 +582,7 @@ void sys_info_init(void)
 	my_music_vol = read_info(MEM_VOL);
     	if ((my_music_vol > MAX_MAIN_VOL) || (my_music_vol == 0))              //每次开机时，不要超过最大音量的一半，以免开机音量过大
     	{
-        	my_music_vol = 10;
+        	my_music_vol = 16;
     	}
 #endif
 

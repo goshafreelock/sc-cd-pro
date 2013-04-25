@@ -247,7 +247,9 @@ void sys_power_down(void)
 	
     set_sys_vol(0);
 
-    KT_AMFMStandby();
+    radio_rev_standby();
+
+    //KT_AMFMStandby();
 
     work_mode = SYS_IDLE;
 	

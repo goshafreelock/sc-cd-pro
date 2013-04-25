@@ -11,6 +11,7 @@
 #include "fm_rev.h"
 #include "KT_AMFMdrv.h"
 #include "fat_memory.h"
+#include "RDA5807.h"
 
 
 
@@ -273,8 +274,9 @@ void set_radio_freq(u8 mode,bool disp_pro)
 
     set_brightness_all_on();
 
-    freq_step = Current_Band.Tune_Step;
-	
+    	freq_step = Current_Band.Tune_Step;
+
+
     if (mode == FM_FRE_INC)
     {
         frequency=frequency+freq_step;
@@ -300,11 +302,12 @@ void set_radio_freq(u8 mode,bool disp_pro)
 	
     if(cur_sw_fm_band==0){
 
-		KT_FM_SOFTMUTE(frequency);
+		set_fre_RDA5807(frequency);
+		//KT_FM_SOFTMUTE(frequency);
     }
     else{
 
-		KT_AMTune(frequency);
+		//KT_AMTune(frequency);
     }
 
 
@@ -324,6 +327,10 @@ void set_radio_freq(u8 mode,bool disp_pro)
 void radio_pre_init()
 {
 	cur_sw_fm_band =0;
+
+	Current_Band.Tune_Step = 10;
+	Current_Band.Seek_Step= 10;
+	
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
 
 	if(get_band_info_config()==0){
@@ -379,9 +386,12 @@ void radio_band_hdlr()
 
 	write_info(MEM_BAND_SEL,cur_sw_fm_band);
 
+#ifdef AM_RADIO_FUNC
 	load_band_info();
-
 	KT_AMFMSetMode(cur_sw_fm_band);	
+#else
+	Current_Band.Band=FM_MODE;
+	Current_Band.MAX_CH=FM_MAX_CH-1;
 
     	set_radio_freq(FM_CUR_FRE,NO_SHOW_FREQ);
 }
@@ -394,18 +404,23 @@ void restore_last_radio_band()
 
 bool radio_get_validstation(u16 freq)
 {	 
+#if 1
+	return set_fre_RDA5807(freq);
+#else
     if(cur_sw_fm_band==0){
 	return KT_FMValidStation(freq);
     }
     else if(cur_sw_fm_band==1){
 	return KT_AMValidStation(freq);
     }
+#endif
+
 #ifdef MULTI_BAND_KT_0915_IN_USE	
     else{
 	return KT_SMValidStation(freq);
     }
-#endif
 	return 0;
+#endif
 }
 #ifdef ALL_AUTO_SCAN_FUNC
 #define BAND_FULL_SCAN_KEY	(INFO_PLAY |KEY_LONG)
@@ -557,10 +572,12 @@ void semi_auto_scan(u8 scan_dir)
 		put_msg_fifo(INFO_NEXT_FM_MODE);
             	break;
 	}
+	
 	if(adkey_detect){
 		adkey_detect=0;
 		break;
 	}
+	
 	if(scan_dir == SEARCH_UP)
 	{
 		frequency=frequency+ Current_Band.Seek_Step;
@@ -667,12 +684,28 @@ void radio_save_station_hdlr()
 	}
 }
 #define MANUAL_SEL_STATION_KEY    	(INFO_STOP| KEY_SHORT_UP)
-void restore_station_from_ch()
+bool restore_station_enable=0;
+void restore_station_from_ch(u8 getch_cmd)
 {
-	station_sel_pos++;
-	if(station_sel_pos> Current_Band.MAX_CH)
-		station_sel_pos=0;
+	if(getch_cmd == SEARCH_UP){
+		station_sel_pos++;
+		if(station_sel_pos> Current_Band.MAX_CH)
+			station_sel_pos=0;
+	}
+	else if(getch_cmd == SEARCH_DN){
 
+		if(station_sel_pos> 0){
+			station_sel_pos--;
+		}
+		else{
+			station_sel_pos=Current_Band.MAX_CH;
+		}
+	}
+	else{
+		station_sel_pos =0;
+	}
+
+	
 	if(cur_sw_fm_band==0){
 		frequency = read_radio_freq(station_sel_pos*2+FM_CH_OFFSET);
 	}
@@ -745,7 +778,8 @@ void fm_hdlr( void )
 		break;
 #ifdef FM_SAVE_STATION_MANUAL
      	case MANUAL_SEL_STATION_KEY:
-		restore_station_from_ch();
+		restore_station_enable=1;
+		restore_station_from_ch(SEARCH_UP);
 		break;
      	case MANUAL_STATION_SAVE_KEY:
 		radio_save_station_hdlr();
@@ -776,13 +810,23 @@ void fm_hdlr( void )
 
         case INFO_FRE_UP | KEY_SHORT_UP:
         case INFO_NEXT_FIL | KEY_SHORT_UP:	
-    		dac_mute_control(1, 1);	
-             	set_radio_freq(FM_FRE_INC,SHOW_FREQ);
+		if(restore_station_enable){
+			restore_station_from_ch(SEARCH_UP);
+		}
+		else{
+    			dac_mute_control(1, 1);	
+             		set_radio_freq(FM_FRE_INC,SHOW_FREQ);
+		}
 		break;
         case INFO_FRE_DOWN | KEY_SHORT_UP:
         case INFO_PREV_FIL | KEY_SHORT_UP:
-    		dac_mute_control(1, 1);	
-             	set_radio_freq(FM_FRE_DEC,SHOW_FREQ);
+		if(restore_station_enable){
+			restore_station_from_ch(SEARCH_DN);
+		}
+		else{			
+    			dac_mute_control(1, 1);	
+             		set_radio_freq(FM_FRE_DEC,SHOW_FREQ);
+		}
             break;
         case INFO_HALF_SECOND :
 
@@ -838,6 +882,7 @@ void fm_hdlr( void )
 				cfilenum =0;				
 	            }	
 	 	     else if (DISP_FREQ != curr_menu){
+				restore_station_enable=0;
 			 	
 	                    Disp_Con(DISP_FREQ);
 	           }
@@ -909,10 +954,11 @@ void fm_radio(void)
 #endif
 	scan_gpio_band_info_config();
 	radio_pre_init();
-       if (KT_AMFMWakeUp()==0)
+	
+       if(radio_dev_init()==0)
        {
     		Disp_Con(DISP_ERROR);
-		delay_10ms(10);
+		delay_10ms(50);
 	}
 	//else
 	{
@@ -959,7 +1005,7 @@ void fm_radio(void)
 #endif			
 		main_vol_set(0, CHANGE_VOL_NO_MEM);
 
-	    	KT_AMFMStandby();
+	    	radio_rev_standby();
 #if SDMMC_CMD_MODE
 		sd_chk_ctl(SET_SD_H_CHK);
 #endif
