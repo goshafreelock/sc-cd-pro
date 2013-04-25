@@ -10,6 +10,7 @@
 
 
 #include "fm_api.h"
+#include "RDA5807.h"
 
 
 extern _xdata u8 fre_preset[];
@@ -26,6 +27,19 @@ extern xd_u8 KT_AMFMWakeUp(void);
 extern void KT_AMFMSetMode(xd_u8 AMFM_MODE);
 extern xd_u8 KT_AMTune(xd_u16 Frequency);
 extern xd_u8 KT_FMTune(xd_u16 Frequency);
+
+
+bool radio_dev_init(void)
+{
+	//return KT_AMFMWakeUp();
+	return init_RDA5807();
+}
+
+void radio_rev_standby(void)
+{
+    	//KT_AMFMStandby();
+	RDA5807_PowerDown();
+}
 #if 0
 /*----------------------------------------------------------------------------*/
 /**@brief   FM模块初始化接口函数

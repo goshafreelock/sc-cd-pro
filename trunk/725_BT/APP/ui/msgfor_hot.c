@@ -13,6 +13,8 @@
 #include "rtc_mode.h"
 #include "config.h"
 #include "mp3mode.h"
+#include "fm_api.h"
+
 extern u8 _idata music_vol;
 extern xd_u8 given_device;
 extern xd_u16 given_file_number;
@@ -52,6 +54,9 @@ extern void set_date_sec();
 extern void alm_time_plus();
 extern void alm_time_minus();
 extern void set_alm_sec(void);
+
+extern void blue_tooth_uart_init();
+extern void blue_tooth_uart_release();
 
 void aux_channel_crosstalk_improve(u8 ch_num)
 {
@@ -221,7 +226,7 @@ void Init_Func_List()
 		Add_Func_To_List(AM_DEV);
 #endif
  	    	//enter_fm_rev();  
-		//KT_AMFMStandby();
+	    	radio_rev_standby();
 	//}
 #endif
 
@@ -565,15 +570,29 @@ u8 ap_handle_hotkey(u8 key)
 	if(my_music_vol > MAX_MAIN_VOL)
 		  my_music_vol = MAX_MAIN_VOL;
 
+	if(my_music_vol ==0){
 
+    		Mute_Ext_PA(MUTE);
+	}
+	else{
+    		Mute_Ext_PA(UNMUTE);
+
+	}
+	
 	dac_mute_control(0, 1);	
 	set_sys_vol(my_music_vol);
 
+	if(work_mode == SYS_BLUE_TOOTH){
+		blue_tooth_uart_release();
+		delay_10ms(1);
+	}
 	//write_info(MEM_VOL, music_vol);
 	
        // printf(" -------> vol %d   \r\n",(u16)my_music_vol);
        // printf(" -------> vol %d   \r\n",(u16)music_vol);
-
+	if(work_mode == SYS_BLUE_TOOTH){
+		blue_tooth_uart_init();
+	}
 #else
 	music_vol=my_music_vol;
 
@@ -611,6 +630,11 @@ u8 ap_handle_hotkey(u8 key)
 #ifdef USE_POWER_KEY
     case INFO_POWER | KEY_LONG:	
 	    	Disp_Con(DISP_POWER_OFF);
+			
+		if(work_mode == SYS_BLUE_TOOTH){
+			blue_tooth_uart_release();
+			delay_10ms(1);
+		}			
 		sys_power_down();
 		break;
 #if 0		

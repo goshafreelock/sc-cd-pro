@@ -37,7 +37,7 @@ extern u8 xdata last_work_mode;
 extern bool alarm_on;
 extern xd_u8 my_music_vol,disp_play_filenum_timer;
 extern bool adkey_detect;
-xd_u8 adkey_stop_file=0;
+xd_u8 adkey_stop_file=0,adkey_stop_key_timer=0;
 
 TOC_TIME cur_time;
 bool toc_flag=0,send_buf_cmd=0;
@@ -47,8 +47,10 @@ xd_u8 rev_buf[10]={0};
 
 #define DISP_PLAY_TIME		10
 
+bool prog_mem_full=0;
+
 #ifdef USE_PROG_PLAY_MODE
-bool play_prog_mode=0,prog_icon_bit=0,prog_disp_srn=0;
+bool play_prog_mode=0,prog_icon_bit=0,prog_disp_srn=0,prog_next_prev=0;
 xd_u8 prog_total_num=0,prog_cur_num=0,prog_first_num=0;
 xd_u8 prog_exit_timer=0;
 #endif
@@ -90,7 +92,7 @@ u8 master_pop_cmd(void)
 }
 static u8 info_dispatch_div=0;
 static u8 info_timer_1=0,info_timer_2=0,info_timer_3=0;
-static u8 info_timer_toc=0,info_timer_4=0,info_timer_play=0;
+static u8 info_timer_toc=0,info_timer_4=0,info_timer_play=0,info_timer_stop=0;
 void clr_rev_buf()
 {
     my_memset(&rev_buf[0], 0x0, 10);
@@ -128,23 +130,30 @@ void mcu_master_info_hdlr()
 //4 get cur play status 	
 		if((rev_buf[0]&0x03)==0x02){
 
- 				if(info_timer_play++>2){
-					
-					if(cd_play_status!=MUSIC_PLAY){
-						Mute_Ext_PA(UNMUTE);					
-						cd_play_status=MUSIC_PLAY;
-
-					}
-
+				if(adkey_stop_key_timer>0){
+					adkey_stop_key_timer--;
 				}
+				else{
 
+					if(info_timer_play++>2){
+					
+						if(cd_play_status!=MUSIC_PLAY){
+							Mute_Ext_PA(UNMUTE);					
+							cd_play_status=MUSIC_PLAY;
+						}
+					}
+				}
+				info_timer_stop=0;
 				info_timer_4=0;
 		}
 		else if((rev_buf[0]&0x03)==0x00){
 
 			info_timer_play =0;
-			if(cd_play_status!=MUSIC_STOP){
-				cd_play_status=MUSIC_STOP;
+ 			if(info_timer_stop++>2){
+			
+				if(cd_play_status!=MUSIC_STOP){
+					cd_play_status=MUSIC_STOP;
+				}
 			}
 			
 			//info_timer_3++;
@@ -247,6 +256,7 @@ void mcu_master_info_hdlr()
 		if((rev_buf[2]>0)&&(rev_buf[2]!=0xFF)){
 
 			if(given_file_number!=rev_buf[2]){
+				
 				given_file_number=rev_buf[2];
 				
 #ifdef USE_PROG_PLAY_MODE
@@ -259,7 +269,8 @@ void mcu_master_info_hdlr()
 				else
 #endif			
 				{
-					
+					if(adkey_stop_file<1)
+						
 		                    	Disp_Con(DISP_FILENUM);	
 				}
 			}
@@ -289,15 +300,21 @@ void mcu_master_info_hdlr()
 			}
 			
 			if(rev_buf[9]!=0xff){			
-				if(rev_buf[9]!=prog_cur_num){
-
+				
+				if(prog_next_prev){
+					prog_next_prev=0;
 					//if(prog_disp_srn)
 					{
 						prog_disp_srn=0;					
 						prog_cur_num = rev_buf[9];
+					
 						Disp_Con(DISP_PROG_FILENUM);				
 					}
 				}
+			}
+			else{
+
+
 			}
 		}
 #endif
@@ -325,7 +342,7 @@ void mcu_master_info_hdlr()
 	//for(rev_loop=0;rev_loop<9;rev_loop++)
 		//printf("----------------------------------%x  ----rev  %x \r\n",(u16)rev_loop,(u16)rev_buf[rev_loop]);
 		//printf("----------------------------------%x  ----rev  %x \r\n",(u16)rev_loop,(u16)rev_buf[0]);
-		//printf("----------------------------------9  ----rev  %u \r\n",(u16)rev_buf[8]);
+		//printf("----------------------------------8  ----rev  %u \r\n",(u16)rev_buf[8]);
 		//printf("---------------------------------A  ----rev  %u \r\n",(u16)rev_buf[9]);
 		//printf("---------------------------------B ----rev  %x \r\n",(u16)rev_buf[0]);
 		//clr_rev_buf();
@@ -387,6 +404,10 @@ void prog_play_init()
 	prog_disp_srn=1;
 	prog_exit_timer=PROG_EXIT_TIMER;	
 	prog_first_num=0;
+	prog_mem_full=0;
+
+	prog_next_prev=0;	
+
 	
 	//my_memset(&prog_file_tab[0], 0x0, 20);
 	master_push_cmd(STOP_CMD);
@@ -402,6 +423,8 @@ void prog_play_clear()
 	prog_cur_num=0;	
 	play_prog_mode=0;
 	prog_disp_srn=1;	
+	prog_next_prev=0;	
+	
 }
 void prog_hdlr(u8 key)
 {
@@ -415,30 +438,37 @@ void prog_hdlr(u8 key)
 
 			prog_exit_timer=PROG_EXIT_TIMER;	
 				
-			if(prog_cur_num==0)break;
+			if(prog_next_prev)break;
 			
-			if(prog_total_num<20){
+			if(prog_total_num<=20){
+
+				prog_mem_full=0;
 
 				if(prog_first_num==0){
 					prog_first_num=rev_buf[9];
 				}
 				if((prog_disp_srn==0)){
-					//prog_cur_num=0;
 					prog_disp_srn=1;
+					
 					master_push_cmd(MEM_CMD);
 					//Disp_Con(DISP_PROG_FILENUM);
+					if(prog_total_num==20){
+						prog_mem_full=1;
+						Disp_Con(DISP_PROG_FILENUM);	
+					}						
 				}
 			}
+
 			break;		
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
-
+			prog_next_prev=1;	
 			prog_exit_timer=PROG_EXIT_TIMER;	
 			master_push_cmd(NEXT_FILE_CMD);
 			Disp_Con(DISP_PROG_FILENUM);
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
-				
 			prog_exit_timer=PROG_EXIT_TIMER;	
+			prog_next_prev=1;	
 			master_push_cmd(PREV_FILE_CMD);
 			Disp_Con(DISP_PROG_FILENUM);			
 			break;
@@ -580,12 +610,15 @@ void mcu_hdlr( void )
     				disp_play_filenum_timer=DISP_PLAY_TIME;
 					
 				if(adkey_stop_file==1){
-					
+					adkey_stop_file =3;									
 					rev_buf[2]=0;					
 					given_file_number=1;	
 				}
 				else if(adkey_stop_file==2){
-					//given_file_number =prog_first_num;						
+
+					master_push_cmd(NUM_0_CMD|(rev_buf[2]+1));				
+					given_file_number =rev_buf[2];		
+					adkey_stop_file =3;									
 				}	
 				
 				if(prog_icon_bit==1){
@@ -596,7 +629,7 @@ void mcu_hdlr( void )
 					else
 						given_file_number=1;
 				}				
-				adkey_stop_file=0;
+				//adkey_stop_file=0;
 		              Disp_Con(DISP_FILENUM);	
 			}			
 			set_sys_vol(my_music_vol);
@@ -610,12 +643,13 @@ void mcu_hdlr( void )
 				prog_cur_num=0;
 				prog_disp_srn=1;					
 #endif
+				adkey_stop_key_timer=3;
 				adkey_stop_file=1;
 			       play_mode = REPEAT_OFF;
 			       Mute_Ext_PA(MUTE);
 				cd_play_status=MUSIC_STOP;	
-				master_push_cmd(REP_OFF_CMD);				
 				master_push_cmd(STOP_CMD);
+				master_push_cmd(REP_OFF_CMD);				
 	                    	Disp_Con(DISP_DWORD_NUMBER);		
 			}
 			break;
@@ -624,13 +658,13 @@ void mcu_hdlr( void )
 			Mute_Ext_PA(MUTE);	
 			master_push_cmd(NEXT_FILE_CMD);
     			disp_play_filenum_timer=DISP_PLAY_TIME;
-			adkey_stop_file=18;
+			adkey_stop_file=2;
 			dac_mute_control(0, 1);	
 			set_sys_vol(my_music_vol);			
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
 			next_prev_key_timer =3;				
-			adkey_stop_file=18;
+			adkey_stop_file=2;
 			Mute_Ext_PA(MUTE);					
 			master_push_cmd(PREV_FILE_CMD);
 			dac_mute_control(0, 1);	
@@ -746,6 +780,7 @@ void mcu_hdlr( void )
 				}
 			}
 
+#if 0
 			if(adkey_stop_file>1){
 				adkey_stop_file--;
 				if(adkey_stop_file==1){
@@ -757,13 +792,22 @@ void mcu_hdlr( void )
 				}
 
 			}
+#endif			
 			if(next_prev_key_timer>0){
 				next_prev_key_timer--;
+				if(next_prev_key_timer==1){
+		              	Disp_Con(DISP_FILENUM);	
+					adkey_stop_file=2;
+				}
 			}
 				
 			if(next_prev_key_timer==0){					
 				if((cd_play_status== MUSIC_PLAY)){
-					Mute_Ext_PA(UNMUTE);					
+					Mute_Ext_PA(UNMUTE);		
+
+					if(adkey_stop_file>0)
+						adkey_stop_file--;				
+
 				}
 			}
 
@@ -819,7 +863,8 @@ void mcu_hdlr( void )
 			  	
 	                	if ((DISP_DWORD_NUMBER != curr_menu)&&(toc_flag)&&(adkey_stop_file<2))
 	                    		Disp_Con(DISP_DWORD_NUMBER);
-						
+	                	else if ((DISP_DWORD_NUMBER != curr_menu)&&(toc_flag)&&(adkey_stop_file==2))
+	                    		Disp_Con(DISP_FILENUM);
 			  }
 	            }
 	            break;

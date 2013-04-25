@@ -51,6 +51,7 @@ u8 _code id3_tag[3][5] =
 /*----------------------------------------------------------------------------*/
 u8 compare_str(u8  * buf) large
 {
+#if 0
     u8 i,j;
     for (j = 0;j < MAX_ID3; j++)
     {
@@ -71,6 +72,7 @@ u8 compare_str(u8  * buf) large
             }
         }
     }
+#endif	
     return 0;
 
 }
@@ -101,6 +103,8 @@ u8 f_seek(u8 type, u32 offset) large
 /*----------------------------------------------------------------------------*/
 void ff_id3v2_get_tag(u8 *buf, u32 len)
 {
+#if 0
+
     u8 c;
     u8 t;
     u8 i;
@@ -153,6 +157,8 @@ void ff_id3v2_get_tag(u8 *buf, u32 len)
 
     }
     f_seek(SEEK_CUR, len - t);
+
+	#endif
 }
 
 /*----------------------------------------------------------------------------*/
@@ -164,6 +170,7 @@ void ff_id3v2_get_tag(u8 *buf, u32 len)
 /*----------------------------------------------------------------------------*/
 void get_filetag(u8 _xdata * buffer)
 {
+#if 0
     u8 * _xdata p;
     id3_get = 0;
     my_memset(filename_buff, 0, 100);
@@ -221,5 +228,5 @@ void get_filetag(u8 _xdata * buffer)
         my_memcpy(filename_buff + filename_len,p+1,p[0]);
         filename_len += p[0];
     }
-
+#endif
 }

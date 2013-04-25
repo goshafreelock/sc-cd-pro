@@ -58,6 +58,7 @@ extern bool radio_st_ind;
 #ifdef USE_USB_SD_DECODE_FUNC	       
 extern bool folder_mode_select;
 #endif
+extern bool prog_mem_full;
 
 #if defined(USE_BAT_MANAGEMENT)
 extern void Bat_icon_chk(void);
@@ -135,12 +136,20 @@ void Disp_prog_num(void)
 	if(work_mode == SYS_MCU_CD){
 #if 1
 		if(prog_disp_srn){
-			printf_char('P',1);
-			printf_num(prog_total_num,2,2);
+			
+			if(prog_mem_full){
+		    		//printf_str("FUL",1);
+		    		printf_str("---",1);					
+			}	
+			else{			
+				printf_char('P',1);
+				printf_num(prog_total_num,2,2);
+			}
 		}
 		else{
 
-			if(prog_total_num==20){
+			if(prog_mem_full){
+			//if(prog_total_num==20){
 		    		//printf_str("FUL",1);
 		    		printf_str("---",1);
 			}
@@ -166,12 +175,20 @@ void Disp_prog_num(void)
 
 #if 1
 		if(prog_disp_srn){
-			printf_char('P',1);
-			printf_num(usb_prog_total_num,2,2);
+			
+			if(prog_mem_full){
+		    		//printf_str("FUL",1);
+		    		printf_str("---",1);					
+			}	
+			else{
+				printf_char('P',1);
+				printf_num(usb_prog_total_num,2,2);
+			}
 		}
 		else{
 
-			if(usb_prog_total_num==20){
+			if(prog_mem_full){
+			//if(usb_prog_total_num==20){
 		    		//printf_str("FUL",1);
 		    		printf_str("---",1);					
 			}
@@ -246,7 +263,11 @@ void Disp_Vol(void)
 	printf_char('V',1);
 	printf_num(my_music_vol,2,2);
 
-	if((work_mode ==SYS_FMREV)||(work_mode ==SYS_AMREV)){
+	if((work_mode ==SYS_FMREV)
+#ifdef AM_RADIO_FUNC		
+	||(work_mode ==SYS_AMREV)
+#endif
+	){
 
 		disp_icon(ICON_TUNER);			
 	}	
@@ -743,6 +764,7 @@ void custom_buf_update(void)
 
 			disp_clr_icon(ICON_PLAY);		
 	}
+#ifdef AM_RADIO_FUNC			
 	else if(work_mode ==SYS_AMREV){
 		
 		if(radio_prog_spark){			
@@ -750,11 +772,13 @@ void custom_buf_update(void)
 		}
 		else{
 			disp_clr_flash_icon(ICON_PROG);		
-		}
+		}
+
 		
 		disp_clr_icon(ICON_PLAY);		
 		disp_clr_icon(ICON_RADIO_ST);	
 	}
+#endif
 #endif
 
 #ifdef FLASH_PLAY_ICON_WHEN_PAUSE
