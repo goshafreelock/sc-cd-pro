@@ -15,6 +15,10 @@
 #include "RDA5807.h"
 #include "iic.h"
 
+#ifdef RADIO_ST_INDICATOR
+extern bool radio_st_ind;
+#endif
+
 //FM_RDA5807_VAR _xdata FM_rda5807_var;
 xd_u8 _idata rda5807_dat[12];
 xd_u8 _xdata read_dat[10];
@@ -417,10 +421,16 @@ bool set_fre_RDA5807(u16 fre)
 		//delay_n10ms(1);
 		if(rda5807_true())
 		{
+#ifdef RADIO_ST_INDICATOR
+		     	radio_st_ind=1;
+#endif		
 		    return 1;
 		}
 	}while(i<2);
-    
+
+#ifdef RADIO_ST_INDICATOR
+	radio_st_ind=0;
+#endif		
     return 0;
 }
 

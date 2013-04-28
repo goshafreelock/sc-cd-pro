@@ -19,6 +19,7 @@ u8 clock_change_delay;
 extern void lcd_power_down(void);
 extern void sys_init(void);
 extern void sys_info_init(void);
+extern void radio_rev_standby(void);
 /*----------------------------------------------------------------------------*/
 /**@brief 系统进入省电(sleep)模式
    @param 无
