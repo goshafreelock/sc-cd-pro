@@ -389,7 +389,7 @@ void radio_band_hdlr()
 #ifdef AM_RADIO_FUNC
 	load_band_info();
 	KT_AMFMSetMode(cur_sw_fm_band);	
-#else
+#endif
 	Current_Band.Band=FM_MODE;
 	Current_Band.MAX_CH=FM_MAX_CH-1;
 
@@ -842,9 +842,9 @@ void fm_hdlr( void )
 	       timer_pwr_off_hdlr();
 #endif
 
-#ifdef RADIO_ST_INDICATOR
-	 	KT_Radio_ST_Check();
-#endif
+//#ifdef RADIO_ST_INDICATOR
+	 	//KT_Radio_ST_Check();
+//#endif
 
 	    if(adkey_detect){
 	   	    adkey_detect=0;
