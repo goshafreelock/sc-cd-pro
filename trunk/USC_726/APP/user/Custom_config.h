@@ -136,7 +136,7 @@
 
 #ifdef JK_CD_HYH_728_V001
 
-#define REMOVE_USE_MODE
+//#define REMOVE_USE_MODE
 
 #define WKUP_PIN_USE_ENABLE
 #define BACK_LIGHT_GPIO_PORT_WKUP
@@ -191,7 +191,10 @@
 #define CUSTOMED_KEY_FORCED_INIT_PRESET
 
 #define USE_AUX_FUNC
+
 #endif
+
+
 #if 0
 
 #if 0//def JK_CD_ZG_KS218_V001
