@@ -566,7 +566,7 @@ u8 ap_handle_hotkey(u8 key)
 	dac_mute_control(0, 1);	
 	set_sys_vol(my_music_vol);
 	
-	write_info(MEM_VOL, music_vol);
+	//write_info(MEM_VOL, music_vol);
 
 	//write_info(MEM_VOL, music_vol);
 	
