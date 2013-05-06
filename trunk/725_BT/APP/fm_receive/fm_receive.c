@@ -750,6 +750,7 @@ void fm_hdlr( void )
        aux_channel_crosstalk_improve(DAC_AMUX1);
 	set_sys_vol(my_music_vol);
 	delay_10ms(10);
+    	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
 	
 	Mute_Ext_PA(UNMUTE);
 
@@ -839,7 +840,7 @@ void fm_hdlr( void )
 #endif
 
 #if defined(USE_TIMER_POWER_OFF_FUNC)
-	       timer_pwr_off_hdlr();
+	     timer_pwr_off_hdlr();
 #endif
 
 //#ifdef RADIO_ST_INDICATOR
