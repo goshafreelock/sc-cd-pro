@@ -406,6 +406,9 @@ bool set_fre_RDA5807(u16 fre)
     u8 i;
     
     i = 0;
+#ifdef RADIO_ST_INDICATOR
+	radio_st_ind=0;
+#endif		
 
     pll = ((fre/10)-870);
     rda5807_dat[2] = pll >> 2;
@@ -416,21 +419,20 @@ bool set_fre_RDA5807(u16 fre)
     
 	do
 	{
-        rda5807_read(4);
-		i++;
+        	rda5807_read(4);
+		 i++;
 		//delay_n10ms(1);
 		if(rda5807_true())
 		{
 #ifdef RADIO_ST_INDICATOR
-		     	radio_st_ind=1;
+			if(rda5807_st()){
+			     	radio_st_ind=1;
+			}
 #endif		
 		    return 1;
 		}
 	}while(i<2);
 
-#ifdef RADIO_ST_INDICATOR
-	radio_st_ind=0;
-#endif		
     return 0;
 }
 
