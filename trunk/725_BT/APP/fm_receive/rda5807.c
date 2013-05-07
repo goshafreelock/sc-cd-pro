@@ -23,6 +23,7 @@ extern bool radio_st_ind;
 xd_u8 _idata rda5807_dat[12];
 xd_u8 _xdata read_dat[10];
 u8 _xdata fm_type;
+bool radio_st_mono_swither=0;
 
 /*--------------RDA5807SP Initial Table----------------*/
 u8 _code rda5807sp[]= {
@@ -50,8 +51,8 @@ u8 _code rda5807sp[]= {
     0x90, 0x00,
     0xF5, 0x87,
     0x7F, 0x0B, //13H:
-	0x04, 0xF1,
-	0x5E, 0xc0, //15H: 0x42, 0xc0
+    0x04, 0xF1,
+    0x5E, 0xc0, //15H: 0x42, 0xc0
     0x41, 0xe0,
     0x50, 0x6f,
     0x55, 0x92,
@@ -342,6 +343,8 @@ bool RDA5807_Read_ID(void)
 bool  init_RDA5807(void)
 {
 	u8 i;
+	
+	radio_st_mono_swither =1;
 
 	if(RDA5807_Read_ID()==0){
 		return 0;
@@ -426,7 +429,8 @@ bool set_fre_RDA5807(u16 fre)
 		{
 #ifdef RADIO_ST_INDICATOR
 			if(rda5807_st()){
-			     	radio_st_ind=1;
+				if(radio_st_mono_swither)
+			     		radio_st_ind=1;
 			}
 #endif		
 		    return 1;
@@ -467,6 +471,19 @@ void RDA5807_mute(u8 dir)
 	else 
 	{	 
 		rda5807_dat[0] |= 0x40;// mute off
+	}
+	
+	rda5807_write(2);
+}
+void RDA5807_ST_MONO_Swither(bool sw)
+{
+	if(sw)
+	{ 
+		rda5807_dat[0] &= ~0x20;// ST
+	}
+	else 
+	{	 
+		rda5807_dat[0] |= 0x20;// MONO
 	}
 	
 	rda5807_write(2);

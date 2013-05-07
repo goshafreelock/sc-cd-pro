@@ -24,6 +24,7 @@ void RDA5807_PowerDown(void);
 void RDA5807_mute(u8 dir);
 bool RDA5807_Read_ID(void);
 void RDA5807_setch(u8 db);
+void RDA5807_ST_MONO_Swither(bool sw);
 
 extern u8 _idata rda5807_dat[12];
 extern u8 _xdata read_dat[10];
