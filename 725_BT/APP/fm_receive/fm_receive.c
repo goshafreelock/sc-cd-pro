@@ -799,6 +799,13 @@ void fm_hdlr( void )
 		break;
 #endif
 
+#ifdef RADIO_PLAY_KEY_FORCE_ST_MONO
+	case INFO_PLAY |KEY_SHORT_UP:
+		radio_force_st_mono();
+             	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
+		break;
+#endif
+
 #ifdef SEMI_AUTO_SCAN_FUNC
         case SEMI_AUTO_SCAN_KEY_UP:			
 		semi_auto_scan(SEARCH_UP);

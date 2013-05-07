@@ -34,6 +34,7 @@ typedef struct{
 
 bool radio_dev_init(void);
 void radio_rev_standby(void);
+void radio_force_st_mono(void);
 void save_fre(u16 fre);
 #endif
 
