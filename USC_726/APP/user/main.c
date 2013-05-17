@@ -502,12 +502,19 @@ void sys_init(void)
 	Disp_Con(DISP_SCAN_DISK);
 
     }
-    else if ((work_mode  == SYS_FMREV)||(work_mode == SYS_AMREV)){
-		
+    else if ((work_mode  == SYS_FMREV)
+#ifdef AM_RADIO_FUNC
+		||(work_mode == SYS_AMREV)
+#endif
+	)
+	{
+#ifdef AM_RADIO_FUNC		
 		if(work_mode == SYS_AMREV){
 			cur_sw_fm_band = MW_MODE;
 		}
-		else{
+		else
+#endif			
+		{
 			cur_sw_fm_band = FM_MODE;
 		}
 		Disp_Con(DISP_TUNER);			
