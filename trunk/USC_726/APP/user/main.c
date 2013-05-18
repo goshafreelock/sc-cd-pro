@@ -795,13 +795,15 @@ void main(void)
 	AD_Debug_func();
 #endif
 
+	//enable_erp_2_test_window();
+
 #ifdef SYS_POWER_ON_DEFAULT_IN_RADIO
 	Set_Curr_Func(SYS_FMREV);
 #elif defined(SYS_POWER_ON_DEFAULT_IN_CD)
 	Set_Curr_Func(SYS_MCU_CD);
 #endif
 
-	radio_force_preset=6;
+	radio_force_preset=10*2;
 #ifdef UART_ENABLE
     	printf("------->- SYS INIT   work_mode:%d   \r\n",(u16)work_mode);
 #endif

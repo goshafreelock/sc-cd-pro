@@ -38,6 +38,9 @@ extern bool alarm_on;
 extern xd_u8 my_music_vol,disp_play_filenum_timer;
 extern bool adkey_detect;
 xd_u8 adkey_stop_file=0,adkey_stop_key_timer=0;
+extern xd_u8 radio_force_preset;
+bool cd_open_detect=0,fm_reset_enable=0;
+xd_u8 fm_reset_cnt=0;
 
 TOC_TIME cur_time;
 bool toc_flag=0,send_buf_cmd=0;
@@ -227,7 +230,8 @@ void mcu_master_info_hdlr()
 				Disp_Con(DISP_OPEN);
 				toc_flag=0;
     				fisrt_time_op=1;
-
+				cd_open_detect=1;
+				
 				prog_cur_num=0;	
 				prog_disp_srn=1;				
 				prog_icon_bit=0;
@@ -269,6 +273,8 @@ void mcu_master_info_hdlr()
 				else
 #endif			
 				{
+					fm_reset_enable=0;
+					cd_open_detect=0;
 					if(adkey_stop_file<1)
 						
 		                    	Disp_Con(DISP_FILENUM);	
@@ -832,7 +838,22 @@ void mcu_hdlr( void )
 		    if(adkey_detect){
 		   	    adkey_detect=0;
 		   	    set_sys_vol(my_music_vol);
-		    }		
+		    }
+			
+		    if(fm_reset_enable){
+				fm_reset_cnt++;
+		    }
+		    else{
+				
+				if(fm_reset_cnt>0){
+					fm_reset_cnt--;
+				}
+				else{
+				     	 if(radio_force_preset>0){
+						radio_force_preset--;
+				     	 }
+				}
+		   }
 			
 	            set_brightness_fade_out();
 	            if (return_cnt < RETURN_TIME)
@@ -922,6 +943,9 @@ void mcu_main_hdlr(void)
 	play_prog_mode=0;
 	prog_icon_bit=0;
 #endif	
+	cd_open_detect=0;
+	fm_reset_enable=0;
+	
     	play_mode=REPEAT_OFF;
 }
 #endif

@@ -30,14 +30,14 @@ extern bool adkey_detect;
 xd_u16 aux_erp_timer=0;
 void aux_erp_2_timer_hdlr()
 {
+    	WKUPPND |= BIT(6);  //开VPP的上拉
 
 	erp_2_test_mode_handlr();
-
-    	WKUPPND |= BIT(6);  //开VPP的上拉
 
 	if((WKUPPND&BIT(7))==0){
 
 		aux_erp_timer++;
+		
 		if(aux_erp_timer>=(10*60*2)){
 
     			//CD_PWR_GPIO_OFF();
