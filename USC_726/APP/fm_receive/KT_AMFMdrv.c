@@ -2138,7 +2138,7 @@ void KT_FM_SOFTMUTE(xd_u16 Frequency)
 
 		 //printf("------->-soft   mute     \r\n");
 		regx = KT_Bus_Read(0x0F);       
-		KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x12));		//Write volume to 0	
+		KT_Bus_Write(0x0f, ((regx & 0xFFE0)|0x18));		//Write volume to 0	
 	}
 //	reg4=KT_Bus_Read(0x04);									// FM Softmute Enable
 //	KT_Bus_Write(0x04,reg4 & 0x7FFF);

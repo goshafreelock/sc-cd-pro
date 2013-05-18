@@ -100,6 +100,7 @@ void Mute_Ext_PA(bool M_Type);
 
 void aux_channel_crosstalk_improve(u8 ch_num);
 void erp_2_test_mode_handlr(void);
+void enable_erp_2_test_window(void);
 
 u8 ap_handle_hotkey(u8 msg);
 void rtc_setting_exit(void);

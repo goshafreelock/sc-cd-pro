@@ -41,8 +41,13 @@ bool sys_mute_flag=0;
 xd_u8 key_100_flag=0;
 xd_u8 my_sys_vol=0;
 xd_u8 my_music_vol=0;
+xd_u8 radio_force_preset=0;
+extern xd_u8 curr_menu;
 
 extern bool sys_pwr_flag;
+extern bool cd_open_detect,fm_reset_enable;
+extern xd_u8 fm_reset_cnt;
+
 extern xd_u8 cur_sw_fm_band;
 
 extern void rtc_disp_hdlr(void);
@@ -52,6 +57,7 @@ extern void set_date_sec();
 extern void alm_time_plus();
 extern void alm_time_minus();
 extern void set_alm_sec(void);
+extern void radio_preset_init();
 
 void aux_channel_crosstalk_improve(u8 ch_num)
 {
@@ -147,8 +153,35 @@ void timer_pwr_off_hdlr()
 
 void set_sys_vol(u8 vol)
 {
-	music_vol=vol;
-	main_vol_set(0, SET_USE_CURRENT_VOL);
+	if(work_mode == SYS_AUX){
+
+		if(vol==1){
+			vol= 3;
+		}
+		else if(vol==2){
+			vol= 5;
+		}
+		else if(vol==3){
+			vol= 6;
+		}
+		else if((vol==4)||(vol==5)){
+			vol= 8;
+		}
+		else if((vol==6)||(vol==7)){
+			vol= 9;
+		}		
+		else if((vol==8)||(vol==9)){
+			vol= 10;
+		}
+		
+		music_vol=vol;
+		main_vol_set(0, SET_USE_CURRENT_VOL);		
+	}
+	else
+	{
+		music_vol=vol;
+		main_vol_set(0, SET_USE_CURRENT_VOL);
+	}
 }
 void rtc_setting_exit(void)
 {
@@ -291,21 +324,58 @@ extern xd_u16 usb_erp_timer,aux_erp_timer,erp_timer;
 
 xd_u8 erp2_test_mode_timer=0;
 xd_u8 erp2_test_enable=0;
+xd_u8 erp_2_test_mode_window=0;
+void enable_erp_2_test_window(void)
+{
+	erp_2_test_mode_window=20;		// 10 sec window
+}
 void erp_2_test_mode_enable()
 {
+#if 1
 	erp2_test_enable=2;
+#else
+	if(erp_2_test_mode_window >0){
+		erp_2_test_mode_window=6;
+		erp2_test_enable=2;
+	}
+#endif	
+	if(work_mode == SYS_AUX){
+		
+		if((WKUPPND&BIT(7))>0){
+			erp2_test_mode_timer =0;
+			erp2_test_enable =0;
+		}
+	}
 }
 void erp_2_test_mode_handlr(void)
 {
+#if 0
+	if(erp_2_test_mode_window>0){
+
+		erp_2_test_mode_window--;
+	}
+	else{
+		return ;
+	}
+#endif	
+	
 	if(erp2_test_enable>0){
 
 		erp2_test_enable--;
 		
 		erp2_test_mode_timer++;
-		if(erp2_test_mode_timer>10){
+		
+		if(erp2_test_mode_timer>=20){
+			
+			erp2_test_mode_timer =0;
 			usb_erp_timer=0x1FFF;
 			aux_erp_timer=0x1FFF;
 			erp_timer=0x1FFF;
+			
+#ifdef UART_ENABLE
+    			printf("------->- erp_2_test_mode_handlr   \r\n");
+#endif
+			
 		}
 		else{
 
@@ -384,6 +454,21 @@ u8 ap_handle_hotkey(u8 key)
             return 0;
         }
         break;
+#endif
+
+#ifdef CUSTOMED_KEY_FORCED_INIT_PRESET
+	case INFO_PLAY |KEY_HOLD:
+		if(cd_open_detect){
+			
+			fm_reset_enable = 1;
+			
+			if(fm_reset_cnt>=19){
+				fm_reset_enable =0;
+				fm_reset_cnt=0;
+				radio_preset_init();
+			}
+		}
+		break;
 #endif
 
 #ifdef USE_LINE_IN_DETECT_FUNC

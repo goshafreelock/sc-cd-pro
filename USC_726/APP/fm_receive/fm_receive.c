@@ -46,7 +46,7 @@ xd_u16 REG_MAX_FREQ=0,REG_MIN_FREQ=0;
 xd_u8 sw_fm_pos=0;
 xd_u8 station_save_pos=0,station_sel_pos=0;
 extern xd_u8 my_music_vol;
-xd_u8 radio_force_preset=0;
+extern xd_u8 radio_force_preset;
 
 
 #ifdef RADIO_ST_INDICATOR
@@ -203,13 +203,13 @@ void radio_preset_init()
 {
 	xd_u8 preset_reg=0;
 
-	preset_reg =read_info(MEM_PRESET_REG);
-
 #ifdef CUSTOMED_KEY_FORCED_INIT_PRESET
 	if(radio_force_preset>0){
+		
+		radio_force_preset = 0;
 #else		
+	preset_reg =read_info(MEM_PRESET_REG);
 	if((((preset_reg&PRESET_MASK)==PRESET_OK)&&((preset_reg&PRESET_ZONE_MASK)==gpio_sel_band_info_config))){		
-#endif
 
 #ifdef FM_UART_ENABLE
 	    	printf("------->-station form  epprom    \r\n");
@@ -220,7 +220,9 @@ void radio_preset_init()
 		else if(cur_sw_fm_band==1)
 			load_preset_table(GET_AM_PRESET_FROM_EPPROM);
 	}
-	else{
+	else	{
+#endif
+
 #ifdef FM_UART_ENABLE
 	    	printf("------->-station form  TABLE   \r\n");
 #endif		
@@ -321,7 +323,7 @@ void set_radio_freq(u8 mode,bool disp_pro)
     dac_mute_control(0, 1);	
     set_sys_vol(my_music_vol);
 }
-void radio_band_hdlr()
+void radio_band_hdlr(bool disp_freq)
 {
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
 
@@ -347,6 +349,7 @@ void radio_band_hdlr()
 	 if((frequency > REG_MAX_FREQ)||(frequency < REG_MIN_FREQ))		
 	 	frequency =REG_MIN_FREQ;
 
+	if(disp_freq)
        Disp_Con(DISP_FREQ);
 		
 	station_save_pos=0;
@@ -731,7 +734,7 @@ void fm_hdlr( void )
 		return;
         case INFO_NEXT_FM_MODE:
 		Mute_Ext_PA(MUTE);
-		radio_band_hdlr();
+		radio_band_hdlr(1);
 		Mute_Ext_PA(UNMUTE);		
 		break;
 #ifdef FM_SAVE_STATION_MANUAL
@@ -750,7 +753,7 @@ void fm_hdlr( void )
 		break;
 #endif
 
-#ifdef CUSTOMED_KEY_FORCED_INIT_PRESET
+#if 0//def CUSTOMED_KEY_FORCED_INIT_PRESET
 	case INFO_PLAY |KEY_LONG:
 		radio_preset_init();
 		break;
@@ -948,7 +951,7 @@ void fm_radio(void)
 		}
 #endif
 #endif
-	     	radio_band_hdlr();   
+	     	radio_band_hdlr(0);   
 	    	flush_low_msg();
 	    	//Disp_Con(DISP_FREQ);
 		set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置FM模式的音量上限
