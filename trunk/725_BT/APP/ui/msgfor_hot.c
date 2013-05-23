@@ -615,7 +615,7 @@ u8 ap_handle_hotkey(u8 key)
 	
 	dac_mute_control(0, 1);	
 	set_sys_vol(my_music_vol);
-
+#if defined(BLUE_TOOTH_UART_FUNC)			
 	if(work_mode == SYS_BLUE_TOOTH){
 		blue_tooth_uart_release();
 		delay_10ms(1);
@@ -627,6 +627,8 @@ u8 ap_handle_hotkey(u8 key)
 	if(work_mode == SYS_BLUE_TOOTH){
 		blue_tooth_uart_init();
 	}
+#endif	
+	
 #else
 	music_vol=my_music_vol;
 
@@ -665,10 +667,12 @@ u8 ap_handle_hotkey(u8 key)
     case INFO_POWER | KEY_LONG:	
 	    	Disp_Con(DISP_POWER_OFF);
 			
+#if defined(BLUE_TOOTH_UART_FUNC)			
 		if(work_mode == SYS_BLUE_TOOTH){
 			blue_tooth_uart_release();
 			delay_10ms(1);
-		}			
+		}		
+#endif		
 		sys_power_down();
 		break;
 #if 0		

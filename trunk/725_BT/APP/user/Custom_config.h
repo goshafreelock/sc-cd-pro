@@ -129,6 +129,8 @@
 
 //#define EEPROM_RTC_RAM_COMPATIBLE
 
+#define REMOVE_BT_FUNC
+
 
 //#define JK_CD_HYH_727_V001
 #define JK_CD_HYH_728_V001
@@ -179,10 +181,12 @@
 #define FLASH_PLAY_ICON_WHEN_PAUSE
 #define USE_POWER_KEY
 
+#ifndef REMOVE_BT_FUNC
 #define USE_BLUE_TOOTH_FUNC
 #define BLUE_TOOTH_UART_FUNC
 #define BLUETOOTH_CONFIG_DEV_NAME
 
+#endif
 #define USE_RADIO_FUNC
 //#define AM_RADIO_FUNC
 #define AM_FM_BAND_ONLY
