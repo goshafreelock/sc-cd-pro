@@ -152,8 +152,34 @@ void timer_pwr_off_hdlr()
 
 void set_sys_vol(u8 vol)
 {
+	if(work_mode == SYS_AUX){
+
+		if(vol==1){
+			vol= 3;
+		}
+		else if(vol==2){
+			vol= 5;
+		}
+		else if(vol==3){
+			vol= 6;
+		}
+		else if((vol==4)||(vol==5)){
+			vol= 8;
+		}
+		else if((vol==6)||(vol==7)){
+			vol= 9;
+		}		
+		else if((vol==8)||(vol==9)){
+			vol= 10;
+		}
 	music_vol=vol;
 	main_vol_set(0, SET_USE_CURRENT_VOL);
+	}
+	else
+	{
+		music_vol=vol;
+		main_vol_set(0, SET_USE_CURRENT_VOL);
+	}
 }
 void rtc_setting_exit(void)
 {
@@ -307,6 +333,14 @@ xd_u8 erp2_test_enable=0;
 void erp_2_test_mode_enable()
 {
 	erp2_test_enable=2;
+	
+	if(work_mode == SYS_AUX){
+		
+		if((WKUPPND&BIT(7))>0){
+			erp2_test_mode_timer =0;
+			erp2_test_enable =0;
+		}
+	}
 }
 void erp_2_test_mode_handlr(void)
 {

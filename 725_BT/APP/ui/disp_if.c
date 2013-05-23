@@ -731,6 +731,10 @@ void custom_buf_update(void)
 	    		disp_clr_icon(ICON_PLAY);		
 		}			
 	}
+	else if(work_mode ==SYS_AUX){
+		
+    		disp_clr_flash_icon(ICON_PROG);
+	}
 #endif
 
 #ifdef USE_USB_SD_DECODE_FUNC	       

@@ -204,13 +204,12 @@ void radio_preset_init()
 {
 	xd_u8 preset_reg=0;
 
-	preset_reg =read_info(MEM_PRESET_REG);
-
 #ifdef CUSTOMED_KEY_FORCED_INIT_PRESET
 	if(radio_force_preset>0){
+		radio_force_preset = 0;
 #else		
+	preset_reg =read_info(MEM_PRESET_REG);
 	if((((preset_reg&PRESET_MASK)==PRESET_OK)&&((preset_reg&PRESET_ZONE_MASK)==gpio_sel_band_info_config))){		
-#endif
 
 #ifdef FM_UART_ENABLE
 	    	printf("------->-station form  epprom    \r\n");
@@ -222,6 +221,7 @@ void radio_preset_init()
 			load_preset_table(GET_AM_PRESET_FROM_EPPROM);
 	}
 	else{
+#endif
 #ifdef FM_UART_ENABLE
 	    	printf("------->-station form  TABLE   \r\n");
 #endif		
