@@ -538,10 +538,12 @@ void sys_init(void)
     else if (work_mode  == SYS_AUX){
     		Disp_Con(DISP_AUX);
     }	
+#if defined(USE_BLUE_TOOTH_FUNC)			
+	
     else if (work_mode  == SYS_BLUE_TOOTH){
     		Disp_Con(DISP_BT);
     }	
-
+#endif
 	CD_PWR_GPIO_CTRL_INIT();
     	CD_PWR_GPIO_OFF();
 
