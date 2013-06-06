@@ -20,7 +20,7 @@
 /*----------------------------------------------------------------------------*/
 void uartInit(void)
 {
-#if defined (_USE_UART_P0_)||defined(BLUE_TOOTH_UART_FUNC)
+#if (defined (_USE_UART_P0_)||defined(BLUE_TOOTH_UART_FUNC))&&!defined(UART_ENABLE)
     UTBAUD = 0x9c;		//19200
     //UTBAUD = 0x37;		//9600
     P0DIR &= ~(1<<6);

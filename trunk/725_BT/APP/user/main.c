@@ -845,6 +845,10 @@ void main(void)
 #endif					
 #ifdef USE_CD_MCU_MASTER_FUNC
 		    	case SYS_MCU_CD:
+#ifdef UART_ENABLE
+			sys_printf(" SYS_MCU_CD");
+#endif
+					
 				mcu_main_hdlr();
 			break;
 #endif			
@@ -852,18 +856,33 @@ void main(void)
 	        	case SYS_FMREV:
 #ifdef AM_RADIO_FUNC
 	        	case SYS_AMREV:
-#endif					
+#endif			
+
+#ifdef UART_ENABLE
+			sys_printf(" SYS_RADIO_FUNC");
+#endif
+
 	            		fm_radio();
 	            	break;
 #endif					
 #ifdef USE_AUX_FUNC			
 	        	case SYS_AUX:
+
+#ifdef UART_ENABLE
+			sys_printf(" SYS_AUX");
+#endif
+					
 	            		aux_function();
 	            	break;
 #endif			
 
 #ifdef USE_BLUE_TOOTH_FUNC			
     	        	case SYS_BLUE_TOOTH:
+
+#ifdef UART_ENABLE
+			sys_printf(" SYS_BLUE_TOOTH");
+#endif
+						
 	            		Blue_tooth_main();
 	            	break;
 #endif
