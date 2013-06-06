@@ -129,7 +129,7 @@
 
 //#define EEPROM_RTC_RAM_COMPATIBLE
 
-#define REMOVE_BT_FUNC
+//#define REMOVE_BT_FUNC
 
 
 //#define JK_CD_HYH_727_V001

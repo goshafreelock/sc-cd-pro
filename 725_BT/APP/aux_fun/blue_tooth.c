@@ -393,7 +393,7 @@ void Blue_tooth_hdlr( void )
 			 if(wait_for_dev_connect){
 				wait_for_dev_connect =0;
 				promt_dev_disconnect = 0;
-				activate_beep_ind(BT_CONECTED_AVRCP);
+				//activate_beep_ind(BT_CONECTED_AVRCP);
 			 }
 		}	
 #endif		
@@ -407,7 +407,7 @@ void Blue_tooth_hdlr( void )
 		 
 	     bt_disconnect_power_hldr();
 	     ///delay_mute_handler();
-    	     bluetooth_standby_beep();
+    	     //bluetooth_standby_beep();
 
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
             updata_fat_memory();
@@ -497,7 +497,7 @@ void Blue_tooth_main(void)
        Mute_Ext_PA(MUTE);
 		
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
-	//BT_PWR_GPIO_OFF();
+	BT_PWR_GPIO_OFF();
 	
 }
 #endif

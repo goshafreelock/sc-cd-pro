@@ -6,17 +6,21 @@
 
 void blue_tooth_uart_init()
 {
+#ifndef UART_ENABLE
 	sysclock_div2(1);
 	uartInit();
 	PUART=1;
 	//putbyte('H');	
 	//putbyte('S');	
 	delay_10ms(1);
+#endif	
 }
 void blue_tooth_uart_release()
 {
+#ifndef UART_ENABLE
 	UTCON = 0x00;
 	PUART=0;
+#endif	
 }
 bool bt_frame_rev_finished=0;
 xd_u8  uart_rev=0;
