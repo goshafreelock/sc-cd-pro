@@ -44,13 +44,11 @@ typedef enum{
 	USB_DEV,
 	SD_DEV,
 
-
-	AUX_DEV,
-
 #ifdef USE_BLUE_TOOTH_FUNC			
 	BT_DEV,
 #endif
-
+	AUX_DEV,
+	
 #if defined(IPONE_INDEPENDENT_MODE)	
 	IPH_DEV,
 #endif	
