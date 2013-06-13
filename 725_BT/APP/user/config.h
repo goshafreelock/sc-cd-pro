@@ -46,12 +46,10 @@ typedef enum
     SYS_MP3DECODE_USB,
     SYS_MP3DECODE_SD,
 
-    SYS_AUX,
-
 #ifdef USE_BLUE_TOOTH_FUNC			
     SYS_BLUE_TOOTH,
 #endif
-
+    SYS_AUX,
 
 #if defined(IPONE_INDEPENDENT_MODE)	
     SYS_IPH,

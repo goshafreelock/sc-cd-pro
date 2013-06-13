@@ -25,6 +25,18 @@ extern u8 xdata last_work_mode;
 extern bool alarm_on;
 extern xd_u8 my_music_vol;
 extern bool adkey_detect;
+xd_u8 unmute_delay_timer=0;
+
+#if defined(BLUE_TOOTH_UART_FUNC)
+#include "blue_tooth.h"
+extern bool bt_frame_rev_finished;
+extern xd_u8 rev_bluetooth_status;
+
+extern void blue_tooth_uart_init();
+extern void blue_tooth_uart_release();
+extern void promt_bt_cmd(AT_PROMPT_CMD cmd);
+extern u8 bluetooth_cmd_parse(void);
+#endif
 
 #ifdef USE_ERP_2_HDLR
 xd_u16 aux_erp_timer=0;
@@ -63,18 +75,41 @@ void aux_erp_2_timer_hdlr()
 /*----------------------------------------------------------------------------*/
 void deal_aux( void )
 {
-    u8 key;
+    u8 cmd_key,key;
+	
+#if defined(BLUE_TOOTH_UART_FUNC)
+    blue_tooth_uart_init();
+    promt_bt_cmd(BT_DISPAIR);			
+    unmute_delay_timer=5;
+#endif
 
     aux_channel_crosstalk_improve(DAC_AMUX0);
-    delay_10ms(60);	
-    Mute_Ext_PA(UNMUTE);
-	
+   // delay_10ms(60);	
+    //Mute_Ext_PA(UNMUTE);
+
     while (1)
     {
         	dac_out_select(DAC_AMUX0);
 		//suspend_sdmmc();
 		
 		key = get_msg();
+#if defined(BLUE_TOOTH_UART_FUNC)
+
+		if(bt_frame_rev_finished){
+
+			bt_frame_rev_finished=0;
+			cmd_key = bluetooth_cmd_parse();
+
+			//printf("bluetooth_cmd_parse    cmd_key %x \r\n",(u16)cmd_key);
+			
+			if(cmd_key<BT_ACK){
+				rev_bluetooth_status = cmd_key;
+			}
+			else if(cmd_key==BT_ACK){
+				
+			}
+		}
+#endif		
 		
 		if(dac_cnt > 20)
 		{
@@ -85,6 +120,14 @@ void deal_aux( void )
         {
         case INFO_NEXT_SYS_MODE:
 		return;        
+        case INFO_250_MS :
+		
+		if((rev_bluetooth_status==BT_DISCONECT_A2DP)||(rev_bluetooth_status==BT_DISCONECT_AVRCP)){
+		}
+		else if((rev_bluetooth_status==BT_CONECTED_A2DP)||(rev_bluetooth_status==BT_CONECTED_AVRCP)){
+			promt_bt_cmd(BT_DISPAIR);			
+		}	
+		break;		
         case INFO_HALF_SECOND :
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))           
             updata_fat_memory();
@@ -109,6 +152,12 @@ void deal_aux( void )
                 return_cnt++;
             }
 
+	     if(unmute_delay_timer>0){
+			unmute_delay_timer--;
+			if(unmute_delay_timer==0)
+				Mute_Ext_PA(UNMUTE);
+	     }
+		 
             if (RETURN_TIME == return_cnt)
             {
                 if (DISP_DWORD_NUMBER == curr_menu)
@@ -167,8 +216,12 @@ void aux_function(void)
 
 	Mute_Ext_PA(MUTE);
 	
+#if defined(BLUE_TOOTH_UART_FUNC)
+	blue_tooth_uart_release();
+#endif
+	
 	AUX_PWR_GPIO_OFF();				
-	//BT_PWR_GPIO_OFF();
+	BT_PWR_GPIO_OFF();
 	
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
 }

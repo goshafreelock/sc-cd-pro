@@ -479,6 +479,7 @@ void Blue_tooth_main(void)
 #endif	
 	bt_play_status=BT_STA_STOP;
        rev_bluetooth_status=BT_POWER_ON;
+
 	   	
        Mute_Ext_PA(MUTE);
 
@@ -486,7 +487,7 @@ void Blue_tooth_main(void)
 	sysclock_div2(1);
     	flush_low_msg();
     	Disp_Con(DISP_BT);
-	delay_10ms(60);		
+	delay_10ms(20);		
 	set_max_vol(MAX_ANALOG_VOL, MAX_DIGITAL_VOL);			//设置AUX模式的音量上限
     	Blue_tooth_hdlr();
 
@@ -497,7 +498,7 @@ void Blue_tooth_main(void)
        Mute_Ext_PA(MUTE);
 		
 	main_vol_set(0, CHANGE_VOL_NO_MEM);
-	BT_PWR_GPIO_OFF();
+	//BT_PWR_GPIO_OFF();
 	
 }
 #endif
