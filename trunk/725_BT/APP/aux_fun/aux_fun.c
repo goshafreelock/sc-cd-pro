@@ -80,12 +80,13 @@ void deal_aux( void )
 #if defined(BLUE_TOOTH_UART_FUNC)
     blue_tooth_uart_init();
     promt_bt_cmd(BT_DISPAIR);			
-    unmute_delay_timer=5;
+    unmute_delay_timer=6;
 #endif
 
     aux_channel_crosstalk_improve(DAC_AMUX0);
    // delay_10ms(60);	
     //Mute_Ext_PA(UNMUTE);
+    set_sys_vol(0);	
 
     while (1)
     {
@@ -140,7 +141,7 @@ void deal_aux( void )
 	       timer_pwr_off_hdlr();
 #endif
 #ifdef USE_ERP_2_HDLR
-	aux_erp_2_timer_hdlr();
+		aux_erp_2_timer_hdlr();
 #endif
 	    if(adkey_detect){
 	   	    adkey_detect=0;
@@ -154,8 +155,11 @@ void deal_aux( void )
 
 	     if(unmute_delay_timer>0){
 			unmute_delay_timer--;
-			if(unmute_delay_timer==0)
+			if(unmute_delay_timer==0){
+	   	    		set_sys_vol(my_music_vol);
+				delay_10ms(10);
 				Mute_Ext_PA(UNMUTE);
+			}
 	     }
 		 
             if (RETURN_TIME == return_cnt)
@@ -206,6 +210,7 @@ void aux_function(void)
 	    }
 #endif	
 	Mute_Ext_PA(MUTE);
+       aux_channel_crosstalk_improve(DAC_AMUX1);
 	BT_PWR_GPIO_ON();
 	AUX_PWR_GPIO_ON();		
 	sysclock_div2(1);
