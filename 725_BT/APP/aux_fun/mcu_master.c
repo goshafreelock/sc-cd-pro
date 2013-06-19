@@ -41,20 +41,28 @@ xd_u8 adkey_stop_file=0,adkey_stop_key_timer=0;
 
 TOC_TIME cur_time;
 bool toc_flag=0,send_buf_cmd=0;
-xd_u8 fast_fr_release_cnt=0;
+xd_u8 ffr_cmd=0,fast_fr_release_cnt=0;
 xd_u16 send_buf=0;
 xd_u8 rev_buf[10]={0};
+xd_u8 cd_prog_buf[20]={0};
 
 #define DISP_PLAY_TIME		10
 
 bool prog_mem_full=0;
+bool cd_cmd_full=0;
 
 #ifdef USE_PROG_PLAY_MODE
-bool play_prog_mode=0,prog_icon_bit=0,prog_disp_srn=0,prog_next_prev=0;
+bool play_prog_mode=0,prog_icon_bit=0,prog_disp_srn=0,prog_next_prev=0,sel_next_prev=0;
 xd_u8 prog_total_num=0,prog_cur_num=0,prog_first_num=0;
 xd_u8 prog_exit_timer=0;
+xd_u8 total_file_num=0,prog_cmd_cnt=0;
 #endif
 
+void master_clr_cmd(void)
+{
+	cd_cmd_full=0;		
+	send_buf=0x0000;
+}
 void master_push_cmd(u8 cmd)
 {
 	xd_u16 cmd_reg=0;
@@ -68,6 +76,7 @@ void master_push_cmd(u8 cmd)
 	else if(((send_buf&0xFF00)==0)&&((send_buf&0x00FF)>0)){
 
 		send_buf|=cmd_reg<<8;
+		cd_cmd_full=1;		
 	}	
 #ifdef CD_UART_ENABLE	
 	printf("----------------->> master_push_cmd   %x    \r\n",send_buf);
@@ -80,7 +89,7 @@ u8 master_pop_cmd(void)
 	if(send_buf>0){
 		r_reg = (u8)(send_buf&0x00FF);
 		send_buf = send_buf>>8;			
-
+		cd_cmd_full=0;		
 		if(send_buf==0){
 			send_buf_cmd=0;
 		}
@@ -119,8 +128,27 @@ void mcu_master_info_hdlr()
 
 		fast_fr_release_cnt--;
 		if(fast_fr_release_cnt==0){
+
+			ffr_cmd =0;
+			
+			master_clr_cmd();
+			master_push_cmd(FFR_OFF_CMD);
 			master_push_cmd(FFR_OFF_CMD);
 		}
+
+		if(ffr_cmd>0){
+
+			master_clr_cmd();
+			if(ffr_cmd==1){
+				master_push_cmd(FAST_F_CMD);
+				master_push_cmd(FAST_F_CMD);
+			}
+			else{
+				master_push_cmd(FAST_R_CMD);
+				master_push_cmd(FAST_R_CMD);
+			}
+				
+		}		
 	}
 
 	info_dispatch_div++;
@@ -152,6 +180,7 @@ void mcu_master_info_hdlr()
  			if(info_timer_stop++>2){
 			
 				if(cd_play_status!=MUSIC_STOP){
+					given_file_number=1;
 					cd_play_status=MUSIC_STOP;
 				}
 			}
@@ -227,6 +256,7 @@ void mcu_master_info_hdlr()
 				Disp_Con(DISP_OPEN);
 				toc_flag=0;
     				fisrt_time_op=1;
+				given_file_number=1;
 
 				prog_cur_num=0;	
 				prog_disp_srn=1;				
@@ -257,21 +287,49 @@ void mcu_master_info_hdlr()
 
 			if(given_file_number!=rev_buf[2]){
 				
-				given_file_number=rev_buf[2];
+				//given_file_number=rev_buf[2];
 				
 #ifdef USE_PROG_PLAY_MODE
 				if(play_prog_mode){
 					if(prog_cur_num!=rev_buf[2]){
-						prog_cur_num=rev_buf[2];
-			                    		Disp_Con(DISP_PROG_FILENUM);
+						//prog_cur_num=rev_buf[2];
+			                    	//Disp_Con(DISP_PROG_FILENUM);
 					}
 				}
 				else
 #endif			
 				{
-					if(adkey_stop_file<1)
+					if(sel_next_prev){
 						
-		                    	Disp_Con(DISP_FILENUM);	
+					if(given_file_number>rev_buf[2]){
+								
+						master_push_cmd(NEXT_FILE_CMD);
+					}
+					else{
+								
+						master_push_cmd(PREV_FILE_CMD);
+						}
+					}
+					else{
+						given_file_number=rev_buf[2];						
+					}
+
+					//printf("-------------->>>>>rev %d... %d \r\n",(u16)rev_buf[2],(u16)given_file_number);
+							//prog_cmd_cnt=0;
+					prog_cmd_cnt=0;		
+					if(adkey_stop_file<1){
+		                    		Disp_Con(DISP_FILENUM);	
+					}									
+				}
+			}
+			else{
+
+				if(sel_next_prev){
+					
+					if(prog_cmd_cnt++>2){
+						sel_next_prev =0;
+						master_clr_cmd();
+					}
 				}
 			}
 		}
@@ -283,9 +341,10 @@ void mcu_master_info_hdlr()
 
 				if(cfilenum!=rev_buf[5]){
 					cfilenum=rev_buf[5];
-					if(cfilenum>0)
-	                    		Disp_Con(DISP_DWORD_NUMBER);
-
+					if(cfilenum>0){
+       					total_file_num=rev_buf[5];
+	                    			Disp_Con(DISP_DWORD_NUMBER);
+					}
 				}
 			}
 		}
@@ -302,13 +361,36 @@ void mcu_master_info_hdlr()
 			if(rev_buf[9]!=0xff){			
 				
 				if(prog_next_prev){
-					prog_next_prev=0;
+					//prog_next_prev=0;
 					//if(prog_disp_srn)
 					{
-						prog_disp_srn=0;					
-						prog_cur_num = rev_buf[9];
-					
-						Disp_Con(DISP_PROG_FILENUM);				
+						if(rev_buf[9]!=prog_cur_num){
+							
+							if(prog_cur_num>rev_buf[9]){
+								
+								master_push_cmd(NEXT_FILE_CMD);
+							}
+							else{
+								
+								master_push_cmd(PREV_FILE_CMD);
+							}
+
+							//printf("-------------->>>>>rev %d... %d \r\n",(u16)rev_buf[9],(u16)prog_cur_num);
+							prog_cmd_cnt=0;
+						}
+						else{
+
+							if(prog_cmd_cnt++>2){
+								prog_next_prev=0;
+							}
+							master_clr_cmd();
+						}
+#if 0						
+						//prog_disp_srn=0;					
+						//prog_cur_num = rev_buf[9];
+						
+						//Disp_Con(DISP_PROG_FILENUM);
+#endif
 					}
 				}
 			}
@@ -408,6 +490,11 @@ void prog_play_init()
 
 	prog_next_prev=0;	
 
+	given_file_number=1;
+
+	my_memset(&cd_prog_buf[0], 0x0, 10);
+
+       total_file_num=rev_buf[5];
 	
 	//my_memset(&prog_file_tab[0], 0x0, 20);
 	master_push_cmd(STOP_CMD);
@@ -450,6 +537,13 @@ void prog_hdlr(u8 key)
 				if((prog_disp_srn==0)){
 					prog_disp_srn=1;
 					
+					prog_cur_num =1;
+					cd_prog_buf[prog_total_num-1]=rev_buf[9];
+#if 0					
+					printf("--->>>>>rev  %d \r\n",(u16)prog_total_num);
+					printf("--->>>>>rev  %d \r\n",(u16)rev_buf[9]);
+					printf("--->>>>>rev  %d \r\n",(u16)cd_prog_buf[prog_total_num-1]);
+#endif				
 					master_push_cmd(MEM_CMD);
 					//Disp_Con(DISP_PROG_FILENUM);
 					if(prog_total_num==20){
@@ -461,15 +555,37 @@ void prog_hdlr(u8 key)
 
 			break;		
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
-			prog_next_prev=1;	
+
+			if(cd_cmd_full)break;
 			prog_exit_timer=PROG_EXIT_TIMER;	
+			prog_next_prev=1;	
+
 			master_push_cmd(NEXT_FILE_CMD);
+			
+			if(prog_cur_num<total_file_num){
+				prog_cur_num++;
+			}
+			else{
+				prog_cur_num =1;
+			}
+
+			prog_disp_srn=0;								
 			Disp_Con(DISP_PROG_FILENUM);
 			break;
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
+			if(cd_cmd_full)break;
+				
 			prog_exit_timer=PROG_EXIT_TIMER;	
 			prog_next_prev=1;	
+			
 			master_push_cmd(PREV_FILE_CMD);
+			prog_cur_num--;
+			
+			if((prog_cur_num==0)||(prog_cur_num>total_file_num)){
+				prog_cur_num =total_file_num;
+			}
+			
+			prog_disp_srn=0;								
 			Disp_Con(DISP_PROG_FILENUM);			
 			break;
 	        case INFO_POWER| KEY_SHORT_UP:
@@ -573,6 +689,7 @@ void mcu_hdlr( void )
 #endif			
 			return;
 	        case INFO_PLAY | KEY_SHORT_UP :
+			if(cd_cmd_full)break;
 
 			if(!toc_flag)break;		//2 TOC  NOT READY
 
@@ -628,6 +745,7 @@ void mcu_hdlr( void )
 						given_file_number =prog_first_num;
 					else
 						given_file_number=1;
+					prog_cur_num =0;
 				}				
 				//adkey_stop_file=0;
 		              Disp_Con(DISP_FILENUM);	
@@ -638,11 +756,13 @@ void mcu_hdlr( void )
 	        case INFO_STOP| KEY_SHORT_UP :
 			if(toc_flag)
 			{
+				if(cd_cmd_full)break;
 #ifdef USE_PROG_PLAY_MODE
 				play_prog_mode=0;	
 				prog_cur_num=0;
 				prog_disp_srn=1;					
 #endif
+				given_file_number=1;	
 				adkey_stop_key_timer=3;
 				adkey_stop_file=1;
 			       play_mode = REPEAT_OFF;
@@ -656,6 +776,35 @@ void mcu_hdlr( void )
 	        case INFO_NEXT_FIL | KEY_SHORT_UP:
 			next_prev_key_timer =3;
 			Mute_Ext_PA(MUTE);	
+			sel_next_prev=1;	
+
+			if(cd_cmd_full)break;
+
+			if(prog_icon_bit){
+				
+				if(prog_cur_num<(prog_total_num-2)){
+					prog_cur_num++;
+				}
+				else{
+					prog_cur_num =0;
+				}
+				given_file_number =cd_prog_buf[prog_cur_num];
+#if 0
+				printf("--->>>>>rev  %d \r\n",(u16)prog_total_num);
+				printf("--->>>>>rev  %d \r\n",(u16)given_file_number);
+				printf("--->>>>>rev  %d \r\n",(u16)cd_prog_buf[prog_cur_num]);	
+#endif				
+			}
+			else{
+			if(given_file_number<total_file_num){
+				given_file_number++;
+			}
+			else{
+				given_file_number =1;
+				}
+			}
+
+                    	Disp_Con(DISP_FILENUM);	
 			master_push_cmd(NEXT_FILE_CMD);
     			disp_play_filenum_timer=DISP_PLAY_TIME;
 			adkey_stop_file=2;
@@ -665,6 +814,31 @@ void mcu_hdlr( void )
 	        case INFO_PREV_FIL | KEY_SHORT_UP:
 			next_prev_key_timer =3;				
 			adkey_stop_file=2;
+			sel_next_prev=1;	
+			
+			if(cd_cmd_full)break;
+			if(prog_icon_bit){
+				
+				prog_cur_num--;
+				if((prog_cur_num>=(prog_total_num-1))){
+					prog_cur_num =prog_total_num-2;
+				}	
+				given_file_number =cd_prog_buf[prog_cur_num];
+#if 0
+				printf("--->>>>>rev  %d \r\n",(u16)prog_total_num);
+				printf("--->>>>>rev  %d \r\n",(u16)given_file_number);
+				printf("--->>>>>rev  %d \r\n",(u16)cd_prog_buf[prog_cur_num]);		
+#endif				
+			}
+			else{
+				
+				given_file_number--;
+				if((given_file_number==0)||(given_file_number>total_file_num)){
+					given_file_number =total_file_num;
+				}
+			}
+
+                    	Disp_Con(DISP_FILENUM);	
 			Mute_Ext_PA(MUTE);					
 			master_push_cmd(PREV_FILE_CMD);
 			dac_mute_control(0, 1);	
@@ -672,11 +846,15 @@ void mcu_hdlr( void )
 			set_sys_vol(my_music_vol);					
 			break;			
 	        case INFO_NEXT_FIL | KEY_HOLD:
+			if(cd_cmd_full)break;
 			fast_fr_release_cnt=3;
+			ffr_cmd =1;
 			master_push_cmd(FAST_F_CMD);
 			break;
 	        case INFO_PREV_FIL | KEY_HOLD:
+			if(cd_cmd_full)break;
 			fast_fr_release_cnt=3;			
+			ffr_cmd = 2;
 			master_push_cmd(FAST_R_CMD);
 			break;
 #if 0			
@@ -698,6 +876,7 @@ void mcu_hdlr( void )
 #endif							
         	case INFO_PLAY_MODE :
 			if(toc_flag==0)break;
+			if(cd_cmd_full)break;
 
 			//if(prog_icon_bit||play_prog_mode){
 				//break;

@@ -60,6 +60,7 @@ u8 device_init(void)
 				return 0xff;             ///<枚举失败
             }
         }
+#if 0		
         else if (device_active == BIT(SDMMC))
         {
 			if (init_sd())                  ///<sd 卡鉴定
@@ -71,6 +72,7 @@ u8 device_init(void)
 				return 0xff;                       ///<鉴定失败
             }
         }
+#endif		
     }
     if (!f_mount())                                      ///<文件系统初始化
     {

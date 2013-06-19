@@ -317,7 +317,7 @@ void timer1isr(void)
         ms_cnt++;
 
 #ifdef USE_CD_MCU_MASTER_FUNC			
-	 if(ms_cnt%10==0){
+	 if(ms_cnt%5==0){
 		 mcu_master_tranceive_tick=1;
 	 }	 
 #endif
