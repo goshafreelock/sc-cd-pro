@@ -598,18 +598,19 @@ void semi_auto_scan(u8 scan_dir)
 
 	if(radio_get_validstation(frequency))
         {
-            Disp_Con(DISP_FREQ);
-	     break;
+    		flush_all_msg();
+              Disp_Con(DISP_FREQ);
+	       break;
         }
 
     }while(1);
 
    set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
-
    dac_mute_control(0,1);		
    delay_10ms(1);
    Mute_Ext_PA(UNMUTE);            
-   
+   flush_all_msg();
+
 
 }
 #endif
@@ -877,6 +878,7 @@ void fm_hdlr( void )
 #endif            
 	            if (DISP_DWORD_NUMBER == curr_menu)			//数字输入模式
 	            {
+#if 0	            
 	            		if(cur_sw_fm_band !=1){
 					cfilenum = cfilenum*10;
 				}
@@ -887,7 +889,8 @@ void fm_hdlr( void )
 				else{
 	    				Disp_Con(DISP_ERROR);
 				}
-				cfilenum =0;				
+				cfilenum =0;		
+#endif				
 	            }	
 	 	     else if (DISP_FREQ != curr_menu){
 				restore_station_enable=0;

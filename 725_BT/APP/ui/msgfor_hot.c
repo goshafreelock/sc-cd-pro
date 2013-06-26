@@ -615,10 +615,14 @@ u8 ap_handle_hotkey(u8 key)
 	
 	dac_mute_control(0, 1);	
 	set_sys_vol(my_music_vol);
+	
+	delay_10ms(2);
+	flush_all_msg();
+
 #if defined(BLUE_TOOTH_UART_FUNC)			
 	if(work_mode == SYS_BLUE_TOOTH){
 		blue_tooth_uart_release();
-		delay_10ms(1);
+		delay_10ms(2);
 	}
 	//write_info(MEM_VOL, music_vol);
 	
@@ -712,6 +716,7 @@ u8 ap_handle_hotkey(u8 key)
 #endif		
 #endif
 
+#if 0
 #ifdef KEY_100_ENABLE		
    case INFO_100 |KEY_SHORT_UP :
 
@@ -722,7 +727,7 @@ u8 ap_handle_hotkey(u8 key)
        	Disp_Con(DISP_DWORD_NUMBER);
    	}
 	break;
-#endif		
+#endif	
     case INFO_0 | KEY_SHORT_UP :
     case INFO_1 | KEY_SHORT_UP :
     case INFO_2 | KEY_SHORT_UP :
@@ -781,7 +786,7 @@ u8 ap_handle_hotkey(u8 key)
 		sys_mute_flag=~sys_mute_flag;
         	dac_mute_control(sys_mute_flag,1);					//调节音量时，自动UNMUTE
 	break;
-
+#endif
 #if VOICE_TIME_ENABLE    
     case INFO_EQ_UP | KEY_LONG : 
          last_work_mode = work_mode;            
@@ -789,7 +794,7 @@ u8 ap_handle_hotkey(u8 key)
          report_nowtime =1;
          return 0;
 #endif  
-
+#if 0
     	case INFO_EQ_DOWN| KEY_SHORT_UP :
 
 		if(work_mode < SYS_MP3DECODE_SD){
@@ -813,7 +818,8 @@ u8 ap_handle_hotkey(u8 key)
 				}				
 			}
 		}
-	break;
+	break;
+#endif		
 #ifdef RTC_DISP_FUNC_WHEN_PLAY   
 #ifdef USE_RTC_ALARM_FUNCTION
         case INFO_PLAY | KEY_LONG:

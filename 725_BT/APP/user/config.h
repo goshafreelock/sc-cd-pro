@@ -101,8 +101,8 @@ typedef enum
 #define OTP_MUSIC_ENABLE 0			///<是否需要使用开机音乐
 
 /*0: DECODE EQ, 1: DSP EQ*/
-#define DECODE_EQ       0
-#define DSP_EQ          1
+#define DECODE_EQ       	0
+#define DSP_EQ          		1
 #define EQ_WORK_USE     DECODE_EQ
 /**/
 
