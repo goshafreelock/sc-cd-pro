@@ -145,10 +145,10 @@
 #define MUTE_PORT_USE_P02
 //#define IIC_GPIO_USE_P00_P01
 #define IIC_GPIO_USE_P06_P07
-#define DISP_LCD_GPIO_DRV		//GPIO直接驱动LCD
+#define DISP_LCD_GPIO_DRV				//GPIO直接驱动LCD
 #define MCU_CD_728_LCD_MODULE
 
-#define PROG_EXIT_TIMER		60
+#define PROG_EXIT_TIMER			60
 #define DISP_TOC_BAR
 #define LCD_MODULE_WITHOUT_F_DIGIT
 
@@ -201,6 +201,7 @@
 
 #define USE_AUX_FUNC
 #endif
+
 #if 0
 
 #if 0//def JK_CD_ZG_KS218_V001

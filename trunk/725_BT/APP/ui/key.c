@@ -768,6 +768,7 @@ u8 keyDetect(void)
     u8 key_index=0;
 	
     keyTemp = NO_KEY;
+#if 0	
     if (irStep == 32)
     {
         if (0xff00 == user_code)
@@ -795,6 +796,7 @@ u8 keyDetect(void)
 		} 
 	}
     }
+#endif	
     return keyTemp;
 }
 /*----------------------------------------------------------------------------*/
