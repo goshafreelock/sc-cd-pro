@@ -18,6 +18,7 @@
 #include "iic_drv.h"
 
 bool mcu_master_tranceive_tick=0;
+bool mcu_master_cmd_tick=0;
 
 xd_u8 cd_play_status=0xFF;
 bool fisrt_time_op=0;
@@ -41,7 +42,7 @@ xd_u8 adkey_stop_file=0,adkey_stop_key_timer=0;
 
 TOC_TIME cur_time;
 bool toc_flag=0,send_buf_cmd=0;
-xd_u8 ffr_cmd=0,fast_fr_release_cnt=0;
+xd_u8 /*ffr_cmd=0,*/fast_fr_release_cnt=0;
 xd_u16 send_buf=0;
 xd_u8 rev_buf[10]={0};
 xd_u8 cd_prog_buf[20]={0};
@@ -50,6 +51,7 @@ xd_u8 cd_prog_buf[20]={0};
 
 bool prog_mem_full=0;
 bool cd_cmd_full=0;
+bool file_num_init=0;
 
 #ifdef USE_PROG_PLAY_MODE
 bool play_prog_mode=0,prog_icon_bit=0,prog_disp_srn=0,prog_next_prev=0,sel_next_prev=0;
@@ -129,13 +131,16 @@ void mcu_master_info_hdlr()
 		fast_fr_release_cnt--;
 		if(fast_fr_release_cnt==0){
 
-			ffr_cmd =0;
+			//ffr_cmd =0;
+
+			flush_all_msg();
 			
 			master_clr_cmd();
 			master_push_cmd(FFR_OFF_CMD);
 			master_push_cmd(FFR_OFF_CMD);
 		}
 
+#if 0
 		if(ffr_cmd>0){
 
 			master_clr_cmd();
@@ -148,7 +153,8 @@ void mcu_master_info_hdlr()
 				master_push_cmd(FAST_R_CMD);
 			}
 				
-		}		
+		}
+#endif		
 	}
 
 	info_dispatch_div++;
@@ -257,7 +263,9 @@ void mcu_master_info_hdlr()
 				toc_flag=0;
     				fisrt_time_op=1;
 				given_file_number=1;
-
+				adkey_stop_file=0;
+				next_prev_key_timer =0;
+				
 				prog_cur_num=0;	
 				prog_disp_srn=1;				
 				prog_icon_bit=0;
@@ -318,6 +326,7 @@ void mcu_master_info_hdlr()
 							//prog_cmd_cnt=0;
 					prog_cmd_cnt=0;		
 					if(adkey_stop_file<1){
+						if(curr_menu != DISP_OPEN)
 		                    		Disp_Con(DISP_FILENUM);	
 					}									
 				}
@@ -532,8 +541,11 @@ void prog_hdlr(u8 key)
 				prog_mem_full=0;
 
 				if(prog_first_num==0){
+
+					if(rev_buf[9]!=0xff)
 					prog_first_num=rev_buf[9];
 				}
+
 				if((prog_disp_srn==0)){
 					prog_disp_srn=1;
 					
@@ -588,6 +600,12 @@ void prog_hdlr(u8 key)
 			prog_disp_srn=0;								
 			Disp_Con(DISP_PROG_FILENUM);			
 			break;
+	        case INFO_NEXT_FIL| KEY_HOLD:
+			flush_all_msg();								
+			break;	
+	        case INFO_PREV_FIL| KEY_HOLD:
+			flush_all_msg();									
+			break;			
 	        case INFO_POWER| KEY_SHORT_UP:
 			play_prog_mode=0;				
 			break;
@@ -659,9 +677,14 @@ void mcu_hdlr( void )
 	{
 		dac_sw(0);
 	}
+	if(mcu_master_cmd_tick){
+		mcu_master_cmd_tick=0;
+		//mcu_master_tranceive_tick =0;
+		mcu_master_send();
+	}
+	
 	if(mcu_master_tranceive_tick){
 		mcu_master_tranceive_tick =0;
-		mcu_master_send();
 		mcu_master_rev();
 		mcu_master_info_hdlr();
 	}
@@ -741,10 +764,11 @@ void mcu_hdlr( void )
 				if(prog_icon_bit==1){
 					
 					rev_buf[2]=0;
-					if(prog_first_num>0)
+					if((prog_first_num>0)&&(prog_first_num!=0xFF))
 						given_file_number =prog_first_num;
 					else
 						given_file_number=1;
+					
 					prog_cur_num =0;
 				}				
 				//adkey_stop_file=0;
@@ -762,6 +786,8 @@ void mcu_hdlr( void )
 				prog_cur_num=0;
 				prog_disp_srn=1;					
 #endif
+    				file_num_init=1;
+
 				given_file_number=1;	
 				adkey_stop_key_timer=3;
 				adkey_stop_file=1;
@@ -797,7 +823,15 @@ void mcu_hdlr( void )
 			}
 			else{
 			if(given_file_number<total_file_num){
+
 				given_file_number++;
+				if(cd_play_status== MUSIC_STOP){
+					if(file_num_init){
+
+						file_num_init=0;
+						given_file_number =1;
+					}
+				}
 			}
 			else{
 				given_file_number =1;
@@ -846,15 +880,20 @@ void mcu_hdlr( void )
 			set_sys_vol(my_music_vol);					
 			break;			
 	        case INFO_NEXT_FIL | KEY_HOLD:
-			if(cd_cmd_full)break;
+			//flush_all_msg();
 			fast_fr_release_cnt=3;
-			ffr_cmd =1;
+			if(cd_cmd_full)break;
+			//printf("----------->> INFO_NEXT_FIL  \r\n");
+			//ffr_cmd =1;
 			master_push_cmd(FAST_F_CMD);
 			break;
 	        case INFO_PREV_FIL | KEY_HOLD:
-			if(cd_cmd_full)break;
+			//flush_all_msg();
 			fast_fr_release_cnt=3;			
-			ffr_cmd = 2;
+			if(cd_cmd_full)break;
+			//ffr_cmd = 2;
+			//printf("----------->> INFO_PREV_FIL  \r\n");
+			
 			master_push_cmd(FAST_R_CMD);
 			break;
 #if 0			
@@ -866,6 +905,7 @@ void mcu_hdlr( void )
 			break;
 #endif			
 #endif
+
 #ifdef MASTER_SEL_CD_PLAY_MODE
 	    	case INFO_MODE | KEY_SHORT_UP:
 #ifdef USE_PROG_PLAY_MODE
@@ -1078,7 +1118,7 @@ void mcu_hdlr( void )
 /*----------------------------------------------------------------------------*/
 void mcu_main_hdlr(void)
 {
-
+    file_num_init=1;
     fisrt_time_op=1;
     disp_play_filenum_timer=DISP_PLAY_TIME;
     Disp_Con(DISP_SCAN_TOC);

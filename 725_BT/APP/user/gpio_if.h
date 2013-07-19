@@ -249,7 +249,7 @@
 #define ADC_KEY_IO6     0x4E
 #define ADC_KEY_IO7     0x4F
 #define ADC_KEY_IO5     0x4D
-#define ADC_KEY_IO3    0xFB
+#define ADC_KEY_IO3    0x4B
 #define ADC_KEY_IO2     0x4A
 #define ADC_VDD_12     0x48
 #define ADC_LDOIN      0x49
