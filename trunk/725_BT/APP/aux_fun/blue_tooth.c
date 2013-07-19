@@ -94,6 +94,7 @@ void bt_disconnect_power_hldr()
 }
 xd_u8 bt_play_status=BT_STA_STOP;
 xd_u8 spark_timer=0;
+xd_u8 disconnect_timer=0;
 static xd_u8 activate_beep=0,ind_src_voice=0;
 void activate_beep_ind(u8 ind_src)
 {
@@ -253,7 +254,14 @@ void Blue_tooth_hdlr( void )
 		}
 #endif		
 		break;
+
         case INFO_PLAY| KEY_LONG:
+		disconnect_timer=0;			
+        case INFO_PLAY| KEY_HOLD:
+		if(disconnect_timer<12){
+			disconnect_timer++;
+			break;
+		}
 #if defined(BLUE_TOOTH_UART_FUNC)			
 		promt_bt_cmd(BT_FAST_PAIRING_MODE);		
 #endif
@@ -295,9 +303,11 @@ void Blue_tooth_hdlr( void )
 
 		break;	
         case INFO_NEXT_FIL| KEY_HOLD:
+		flush_all_msg();
 		//promt_bt_cmd(BT_VOL_P);									
 		break;	
         case INFO_PREV_FIL| KEY_HOLD:
+		flush_all_msg();
 		//promt_bt_cmd(BT_VOL_M);									
 		break;	
 #if 0		

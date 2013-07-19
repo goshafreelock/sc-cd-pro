@@ -48,7 +48,7 @@ extern bool aux_online;
 #ifdef ALARM_USE_MULTI_SOURCE_FUNC
 bool alarm_power_on_protect=0;
 #endif
-#if 1
+#if 0
 extern _code MY_IR_KEY_STRUCT My_IRTab[];       /*user code is 0xFF*/
 extern u8 get_my_IR_key_MAX();
 static xd_u8 MAX_IR_KEY = 0;
@@ -260,7 +260,7 @@ void keyInit(void)
     key_value = 0xff;
     //P3PU  &= ~(1<<4);
     //P3DIR |= (1<<4);
-    MAX_IR_KEY = get_my_IR_key_MAX();
+    //MAX_IR_KEY = get_my_IR_key_MAX();
 
 }
 /*----------------------------------------------------------------------------*/
@@ -764,11 +764,12 @@ u16 debug_ir;
 */
 u8 keyDetect(void)
 {
+#if 0	
+
     u8 keyTemp;
     u8 key_index=0;
 	
     keyTemp = NO_KEY;
-#if 0	
     if (irStep == 32)
     {
         if (0xff00 == user_code)
@@ -797,7 +798,7 @@ u8 keyDetect(void)
 	}
     }
 #endif	
-    return keyTemp;
+    return NO_KEY;
 }
 /*----------------------------------------------------------------------------*/
 /**@brief  power按键函数
@@ -854,5 +855,133 @@ void key_tone(void)
    @note PlayMode(2.93v): 0xE2
 */
 /*----------------------------------------------------------------------------*/
-void keyScan(void);
+//void keyScan(void);
+#if 1
+u8 adkey2(u8 key_value)
+{
+	if(key_value > ADKEY_RES_NOKEY)
+	{
+		return NO_KEY;
+	}
+	else if(key_value > ADKEY_RES_7)
+	{
+		return ADKEY_8;
+	}
+	else if(key_value > ADKEY_RES_6)
+	{
+		return ADKEY_7;
+	}
+	else if(key_value > ADKEY_RES_5)
+	{
+		return ADKEY_6;
+	}
+	else if(key_value > ADKEY_RES_4)
+	{
+		return ADKEY_5;
+	}
+	else if(key_value > ADKEY_RES_3)
+	{
+		return ADKEY_4;
+	}
+	else if(key_value > ADKEY_RES_2)
+	{
+		return ADKEY_3;
+	}
+	else if(key_value > ADKEY_RES_1)
+	{
+		return ADKEY_2;
+	}
+	else 
+	{
+		return ADKEY_1;
+	}
+}
+void keyScan(void)
+{
+    	u8 keyTemp,key_return;	   	///<keyTemp 为AD按键号：0~10或红外遥控按键号：0~20 
+	u8 keyStatus;
 
+	keyStatus = 0;
+    	key_return = 0;
+
+        keyTemp = adkey2(key_value);
+#if 0
+	if(key_value<0xfc)
+		 printf("------->-key_value   %x \r\n",(u16)key_value);
+	if(keyTemp!= 0xFF)
+	    	printf("------->-keyTemp   %x \r\n",(u16)keyTemp);
+
+#endif 
+    	if ((NO_KEY == keyTemp) /*|| (keyTemp != keyBack) */)
+	{
+	       if (keyCnt >= KEY_LONG_CNT)
+	       {
+			keyStatus = KEY_LONG_UP;
+	       }
+	       else if (keyCnt >= KEY_BASE_CNT)
+	       {
+			keyStatus = KEY_SHORT_UP;
+	       }
+	        keyCnt = 0;
+	}
+	else if (keyBack != keyTemp)
+	{
+
+		keyCnt = 0;
+	}
+    	else									///<如果既不是0，又没有更改按键，开始记录按键时间
+    	{    	
+	        keyCnt++;
+	        if (KEY_BASE_CNT == keyCnt)			///<去抖
+	        {
+			keyStatus = 1;	        
+	            //key_tone();
+	        }
+	        else if (KEY_LONG_CNT == keyCnt)	///<长按
+	        {
+	            //key_tone();
+			keyStatus = KEY_LONG;
+	        }
+	        else if ((KEY_LONG_CNT + KEY_HOLD_CNT) == keyCnt)	///<连按
+	        {
+	            //key_tone();
+			keyStatus = KEY_HOLD;
+	            	keyCnt = KEY_LONG_CNT;
+	        }
+    	}
+		
+	if (keyStatus)
+	{
+		//if(1 == key_type)
+		//{
+			//key_return = ADkey_tab[keyStatus-1][keyBack];	
+	    	//}
+	    	
+		if(keyStatus == KEY_SHORT_UP){
+
+			key_return = keyBack|KEY_SHORT_UP;
+		}
+		else if(keyStatus == KEY_LONG){
+
+			key_return = keyBack|KEY_LONG;
+		}
+		else if(keyStatus == KEY_HOLD){
+
+			key_return = keyBack|KEY_HOLD;
+		}
+		else{
+			key_return = keyBack;
+		}
+	}
+	else
+	{
+		key_return = NO_KEY;
+	}
+	
+	if (NO_KEY != key_return)
+    	{
+        	put_msg_fifo(key_return);
+    	}
+	keyBack = keyTemp;
+}
+#endif

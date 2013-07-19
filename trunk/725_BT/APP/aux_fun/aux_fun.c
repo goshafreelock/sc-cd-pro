@@ -121,6 +121,12 @@ void deal_aux( void )
         {
         case INFO_NEXT_SYS_MODE:
 		return;        
+        case INFO_NEXT_FIL| KEY_HOLD:
+		flush_all_msg();								
+		break;	
+        case INFO_PREV_FIL| KEY_HOLD:
+		flush_all_msg();									
+		break;			
         case INFO_250_MS :
 		
 		if((rev_bluetooth_status==BT_DISCONECT_A2DP)||(rev_bluetooth_status==BT_DISCONECT_AVRCP)){

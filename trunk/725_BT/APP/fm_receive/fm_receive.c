@@ -461,7 +461,12 @@ void full_band_scan_hdlr()
 		put_msg_fifo(INFO_NEXT_SYS_MODE);
             	break;
 	}
-	
+	if((key==(INFO_NEXT_FIL|KEY_HOLD))||
+		( key==(INFO_PREV_FIL | KEY_HOLD))
+	    ){
+
+    		flush_all_msg();
+	}	
 	if(( key==INFO_NEXT_FM_MODE))
 	{
 		put_msg_fifo(INFO_NEXT_FM_MODE);
@@ -542,7 +547,7 @@ void semi_auto_scan(u8 scan_dir)
     xd_u16 fre_old=frequency;
     u8 key=0;
 
-    flush_low_msg();
+     flush_all_msg();
 #ifdef RADIO_ST_INDICATOR
     radio_st_ind=0;
 #endif
@@ -559,9 +564,15 @@ void semi_auto_scan(u8 scan_dir)
 		( key==(INFO_PLAY |KEY_SHORT_UP))
 	    )
         {
-            break;
+    		flush_all_msg();        
+            	break;
         }
-		
+	if((key==(INFO_NEXT_FIL|KEY_HOLD))||
+		( key==(INFO_PREV_FIL | KEY_HOLD))
+	    ){
+
+    		flush_all_msg();
+	}	
 	if(( key==INFO_NEXT_SYS_MODE)){
 		put_msg_fifo(INFO_NEXT_SYS_MODE);
             	break;
@@ -605,8 +616,11 @@ void semi_auto_scan(u8 scan_dir)
 
     }while(1);
 
+
+   //flush_all_msg();
+
    set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
-   dac_mute_control(0,1);		
+   //dac_mute_control(0,1);		
    delay_10ms(1);
    Mute_Ext_PA(UNMUTE);            
    flush_all_msg();
@@ -762,8 +776,11 @@ void fm_hdlr( void )
 
 	key = get_msg();
 #if 0
-	if(key!= 0xff)
+	if(key!= 0xff){
+
+		if(key!=INFO_HALF_SECOND)
 	    	printf("------->-get_msg   %x \r\n",(u16)key);
+	}
 #endif
 	if(dac_cnt >20){
 		dac_sw(0);
@@ -837,6 +854,12 @@ void fm_hdlr( void )
              		set_radio_freq(FM_FRE_DEC,SHOW_FREQ);
 		}
             break;
+        case INFO_NEXT_FIL| KEY_HOLD:
+		flush_all_msg();								
+		break;	
+        case INFO_PREV_FIL| KEY_HOLD:
+		flush_all_msg();									
+		break;					
         case INFO_HALF_SECOND :
 
 #if ((USE_DEVICE == MEMORY_STYLE)&&(FAT_MEMORY))          

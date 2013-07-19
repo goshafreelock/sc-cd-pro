@@ -70,7 +70,7 @@ extern void check_eeprom_status(void);
 extern void wkup_pin_ctrl(bool dir);
 #endif
 #ifdef USE_CD_MCU_MASTER_FUNC			
-extern bool mcu_master_tranceive_tick;
+extern bool mcu_master_tranceive_tick,mcu_master_cmd_tick;
 #endif
 extern void KT_AMFMStandby(void);
 
@@ -316,16 +316,20 @@ void timer1isr(void)
 #endif	
         ms_cnt++;
 
-#ifdef USE_CD_MCU_MASTER_FUNC			
-	 if(ms_cnt%5==0){
+#ifdef USE_CD_MCU_MASTER_FUNC	
+	 if(ms_cnt%10==0){
+		 mcu_master_cmd_tick=1;
+	 }	
+	 if(ms_cnt%6==0){
 		 mcu_master_tranceive_tick=1;
 	 }	 
 #endif
 
 	 if(ms_cnt%25==0){
-	 	
-            put_msg_fifo(INFO_250_MS);
 
+	     if((work_mode == SYS_BLUE_TOOTH )||(work_mode == SYS_AUX)){
+            		put_msg_fifo(INFO_250_MS);
+	     }
 	 }
 	 
         if (ms_cnt ==  50)
@@ -821,13 +825,29 @@ void main(void)
 #ifdef ADKEY_DEBUG
 	AD_Debug_func();
 #endif
+#if 0
+	while(1){
+		keyScan();
+		delay_10ms(1);
+		sys_timer = get_msg();
+#if 1
+	if(sys_timer!= 0xff){
 
+	    	printf("------->-get_msg   %x \r\n",(u16)sys_timer);
+	}
+#endif
+
+	}
+#endif	
 #ifdef SYS_POWER_ON_DEFAULT_IN_RADIO
 	Set_Curr_Func(SYS_FMREV);
 #elif defined(SYS_POWER_ON_DEFAULT_IN_CD)
 	Set_Curr_Func(SYS_MCU_CD);
 #endif
+       if((work_mode==SYS_MP3DECODE_USB)||(work_mode==SYS_MP3DECODE_SD)){
 
+		Set_Curr_Func(SYS_FMREV);
+	}
 	radio_force_preset=6;
 #ifdef UART_ENABLE
     	printf("------->- SYS INIT   work_mode:%d   \r\n",(u16)work_mode);

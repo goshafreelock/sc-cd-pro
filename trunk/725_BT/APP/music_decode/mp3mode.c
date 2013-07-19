@@ -678,7 +678,9 @@ void music_play(void)
             //return;
 	        stop_decode();
 #ifdef NO_DEV_SHOW_NO_DEV
+#ifdef USE_USB_PROG_PLAY_MODE
 		usb_prog_mode_cls();
+#endif
 		folder_select=0;
 		folder_mode_select=0;
 		Disp_Con(DISP_NODEVICE);
@@ -1083,7 +1085,9 @@ void decode_play(void)
 	folder_mode_select=0;
 	
 	stop_decode();
+#ifdef USE_USB_PROG_PLAY_MODE	
 	usb_prog_mode_cls();	
+#endif
 #if(MEMORY_STYLE != USE_DEVICE)
 	usb_suspend();			//Entered Suspend mode
 #endif

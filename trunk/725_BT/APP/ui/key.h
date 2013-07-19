@@ -251,14 +251,14 @@ void bmt_hdlr(void);
 #if defined( CUSTOMER_DEFINED_ADKEY_RESISTOR)
 /*Customer define adkey value */
 
-#if 0
-#define ADKEY_RES_1		0x10
-#define ADKEY_RES_2		0x30
-#define ADKEY_RES_3		0x50
-#define ADKEY_RES_4		0x70
-#define ADKEY_RES_5		0x90
-#define ADKEY_RES_6		0xB0
-#define ADKEY_RES_7		0xD0	/**/
+#if 1
+#define ADKEY_RES_1		0x0F
+#define ADKEY_RES_2		0x32
+#define ADKEY_RES_3		0x43
+#define ADKEY_RES_4		0x5c
+#define ADKEY_RES_5		0x76
+#define ADKEY_RES_6		0x8d
+#define ADKEY_RES_7		0xA3	/**/
 #define ADKEY_RES_NOKEY		0xF0	/*NO KEY*/
 #else
 #define ADKEY_RES_1		RES_VOLT_1
