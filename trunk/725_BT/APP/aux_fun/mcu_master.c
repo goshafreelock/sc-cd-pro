@@ -45,7 +45,7 @@ bool toc_flag=0,send_buf_cmd=0;
 xd_u8 /*ffr_cmd=0,*/fast_fr_release_cnt=0;
 xd_u16 send_buf=0;
 xd_u8 rev_buf[10]={0};
-xd_u8 cd_prog_buf[20]={0};
+//xd_u8 cd_prog_buf[20]={0};
 
 #define DISP_PLAY_TIME		10
 
@@ -389,9 +389,9 @@ void mcu_master_info_hdlr()
 						}
 						else{
 
-							if(prog_cmd_cnt++>2){
+							//if(prog_cmd_cnt++>1){
 								prog_next_prev=0;
-							}
+							//}
 							master_clr_cmd();
 						}
 #if 0						
@@ -501,7 +501,7 @@ void prog_play_init()
 
 	given_file_number=1;
 
-	my_memset(&cd_prog_buf[0], 0x0, 10);
+	//my_memset(&cd_prog_buf[0], 0x0, 10);
 
        total_file_num=rev_buf[5];
 	
@@ -535,7 +535,11 @@ void prog_hdlr(u8 key)
 			prog_exit_timer=PROG_EXIT_TIMER;	
 				
 			if(prog_next_prev)break;
-			
+			if(prog_mem_full){
+				Disp_Con(DISP_PROG_FILENUM);	
+				break;
+			}
+				
 			if(prog_total_num<=20){
 
 				prog_mem_full=0;
@@ -549,18 +553,18 @@ void prog_hdlr(u8 key)
 				if((prog_disp_srn==0)){
 					prog_disp_srn=1;
 					
-					prog_cur_num =1;
-					cd_prog_buf[prog_total_num-1]=rev_buf[9];
+					prog_cur_num =0;
+					//cd_prog_buf[prog_total_num-1]=rev_buf[9];
+					write_rtc_ram(prog_total_num-1,rev_buf[9]);					
 #if 0					
-					printf("--->>>>>rev  %d \r\n",(u16)prog_total_num);
-					printf("--->>>>>rev  %d \r\n",(u16)rev_buf[9]);
-					printf("--->>>>>rev  %d \r\n",(u16)cd_prog_buf[prog_total_num-1]);
+					printf("--->>>>>prog_total_num  %d \r\n",(u16)prog_total_num);
+					printf("--->>>>>rev_buf  %d \r\n",(u16)rev_buf[9]);
+					//printf("--->>>>>cd_prog_buf  %d \r\n",(u16)cd_prog_buf[prog_total_num-1]);
 #endif				
 					master_push_cmd(MEM_CMD);
 					//Disp_Con(DISP_PROG_FILENUM);
 					if(prog_total_num==20){
 						prog_mem_full=1;
-						Disp_Con(DISP_PROG_FILENUM);	
 					}						
 				}
 			}
@@ -770,7 +774,12 @@ void mcu_hdlr( void )
 						given_file_number=1;
 					
 					prog_cur_num =0;
-				}				
+					if(prog_mem_full){
+						prog_total_num=20;
+					}
+				}			
+
+				
 				//adkey_stop_file=0;
 		              Disp_Con(DISP_FILENUM);	
 			}			
@@ -808,17 +817,19 @@ void mcu_hdlr( void )
 
 			if(prog_icon_bit){
 				
-				if(prog_cur_num<(prog_total_num-2)){
+				if(prog_cur_num<(prog_total_num-1)){
 					prog_cur_num++;
 				}
 				else{
 					prog_cur_num =0;
 				}
-				given_file_number =cd_prog_buf[prog_cur_num];
+				//given_file_number =cd_prog_buf[prog_cur_num];
+				given_file_number=read_rtc_ram(prog_cur_num);
 #if 0
-				printf("--->>>>>rev  %d \r\n",(u16)prog_total_num);
-				printf("--->>>>>rev  %d \r\n",(u16)given_file_number);
-				printf("--->>>>>rev  %d \r\n",(u16)cd_prog_buf[prog_cur_num]);	
+				printf("--->0>prog_total_num  %d \r\n",(u16)prog_total_num);
+				printf("--->0>prog_cur_num  %d \r\n",(u16)prog_cur_num);
+				printf("--->1>given_file_number  %d \r\n",(u16)given_file_number);
+				//printf("--->2>cd_prog_buf  %d \r\n",(u16)cd_prog_buf[prog_cur_num]);	
 #endif				
 			}
 			else{
@@ -855,13 +866,15 @@ void mcu_hdlr( void )
 				
 				prog_cur_num--;
 				if((prog_cur_num>=(prog_total_num-1))){
-					prog_cur_num =prog_total_num-2;
+					prog_cur_num =prog_total_num-1;
 				}	
-				given_file_number =cd_prog_buf[prog_cur_num];
+				//given_file_number =cd_prog_buf[prog_cur_num];
+				given_file_number=read_rtc_ram(prog_cur_num);
 #if 0
-				printf("--->>>>>rev  %d \r\n",(u16)prog_total_num);
-				printf("--->>>>>rev  %d \r\n",(u16)given_file_number);
-				printf("--->>>>>rev  %d \r\n",(u16)cd_prog_buf[prog_cur_num]);		
+				printf("--->0>prog_total_num  %d \r\n",(u16)prog_total_num);
+				printf("--->0>prog_cur_num  %d \r\n",(u16)prog_cur_num);
+				printf("--->1>given_file_number  %d \r\n",(u16)given_file_number);
+				//printf("--->2>cd_prog_buf  %d \r\n",(u16)cd_prog_buf[prog_cur_num]);		
 #endif				
 			}
 			else{
