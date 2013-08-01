@@ -777,6 +777,9 @@ void mcu_hdlr( void )
 					if(prog_mem_full){
 						prog_total_num=20;
 					}
+					else{
+						prog_total_num=prog_total_num-1;
+					}
 				}			
 
 				
