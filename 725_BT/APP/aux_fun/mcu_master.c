@@ -55,7 +55,7 @@ bool file_num_init=0;
 
 #ifdef USE_PROG_PLAY_MODE
 bool play_prog_mode=0,prog_icon_bit=0,prog_disp_srn=0,prog_next_prev=0,sel_next_prev=0;
-xd_u8 prog_total_num=0,prog_cur_num=0,prog_first_num=0;
+xd_u8 prog_total_num=0,prog_cur_num=0,prog_first_num=0,prog_all_final=0;
 xd_u8 prog_exit_timer=0;
 xd_u8 total_file_num=0,prog_cmd_cnt=0;
 #endif
@@ -554,6 +554,7 @@ void prog_hdlr(u8 key)
 					prog_disp_srn=1;
 					
 					prog_cur_num =0;
+					prog_all_final =prog_total_num;
 					//cd_prog_buf[prog_total_num-1]=rev_buf[9];
 					write_rtc_ram(prog_total_num-1,rev_buf[9]);					
 #if 0					
@@ -760,8 +761,7 @@ void mcu_hdlr( void )
 				}
 				else if(adkey_stop_file==2){
 
-					master_push_cmd(NUM_0_CMD|(rev_buf[2]+1));				
-					given_file_number =rev_buf[2];		
+					master_push_cmd(SEL_SONG_CMD|given_file_number);				
 					adkey_stop_file =3;									
 				}	
 				
@@ -775,10 +775,10 @@ void mcu_hdlr( void )
 					
 					prog_cur_num =0;
 					if(prog_mem_full){
-						prog_total_num=20;
+						prog_total_num=20-1;
 					}
 					else{
-						prog_total_num=prog_total_num-1;
+						prog_total_num=prog_all_final-1;
 					}
 				}			
 
@@ -800,6 +800,8 @@ void mcu_hdlr( void )
 #endif
     				file_num_init=1;
 
+				next_prev_key_timer =0;
+
 				given_file_number=1;	
 				adkey_stop_key_timer=3;
 				adkey_stop_file=1;
@@ -820,7 +822,7 @@ void mcu_hdlr( void )
 
 			if(prog_icon_bit){
 				
-				if(prog_cur_num<(prog_total_num-1)){
+				if(prog_cur_num<(prog_total_num)){
 					prog_cur_num++;
 				}
 				else{
@@ -868,8 +870,8 @@ void mcu_hdlr( void )
 			if(prog_icon_bit){
 				
 				prog_cur_num--;
-				if((prog_cur_num>=(prog_total_num-1))){
-					prog_cur_num =prog_total_num-1;
+				if((prog_cur_num>=(prog_total_num))){
+					prog_cur_num =prog_total_num;
 				}	
 				//given_file_number =cd_prog_buf[prog_cur_num];
 				given_file_number=read_rtc_ram(prog_cur_num);

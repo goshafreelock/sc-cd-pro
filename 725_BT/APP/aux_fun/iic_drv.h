@@ -58,6 +58,9 @@ enum {
 
 	REP_A_CMD,
 	REP_B_CMD,
+
+	SEL_SONG_CMD=0x80,
+	
 };
 
 #ifdef IIC_MCU_PORT_USE_P21_P22
