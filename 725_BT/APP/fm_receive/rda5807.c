@@ -16,7 +16,7 @@
 #include "iic.h"
 
 #ifdef RADIO_ST_INDICATOR
-extern bool radio_st_ind;
+extern bool radio_st_ind,radio_st_ind_enable;
 #endif
 
 //FM_RDA5807_VAR _xdata FM_rda5807_var;
@@ -428,9 +428,12 @@ bool set_fre_RDA5807(u16 fre)
 		if(rda5807_true())
 		{
 #ifdef RADIO_ST_INDICATOR
-			if(rda5807_st()){
-				if(radio_st_mono_swither)
-			     		radio_st_ind=1;
+
+			if(radio_st_ind_enable){
+				if(rda5807_st()){
+					if(radio_st_mono_swither)
+				     		radio_st_ind=1;
+				}
 			}
 #endif		
 		    return 1;
