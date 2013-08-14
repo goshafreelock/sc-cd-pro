@@ -51,7 +51,7 @@ xd_u8 radio_force_preset=0;
 
 
 #ifdef RADIO_ST_INDICATOR
-bool radio_st_ind=0;
+bool radio_st_ind=0,radio_st_ind_enable=0;
 #endif
 
 bool radio_prog_spark=0;
@@ -762,12 +762,17 @@ void fm_hdlr( void )
     	mode_switch_protect_bit=0;
 #endif	
 
+#ifdef RADIO_ST_INDICATOR
+	radio_st_ind_enable=1;
+#endif
+
        aux_channel_crosstalk_improve(DAC_AMUX1);
 	set_sys_vol(my_music_vol);
 	delay_10ms(10);
     	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);
 	
 	Mute_Ext_PA(UNMUTE);
+	
 
     while (1)
     {
@@ -986,6 +991,10 @@ void fm_radio(void)
 #ifndef DISABLE_P05_OSC_OUTPUT
    	fm_osc_output_select(TRUE);
 #endif
+#ifdef RADIO_ST_INDICATOR
+	radio_st_ind_enable=0;
+#endif
+
 	scan_gpio_band_info_config();
 	radio_pre_init();
 	

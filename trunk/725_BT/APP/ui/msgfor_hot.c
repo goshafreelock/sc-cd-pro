@@ -43,7 +43,8 @@ xd_u8 my_sys_vol=0;
 xd_u8 my_music_vol=0;
 xd_u8 rew_play_timer=0,disp_play_filenum_timer=0;
 
-
+extern bool vol_disp_protect;
+extern bool toc_flag;
 extern bool sys_pwr_flag;
 extern xd_u8 cur_sw_fm_band;
 
@@ -600,6 +601,7 @@ u8 ap_handle_hotkey(u8 key)
 		if (my_music_vol)
             my_music_vol--;
 #if 1
+	vol_disp_protect =1;
 
 	if(my_music_vol > MAX_MAIN_VOL)
 		  my_music_vol = MAX_MAIN_VOL;
@@ -613,6 +615,10 @@ u8 ap_handle_hotkey(u8 key)
 
 	}
 	
+	if((!toc_flag)&&(work_mode == SYS_MCU_CD)){
+
+    		Mute_Ext_PA(MUTE);
+	}
 	dac_mute_control(0, 1);	
 	set_sys_vol(my_music_vol);
 	
