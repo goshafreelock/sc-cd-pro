@@ -95,6 +95,7 @@ void bt_disconnect_power_hldr()
 xd_u8 bt_play_status=BT_STA_STOP;
 xd_u8 spark_timer=0;
 xd_u8 disconnect_timer=0;
+#if 0
 static xd_u8 activate_beep=0,ind_src_voice=0;
 void activate_beep_ind(u8 ind_src)
 {
@@ -139,6 +140,8 @@ void bluetooth_standby_beep()
   		}
   	}
 }
+#endif
+
 /*----------------------------------------------------------------------------*/
 /**@brief  AUX消息处理
    @param  无
@@ -182,6 +185,11 @@ void Blue_tooth_hdlr( void )
     }	
 #endif
 
+#ifdef BLUETOOTH_CONFIG_DEV_NAME
+    delay_10ms(20);	
+    config_dev_name();
+#endif
+
 #endif
 
 	bt_pwr_off_timer=0;
@@ -194,13 +202,10 @@ void Blue_tooth_hdlr( void )
     aux_channel_crosstalk_improve(DAC_AMUX0);
     //delay_10ms(20);	
     //Mute_Ext_PA(UNMUTE);
-    activate_beep_ind(BT_POWER_ON);
+    //activate_beep_ind(BT_POWER_ON);
     set_sys_vol(my_music_vol);	
     //set_delay_mute();
 	
-#ifdef BLUETOOTH_CONFIG_DEV_NAME
-    config_dev_name();
-#endif
 
     while (1)
     {

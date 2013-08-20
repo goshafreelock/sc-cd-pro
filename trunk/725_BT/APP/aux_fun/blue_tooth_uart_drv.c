@@ -3,6 +3,7 @@
 #if defined(BLUE_TOOTH_UART_FUNC)
 #include "blue_tooth.h"
 #include "uart.h"
+void promt_bt_cmd(AT_PROMPT_CMD cmd);
 
 void blue_tooth_uart_init()
 {
@@ -17,6 +18,9 @@ void blue_tooth_uart_init()
 }
 void blue_tooth_uart_release()
 {
+    	promt_bt_cmd(BT_DISPAIR);			
+    	delay_10ms(10);	
+
 #ifndef UART_ENABLE
 	UTCON = 0x00;
 	PUART=0;
