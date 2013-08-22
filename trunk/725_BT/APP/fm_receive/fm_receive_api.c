@@ -21,30 +21,41 @@ extern xd_u16 frequency;                              ///< 当前频率
 extern xd_u8 fre_channl;                              ///< FM收音当前所在的台号
 extern xd_u8 given_device;
 extern _xdata SYS_WORK_MODE  work_mode;
-extern bool radio_st_mono_swither;
+bool radio_st_mono_swither=0;
 
 extern void KT_AMFMStandby(void);
 extern xd_u8 KT_AMFMWakeUp(void);
 extern void KT_AMFMSetMode(xd_u8 AMFM_MODE);
 extern xd_u8 KT_AMTune(xd_u16 Frequency);
 extern xd_u8 KT_FMTune(xd_u16 Frequency);
+extern void KT_Radio_ST_Switcher(u8 sw);
 
 
 bool radio_dev_init(void)
 {
-	//return KT_AMFMWakeUp();
+#ifdef RDA5807
 	return init_RDA5807();
+#else
+	return KT_AMFMWakeUp();
+#endif
 }
 
 void radio_rev_standby(void)
 {
-    	//KT_AMFMStandby();
+#ifdef RDA5807
 	RDA5807_PowerDown();
+#else
+    	KT_AMFMStandby();
+#endif
 }
 void radio_force_st_mono(void)
 {
 	radio_st_mono_swither=~radio_st_mono_swither;
+#ifdef RDA5807
 	RDA5807_ST_MONO_Swither(radio_st_mono_swither);
+#else
+	KT_Radio_ST_Switcher(radio_st_mono_swither);
+#endif
 }
 #if 0
 /*----------------------------------------------------------------------------*/

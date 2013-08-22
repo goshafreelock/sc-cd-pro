@@ -511,6 +511,8 @@ void mcu_master_send()
 #ifdef USE_PROG_PLAY_MODE
 void prog_play_init()
 {
+
+	prog_all_final =0;
 	prog_total_num=1;
 	prog_cur_num=0;	
 	play_prog_mode=1;
@@ -547,6 +549,7 @@ void prog_play_clear()
 }
 void prog_hdlr(u8 key)
 {
+
 	switch(key)
 	{
 		// case INFO_STOP| KEY_SHORT_UP :
@@ -575,7 +578,6 @@ void prog_hdlr(u8 key)
 
 				if((prog_disp_srn==0)){
 					prog_disp_srn=1;
-
 					prog_icon_bit=1;
 
 					prog_cur_num =0;
@@ -789,8 +791,15 @@ void mcu_hdlr( void )
 					master_push_cmd(SEL_SONG_CMD|given_file_number);				
 					adkey_stop_file =3;									
 				}	
+				else if(adkey_stop_file==4){
+		             		 Disp_Con(DISP_FILENUM);	
+					 adkey_stop_file =3;									
+					 set_sys_vol(my_music_vol);
+					 break;
+				}
 				
 				if(prog_icon_bit==1){
+					adkey_stop_file =3;									
 
 					info_timer_stop =0;
 					rev_buf[2]=0;
@@ -806,6 +815,15 @@ void mcu_hdlr( void )
 					else{
 						prog_total_num=prog_all_final-1;
 					}
+
+					if(prog_total_num>prog_all_final){
+						play_prog_mode=0;	
+						prog_icon_bit=0;
+						master_clr_cmd();
+						given_file_number =1;
+						master_push_cmd(STOP_CMD);
+						master_push_cmd(SEL_SONG_CMD|given_file_number);				
+					}					
 				}			
 
 				
@@ -850,6 +868,8 @@ void mcu_hdlr( void )
 			if(cd_cmd_full)break;
 
 			if(prog_icon_bit){
+
+				adkey_stop_file=4;
 				
 				if(prog_cur_num<(prog_total_num)){
 					prog_cur_num++;
@@ -869,8 +889,11 @@ void mcu_hdlr( void )
 #endif				
 			}
 			else{
+				
 			if(given_file_number<total_file_num){
 
+				adkey_stop_file=2;
+				
 				given_file_number++;
 				if(cd_play_status== MUSIC_STOP){
 					if(file_num_init){
@@ -888,7 +911,6 @@ void mcu_hdlr( void )
                     	Disp_Con(DISP_FILENUM);	
 			master_push_cmd(NEXT_FILE_CMD);
     			disp_play_filenum_timer=DISP_PLAY_TIME;
-			adkey_stop_file=2;
 			dac_mute_control(0, 1);	
 			set_sys_vol(my_music_vol);			
 			break;
@@ -897,12 +919,13 @@ void mcu_hdlr( void )
 			if(!toc_flag)break;		//2 TOC  NOT READY
 				
 			next_prev_key_timer =3;				
-			adkey_stop_file=2;
 			sel_next_prev=1;	
 			
 			if(cd_cmd_full)break;
 			if(prog_icon_bit){
-				
+
+				adkey_stop_file=4;
+
 				prog_cur_num--;
 				if((prog_cur_num>=(prog_total_num))){
 					prog_cur_num =prog_total_num;
@@ -919,6 +942,8 @@ void mcu_hdlr( void )
 #endif				
 			}
 			else{
+
+				adkey_stop_file=2;
 				
 				given_file_number--;
 				if((given_file_number==0)||(given_file_number>total_file_num)){
@@ -1164,6 +1189,15 @@ void mcu_hdlr( void )
 #endif
 				break;
 #endif
+#if 1
+	    case INFO_VOL_PLUS:
+	    case INFO_VOL_PLUS | KEY_HOLD :
+	    case INFO_VOL_MINUS:
+	    case INFO_VOL_MINUS | KEY_HOLD :
+
+		if(!toc_flag)break;
+#endif		
+
 	        default :
 	            if (!ap_handle_hotkey(key))
 	                return;

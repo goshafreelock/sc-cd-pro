@@ -200,6 +200,7 @@ xd_u8 KT_AMTune(xd_u16 Frequency);
 xd_u8 KT_FMTune(xd_u16 Frequency);
 
 #ifdef RADIO_ST_INDICATOR
+void KT_Radio_ST_Switcher(u8 sw);
 void KT_Radio_ST_Check();
 #endif
 //xd_u8 KT_FMReadRSSI(char *RSSI);

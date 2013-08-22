@@ -324,6 +324,9 @@ static SYS_WORK_MODE Next_Func()
 	return SYS_IDLE;
 }
 
+
+#ifdef USE_ERP_2_HDLR
+
 #ifdef USE_USB_ERP_2_HDLR
 extern xd_u16 usb_erp_timer;
 #endif
@@ -369,6 +372,8 @@ void erp_2_test_mode_handlr(void)
 		erp2_test_mode_timer=0;
 	}
 }
+#endif
+
 /*----------------------------------------------------------------------------*/
 /**@brief   几个任务都会用到的消息集中处理的函数
    @param   key： 需要处理的消息
@@ -454,10 +459,15 @@ u8 ap_handle_hotkey(u8 key)
             return 0;
         }
         break;
-#endif		
+#endif	
+
+#ifdef USE_ERP_2_HDLR
     case INFO_STOP| KEY_HOLD:
 		erp_2_test_mode_enable();
 		break;
+#endif
+
+		
 #ifdef MODE_KEY_SEL_FUNC
 #ifdef USE_POWER_KEY_SHORT_FOR_MODE
     case INFO_POWER | KEY_SHORT_UP :	
@@ -601,7 +611,12 @@ u8 ap_handle_hotkey(u8 key)
 		if (my_music_vol)
             my_music_vol--;
 #if 1
+
+#if 0
 	vol_disp_protect =1;
+#else
+	//if((!toc_flag)&&(work_mode==SYS_MCU_CD))break;
+#endif
 
 	if(my_music_vol > MAX_MAIN_VOL)
 		  my_music_vol = MAX_MAIN_VOL;
@@ -614,18 +629,19 @@ u8 ap_handle_hotkey(u8 key)
     		Mute_Ext_PA(UNMUTE);
 
 	}
-	
+#if 0	
 	if((!toc_flag)&&(work_mode == SYS_MCU_CD)){
 
     		Mute_Ext_PA(MUTE);
 	}
+#endif	
 	dac_mute_control(0, 1);	
 	set_sys_vol(my_music_vol);
 	
 	delay_10ms(2);
 	flush_all_msg();
 
-#if defined(BLUE_TOOTH_UART_FUNC)			
+#if 0//defined(BLUE_TOOTH_UART_FUNC)			
 	if(work_mode == SYS_BLUE_TOOTH){
 		blue_tooth_uart_release();
 		delay_10ms(2);
