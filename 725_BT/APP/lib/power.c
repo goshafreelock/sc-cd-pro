@@ -229,6 +229,8 @@ void rc_pll_delay(void)
 }
 #ifdef USE_POWER_KEY
 extern void  KT_AMFMStandby(void);
+extern void blue_tooth_mode_end_handler(void);
+
 /*----------------------------------------------------------------------------*/
 /**@brief    系统掉电函数
    @param    无
@@ -239,7 +241,8 @@ extern void  KT_AMFMStandby(void);
 void sys_power_down(void)
 {
     //sys_printf("---sys_power_down");
-
+    blue_tooth_mode_end_handler();
+	
     write_info(MEM_VOL, music_vol);
 
     Mute_Ext_PA(MUTE);

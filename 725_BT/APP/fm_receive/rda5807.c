@@ -23,7 +23,7 @@ extern bool radio_st_ind,radio_st_ind_enable;
 xd_u8 _idata rda5807_dat[12];
 xd_u8 _xdata read_dat[10];
 u8 _xdata fm_type;
-bool radio_st_mono_swither=0;
+extern bool radio_st_mono_swither;
 
 /*--------------RDA5807SP Initial Table----------------*/
 u8 _code rda5807sp[]= {

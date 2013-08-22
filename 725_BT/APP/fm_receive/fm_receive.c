@@ -11,8 +11,11 @@
 #include "fm_rev.h"
 #include "KT_AMFMdrv.h"
 #include "fat_memory.h"
-#include "RDA5807.h"
 
+
+#ifdef RDA5807
+#include "RDA5807.h"
+#endif
 
 
 extern xd_u16 cfilenum;
@@ -56,6 +59,7 @@ bool radio_st_ind=0,radio_st_ind_enable=0;
 
 bool radio_prog_spark=0;
 #ifdef USE_RADIO_FUNC
+void set_radio_freq(u8 mode,bool disp_pro);
 
 extern void KT_AMFMSetMode(xd_u8 AMFM_MODE);
 extern xd_u8 KT_FMTune(xd_u16 Frequency);
@@ -108,27 +112,37 @@ u16 read_radio_freq(u8 ch)
 
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
 static xd_u8 gpio_sel_band_info_config=0;
+
+#ifdef GPIO_SEL_BAND_INFO_CONFIG_PORT_P00
+#define Init_band_gpio()		P0DIR &= ~(BIT(0)); P00=1; P0DIR |= BIT(0);P0PU &=~(BIT(0));P0PD|= BIT(0);
+#define band_sel_gpio		P00
+#define band_sel_gpio_off()	P0DIR &= ~(BIT(0)); 
+#else
+#define Init_band_gpio()		P0DIR &= ~(BIT(7)); P07=1; P0DIR |= BIT(7);P0PU |= BIT(7);
+#define band_sel_gpio		P07
+#define band_sel_gpio_off()	P0DIR &= ~(BIT(7)); 
+#endif
+
 void scan_gpio_band_info_config()
 {
 	EA =0;
-	P0DIR &= ~(BIT(7)); 
-	P07=1; 
-	P0DIR |= BIT(7);
-	P0PU |= BIT(7);
+	Init_band_gpio();
+	_nop_();
+	_nop_();
 	_nop_();
 	_nop_();
 
 	gpio_sel_band_info_config=0;
 
-	if(P07){
+	if(band_sel_gpio){
 		gpio_sel_band_info_config=1;
 	}
 
 #ifdef FM_UART_ENABLE
 	    	printf("------->-scan_gpio_band_info_config    \r\n");
 #endif
-
-	P0DIR &= ~(BIT(7)); 
+	band_sel_gpio_off();
+	//P0DIR &= ~(BIT(7)); 
 	EA =1;
 }
 u8 get_band_info_config()
@@ -205,11 +219,22 @@ void radio_preset_init()
 	xd_u8 preset_reg=0;
 
 #ifdef CUSTOMED_KEY_FORCED_INIT_PRESET
-	if(radio_force_preset>0){
+	if(radio_force_preset>0)
+	{
 		radio_force_preset = 0;
+		Disp_Con(DISP_SCAN_TOC);
+		delay_10ms(100);
+             	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);		
 #else		
 	preset_reg =read_info(MEM_PRESET_REG);
+
+
+#ifdef GPIO_SEL_BAND_INFO_CONFIG			
 	if((((preset_reg&PRESET_MASK)==PRESET_OK)&&((preset_reg&PRESET_ZONE_MASK)==gpio_sel_band_info_config))){		
+#else
+	if(((preset_reg&PRESET_MASK)==PRESET_OK)){
+#endif
+
 
 #ifdef FM_UART_ENABLE
 	    	printf("------->-station form  epprom    \r\n");
@@ -230,12 +255,19 @@ void radio_preset_init()
 
 
 		//4 reset AM Preset
+		
+#ifdef GPIO_SEL_BAND_INFO_CONFIG					
 		if(get_band_info_config()==0)
 			load_preset_table(RESET_USA_AM_PRESET);
 		else
+#endif			
 			load_preset_table(RESET_EUR_AM_PRESET);
-			
+		
+#ifdef GPIO_SEL_BAND_INFO_CONFIG			
 		preset_reg=PRESET_OK|gpio_sel_band_info_config;
+#else
+		preset_reg=PRESET_OK;
+#endif
 		write_info(MEM_PRESET_REG , preset_reg);
 
 	}	
@@ -302,12 +334,18 @@ void set_radio_freq(u8 mode,bool disp_pro)
 	
     if(cur_sw_fm_band==0){
 
+#ifdef RDA5807
 		set_fre_RDA5807(frequency);
-		//KT_FM_SOFTMUTE(frequency);
+#else
+		KT_FM_SOFTMUTE(frequency);
+#endif		
     }
     else{
+#ifdef RDA5807
 
-		//KT_AMTune(frequency);
+#else
+		KT_AMTune(frequency);
+#endif
     }
 
 
@@ -404,7 +442,7 @@ void restore_last_radio_band()
 
 bool radio_get_validstation(u16 freq)
 {	 
-#if 1
+#ifdef RDA5807
 	return set_fre_RDA5807(freq);
 #else
     if(cur_sw_fm_band==0){
@@ -879,9 +917,11 @@ void fm_hdlr( void )
 	     timer_pwr_off_hdlr();
 #endif
 
-//#ifdef RADIO_ST_INDICATOR
-	 	//KT_Radio_ST_Check();
-//#endif
+#ifdef RADIO_ST_INDICATOR
+#ifdef RADIO_USE_KT0913
+	 	KT_Radio_ST_Check();
+#endif
+#endif
 
 	    if(adkey_detect){
 	   	    adkey_detect=0;
@@ -995,7 +1035,9 @@ void fm_radio(void)
 	radio_st_ind_enable=0;
 #endif
 
+#ifdef GPIO_SEL_BAND_INFO_CONFIG
 	scan_gpio_band_info_config();
+#endif
 	radio_pre_init();
 	
        if(radio_dev_init()==0)

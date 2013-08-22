@@ -388,6 +388,11 @@ xd_u8 KT_AMFMInit(void)                            //0->Fail 1->Success
 //	regx = KT_Bus_Read(0x16);
 //	KT_Bus_Write(0x16, (regx | 0x0001));			//
 
+	KT_Bus_Write(0x1E, 0x0001);								//DIVIDERP<9:0>=1
+	KT_Bus_Write(0x1F, 0x029C);								//DIVIDERN<9:0>=668
+	regx = KT_Bus_Read(0x16);
+	KT_Bus_Write(0x16, 	regx & 0xD0FF);       				//reference clock=32.768K;
+	
 	return(1);
 }
 /************************************************************************************/
@@ -644,6 +649,7 @@ xd_u8 KT_FMTune(xd_u16 Frequency) //87.5MHz-->Frequency=8750; Mute the chip and 
 	KT_Bus_Write(0x16, 	regx & 0xD0FF);       				//reference clock=32.768K;
 
 	regx=KT_Bus_Read(0x0A);
+	
 	if(
 		(Frequency == 8920) || (Frequency == 8780)	|| (Frequency == 9030)	|| (Frequency == 9440)	||
 		(Frequency == 9850) || (Frequency == 10260) || (Frequency == 10670) || (Frequency == 9170)	|| (Frequency == 9580)	||
@@ -1585,6 +1591,7 @@ xd_u8 KT_AMFMSeekFromCurrentCh(xd_u16 seekDir, xd_u16 *Frequency)   //     seekD
 /************************************************************************************/
 xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station //check AFC_DELTA only
 {
+	u8 ret_var=0;
 	xd_u16 nextfreq;
 	char afc[3];							//AFC value for previous, current and next channels
 	xd_u16 freq[3];							//frequency values for previous, current and next channels
@@ -1594,9 +1601,12 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 	char i,j;
 	xd_u8 snr2,snr3;
 
-	if(Frequency==9600){
+#if 1
+	if( (Frequency==9600)||(Frequency==9605)||(Frequency==10200)){
+		KT_FMTune(Frequency);
 		return 0;
 	}
+#endif	
 	
 	afc[0]=0;afc[1]=0;afc[2]=0;				//initialize
 	freq[0]=0;freq[1]=0;freq[2]=0;			//initialize
@@ -1649,25 +1659,47 @@ xd_u8 KT_FMValidStation(xd_u16 Frequency) //0-->False Station 1-->Good Station /
 #ifdef RADIO_ST_INDICATOR
 	     		radio_st_ind=1;
 #endif
-			return(1);
+			ret_var=1;
+			goto __KT_FM_TUNE_END;
+			//return(1);
 		}
-		if ((snr[1]<FM_SNR_TH) && (snr2<FM_SNR_TH)) return(0);
+		if ((snr[1]<FM_SNR_TH) && (snr2<FM_SNR_TH)){
+			//KT_FMTune(Frequency);
+			ret_var=0;
+			goto __KT_FM_TUNE_END;
+			//return(0);
+		}
 		//delay_10ms(1);
 		snr3=KT_FMGetSNR();
 		if (snr3>=FM_SNR_TH){
 #ifdef RADIO_ST_INDICATOR
 		     	radio_st_ind=1;
 #endif
-			return(1);
+			ret_var=1;
+			goto __KT_FM_TUNE_END;
+			//return(1);
 		}
-		else return(0);
+		else{
+			//KT_FMTune(Frequency);
+			ret_var=0;
+			goto __KT_FM_TUNE_END;			
+			//return(0);
+		}
+			
 #else
 		return(1);
 #endif
 
 	}
-	else
-		return(0);
+	else{
+		//KT_FMTune(Frequency);
+		//return(0);
+		ret_var=0;
+	}
+
+__KT_FM_TUNE_END:
+	KT_FMTune(Frequency);
+	return ret_var;
 }
 #if 0
 /*****************************************************************************/
@@ -1997,12 +2029,21 @@ void KT_Mute_Ctrl(bool m_f)
 	}
 }
 #ifdef RADIO_ST_INDICATOR
+bool kt_st_enable=1;
+void KT_Radio_ST_Switcher(u8 sw)
+{
+	kt_st_enable = sw;
+}
 void KT_Radio_ST_Check()
 {
 	static u8 st_check_timer=0;
 	u16 regx=0;
 	char rssi_value;
-	
+
+	if(!kt_st_enable){
+		radio_st_ind=0;
+		return;
+	}
 	if((st_check_timer++>3)&&(cur_sw_fm_band==FM_MODE)){
 
 		st_check_timer=0;
