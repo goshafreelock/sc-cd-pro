@@ -391,6 +391,7 @@ void Blue_tooth_hdlr( void )
 				promt_dev_disconnect = 1;
 #if defined(BLUE_TOOTH_UART_FUNC)			
 				promt_bt_cmd(BT_FAST_PAIRING_MODE);		
+				promt_bt_cmd(BT_FAST_PAIRING_MODE);		
 #endif			
 			}
 		}
