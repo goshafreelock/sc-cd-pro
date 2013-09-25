@@ -125,13 +125,9 @@ static xd_u8 gpio_sel_band_info_config=0;
 
 void scan_gpio_band_info_config()
 {
-	EA =0;
+	//EA =0;
 	Init_band_gpio();
-	_nop_();
-	_nop_();
-	_nop_();
-	_nop_();
-
+	delay_10ms(1);
 	gpio_sel_band_info_config=0;
 
 	if(band_sel_gpio){
@@ -141,9 +137,9 @@ void scan_gpio_band_info_config()
 #ifdef FM_UART_ENABLE
 	    	printf("------->-scan_gpio_band_info_config    \r\n");
 #endif
-	band_sel_gpio_off();
+	//band_sel_gpio_off();
 	//P0DIR &= ~(BIT(7)); 
-	EA =1;
+	//EA =1;
 }
 u8 get_band_info_config()
 {
@@ -183,14 +179,17 @@ void load_preset_table(u8 pre_cmd)
 	else if(pre_cmd==RESET_FM_PRESET){
 		p=fm_p_freq;
 		epprom_offset=FM_CH_OFFSET;
+    		save_radio_freq(fm_p_freq[0],MEM_FREQ_BASE);
 	}
 	else if(pre_cmd==RESET_EUR_AM_PRESET){
 		p=am_eur_freq;
 		epprom_offset=AM_CH_OFFSET;
+    		save_radio_freq(am_eur_freq[0],MEM_FREQ_BASE+2);
 	}
 	else if(pre_cmd==RESET_USA_AM_PRESET){
 		p=am_usa_freq;
 		epprom_offset=AM_CH_OFFSET;
+    		save_radio_freq(am_usa_freq[0],MEM_FREQ_BASE+2);
 	}
 #if 0	
 	for(i=0;i<FM_MAX_CH;i++){
@@ -214,45 +213,45 @@ void load_preset_table(u8 pre_cmd)
 
 	}
 }
-void radio_preset_init()
+void radio_preset_init(bool preset_cmd)
 {
 	xd_u8 preset_reg=0;
 
 #ifdef CUSTOMED_KEY_FORCED_INIT_PRESET
-	if(radio_force_preset>0)
+	if((radio_force_preset>0)&&(preset_cmd))
 	{
+#ifdef FM_UART_ENABLE
+	    	printf("------->manual-reset  station    \r\n");
+#endif
+	
 		radio_force_preset = 0;
 		Disp_Con(DISP_SCAN_TOC);
 		delay_10ms(100);
              	set_radio_freq(FM_CUR_FRE,SHOW_FREQ);		
-#else		
+	}
+	else{
+
+		preset_cmd =0;
+	}
+#endif
+
 	preset_reg =read_info(MEM_PRESET_REG);
 
-
 #ifdef GPIO_SEL_BAND_INFO_CONFIG			
-	if((((preset_reg&PRESET_MASK)==PRESET_OK)&&((preset_reg&PRESET_ZONE_MASK)==gpio_sel_band_info_config))){		
+	if((((preset_reg&PRESET_MASK)==PRESET_OK)&&((preset_reg&PRESET_ZONE_MASK)!=gpio_sel_band_info_config))||(preset_cmd)){		
 #else
 	if(((preset_reg&PRESET_MASK)==PRESET_OK)){
 #endif
 
-
 #ifdef FM_UART_ENABLE
 	    	printf("------->-station form  epprom    \r\n");
 #endif
-		//4 load preset station form  epprom
-		if(cur_sw_fm_band==0)
-			load_preset_table(GET_FM_PRESET_FROM_EPPROM);
-		else if(cur_sw_fm_band==1)
-			load_preset_table(GET_AM_PRESET_FROM_EPPROM);
-	}
-	else{
-#endif
+
 #ifdef FM_UART_ENABLE
 	    	printf("------->-station form  TABLE   \r\n");
 #endif		
 		//4  reset FM Preset
 		load_preset_table(RESET_FM_PRESET);
-
 
 		//4 reset AM Preset
 		
@@ -364,11 +363,14 @@ void set_radio_freq(u8 mode,bool disp_pro)
 }
 void radio_pre_init()
 {
+
+#ifndef AM_RADIO_FUNC
 	cur_sw_fm_band =0;
 
 	Current_Band.Tune_Step = 10;
 	Current_Band.Seek_Step= 10;
-	
+#endif
+
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
 
 	if(get_band_info_config()==0){
@@ -856,7 +858,8 @@ void fm_hdlr( void )
 
 #ifdef CUSTOMED_KEY_FORCED_INIT_PRESET
 	case INFO_PLAY |KEY_LONG:
-		radio_preset_init();
+		radio_preset_init(FORCE_RESET);
+		radio_band_hdlr();
 		break;
 #endif
 
@@ -1037,7 +1040,11 @@ void fm_radio(void)
 
 #ifdef GPIO_SEL_BAND_INFO_CONFIG
 	scan_gpio_band_info_config();
-#endif
+#if 1//ndef CUSTOMED_KEY_FORCED_INIT_PRESET
+	radio_preset_init(AUTO_RESET);
+#endif		
+#endif		
+
 	radio_pre_init();
 	
        if(radio_dev_init()==0)
@@ -1048,11 +1055,6 @@ void fm_radio(void)
 	//else
 	{
 
-#ifdef GPIO_SEL_BAND_INFO_CONFIG
-#ifndef CUSTOMED_KEY_FORCED_INIT_PRESET
-		radio_preset_init();
-#endif		
-#endif		
 		sysclock_div2(1);
 #if SDMMC_CMD_MODE
 		sd_chk_ctl(SET_SD_L_CHK);
@@ -1089,6 +1091,8 @@ void fm_radio(void)
 	    	mode_switch_protect_bit=1;
 #endif			
 		main_vol_set(0, CHANGE_VOL_NO_MEM);
+
+		restore_station_enable=0;
 
 	    	radio_rev_standby();
 #if SDMMC_CMD_MODE

@@ -56,4 +56,10 @@ typedef enum {
 	SEARCH_DN,
 }AUTO_DIR;
 
+enum {
+
+	AUTO_RESET=0,
+	FORCE_RESET,
+};
+
 #endif
