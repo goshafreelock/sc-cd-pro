@@ -507,6 +507,10 @@ void sys_init(void)
 #endif	
     work_mode = read_info(MEM_SYSMODE);
 
+#ifdef CUSTOMED_POWER_ON_AT_RADIO_MODE
+	work_mode  = SYS_FMREV;
+#endif
+
     if (work_mode  == SYS_MP3DECODE_USB){
 
 #ifdef REMOVE_USE_MODE
