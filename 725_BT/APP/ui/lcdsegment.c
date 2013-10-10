@@ -353,7 +353,9 @@ void align_lcd_disp_buff(u8 offset,u8 letter_data)
        lcd_buff[3] |= (((letter_data & DIG_D)>>2)|((letter_data & DIG_E)>>4))<<digit_idx;   	 
 }
 #endif
-#elif defined(JK_CD_HYH_728_V001)
+
+#elif defined(JK_CD_HYH_728_V001)||defined(NEW_CD_GS_3012BT_V001)
+
 u8 _code lcd_disbuf_offset[4] ={0,1,2,3};
 void align_lcd_disp_buff(u8 offset,u8 letter_data)
 {
