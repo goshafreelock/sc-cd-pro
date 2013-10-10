@@ -921,9 +921,15 @@ void fm_hdlr( void )
 #endif
 
 #ifdef RADIO_ST_INDICATOR
+
 #ifdef RADIO_USE_KT0913
 	 	KT_Radio_ST_Check();
 #endif
+
+#ifdef RDA5807
+	 	RDA5807_Radio_ST_Check();
+#endif
+
 #endif
 
 	    if(adkey_detect){

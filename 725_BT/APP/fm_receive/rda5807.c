@@ -486,10 +486,29 @@ void RDA5807_ST_MONO_Swither(bool sw)
 	}
 	else 
 	{	 
+		radio_st_ind=0;
 		rda5807_dat[0] |= 0x20;// MONO
 	}
 	
 	rda5807_write(2);
+}
+void RDA5807_Radio_ST_Check(void)
+{
+#ifdef RADIO_ST_INDICATOR
+	if(radio_st_mono_swither){
+
+        	rda5807_read(4);
+		if(rda5807_true())
+		{
+			if(rda5807_st()){
+			     	radio_st_ind=1;
+			}
+		}
+		else{
+			     	radio_st_ind=0;
+		}
+	}
+#endif		
 }
 #endif
 
